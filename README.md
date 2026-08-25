@@ -66,4 +66,4 @@ The default server store is process-local and resets on restart. The map is rend
 
 ## Replacing synthetic providers
 
-Implement an adapter behind the existing API boundary for each authorized source: persist raw source reference and `source_type=API`, map provider errors to `DATA SOURCE UNAVAILABLE`, preserve unknown entities instead of guessing, and require credentials only through server environment/secrets. Add contract tests with recorded authorized fixtures, apply RLS and role checks, retain model provenance, and require investigator review before any intervention request is submitted through an institutional channel.
+Implement an adapter behind the existing API boundary for each authorized source: persist raw source reference and `source_type=API`, map provider errors to `DATA SOURCE UNAVAILABLE`, preserve unknown entities instead of guessing, and require credentials only through server environment/secrets. Add contract tests with recorded authorized fixtures, apply RLS and role checks, retain model provenance, and require investigator review before any intervention request is submitted through an institutional channel.# CASHNET
