@@ -1,0 +1,4245 @@
+============================================================
+                         CASHNET
+============================================================
+
+CYBERCRIME FINANCIAL FLOW, BLOCKCHAIN INTELLIGENCE &
+PREDICTIVE CASH-OUT ANALYSIS NETWORK
+
+============================================================
+COMPLETE PROJECT DEVELOPMENT SPECIFICATION
+============================================================
+
+
+============================================================
+1. PROJECT CONTEXT
+============================================================
+
+Build a complete full-stack investigative intelligence platform
+named:
+
+CASHNET
+
+Full name:
+
+Cybercrime Financial Flow, Blockchain Intelligence &
+Predictive Cash-Out Analysis Network
+
+Target stakeholder / intended institutional context:
+
+Indian Cyber Crime Coordination Centre (I4C)
+CIS Division
+Ministry of Home Affairs
+Government of India
+
+CASHNET is a research/prototype decision-support platform intended
+to assist authorized cybercrime investigators in analyzing
+financial and cryptocurrency fund movement associated with
+cybercrime complaints.
+
+The system must work completely using SYNTHETIC DATA for the MVP.
+
+It must be architected so that authorized real-world data
+providers, banking systems, blockchain intelligence providers,
+government systems, and VASP systems can be integrated later
+through secure APIs.
+
+DO NOT claim that CASHNET currently has direct access to:
+
+- NCRP
+- SAHYOG
+- bank internal systems
+- UPI internal systems
+- law-enforcement databases
+- VASP internal databases
+- confidential government systems
+
+unless explicitly configured with authorized APIs.
+
+Use synthetic data and clearly label it as synthetic.
+
+============================================================
+2. CORE PURPOSE
+============================================================
+
+CASHNET must connect the entire investigative chain:
+
+CYBERCRIME COMPLAINT
+        ↓
+FINANCIAL INDICATORS
+        ↓
+ACCOUNT / WALLET ANALYSIS
+        ↓
+TRANSACTION ANALYSIS
+        ↓
+FUND-FLOW RECONSTRUCTION
+        ↓
+VISUAL MONEY-FLOW GRAPH
+        ↓
+RISK ANALYSIS
+        ↓
+CRYPTOCURRENCY ANALYSIS
+        ↓
+VASP ATTRIBUTION
+        ↓
+CROSS-BORDER / CROSS-CHAIN ANALYSIS
+        ↓
+GEOSPATIAL ANALYSIS
+        ↓
+PREDICTIVE CASH-OUT LOCATIONS
+        ↓
+PREDICTIVE HEATMAP
+        ↓
+ACTIONABLE INVESTIGATIVE INTELLIGENCE
+        ↓
+LAST KNOWN RECIPIENT IDENTIFICATION
+        ↓
+BANK / BRANCH RESOLUTION
+        ↓
+AUTHORIZED INTERVENTION REQUEST
+        ↓
+INVESTIGATOR REVIEW
+        ↓
+AUDIT TRAIL
+
+
+============================================================
+3. IMPORTANT ADVERSARIAL ASSUMPTIONS
+============================================================
+
+Do NOT assume that fraudsters:
+
+- use the same bank as the victim
+- use one bank account
+- use one mule account
+- use one wallet
+- directly withdraw funds
+- stay within India
+- use only one blockchain
+- use only one VASP
+- transfer funds linearly
+- immediately cash out
+- keep the same identity across accounts
+- use obvious transaction patterns
+
+The system must support complex fund movement.
+
+Example:
+
+Victim
+  ↓
+Bank Account A
+  ↓
+Mule Account B
+  ↓
+Mule Account C
+  ├────────→ Account D
+  ├────────→ VASP A
+  └────────→ Wallet A
+
+Wallet A
+  ↓
+Wallet B
+  ↓
+Foreign VASP
+  ↓
+Foreign Wallet
+  ↓
+Bank Account
+  ↓
+ATM / Cash-out
+
+
+============================================================
+4. TECHNOLOGY STACK
+============================================================
+
+FRONTEND:
+
+- React
+- TypeScript
+- Tailwind CSS
+- React Router
+- React Leaflet
+- Leaflet
+- React Flow or Cytoscape.js
+- Recharts
+- Lucide Icons
+
+BACKEND:
+
+- Python
+- FastAPI
+- Pydantic
+- SQLAlchemy where appropriate
+
+DATABASE:
+
+- Supabase
+- PostgreSQL
+- Supabase Auth
+- Supabase Storage
+- PostGIS
+
+DATA ANALYSIS:
+
+- Pandas
+- NumPy
+
+GRAPH:
+
+- NetworkX
+
+MACHINE LEARNING:
+
+- scikit-learn
+- XGBoost
+- PyTorch
+- PyTorch Geometric
+
+GEOSPATIAL:
+
+- GeoPandas
+- Shapely
+- OSMnx
+
+BLOCKCHAIN:
+
+Create provider architecture for:
+
+- Blockchair
+- Etherscan
+- future blockchain intelligence APIs
+
+SUPPORTED BLOCKCHAINS:
+
+- Bitcoin
+- Ethereum
+- Tron
+- BNB Chain
+- Solana
+- Polygon
+
+STREAMING:
+
+- Apache Kafka
+
+SEARCH / OPERATIONS:
+
+- Elasticsearch
+- Kibana
+
+DEPLOYMENT:
+
+- Docker
+- Docker Compose
+
+
+============================================================
+5. REPLIT COMPATIBILITY
+============================================================
+
+The application is being developed initially in Replit.
+
+Do not make the application dependent on Replit-specific
+runtime features.
+
+The project must remain portable.
+
+The application must work even if:
+
+- Kafka is unavailable
+- Elasticsearch is unavailable
+- Kibana is unavailable
+- blockchain APIs are unavailable
+- external banking APIs are unavailable
+- external VASP APIs are unavailable
+
+Use provider interfaces and local/synthetic implementations.
+
+The MVP must work using:
+
+React
++
+FastAPI
++
+Supabase/PostgreSQL
++
+Python ML/graph/geospatial libraries
++
+synthetic datasets
+
+
+============================================================
+6. COMPLETE PROJECT STRUCTURE
+============================================================
+
+Create:
+
+/
+
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   └── charts/
+│   └── package.json
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   │
+│   │   ├── api/
+│   │   │
+│   │   ├── models/
+│   │   │
+│   │   ├── schemas/
+│   │   │
+│   │   ├── services/
+│   │   │
+│   │   ├── graph/
+│   │   │
+│   │   ├── ml/
+│   │   │
+│   │   ├── blockchain/
+│   │   │
+│   │   ├── geospatial/
+│   │   │
+│   │   ├── interventions/
+│   │   │
+│   │   ├── providers/
+│   │   │
+│   │   ├── auth/
+│   │   │
+│   │   └── audit/
+│   │
+│   ├── requirements.txt
+│   └── tests/
+│
+├── data/
+│   ├── synthetic/
+│   ├── processed/
+│   └── examples/
+│
+├── ml/
+│   ├── training/
+│   ├── models/
+│   ├── evaluation/
+│   └── notebooks/
+│
+├── database/
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── migrations/
+│
+├── docker/
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   └── docker-compose.yml
+│
+├── docs/
+│   ├── architecture.md
+│   ├── database.md
+│   ├── api.md
+│   ├── fund-flow.md
+│   ├── blockchain.md
+│   ├── ml.md
+│   ├── geospatial.md
+│   ├── interventions.md
+│   └── deployment.md
+│
+├── scripts/
+│
+├── .env.example
+├── README.md
+└── docker-compose.yml
+
+
+============================================================
+7. USER AUTHENTICATION
+============================================================
+
+Use Supabase Auth.
+
+Roles:
+
+ADMIN
+INVESTIGATOR
+ANALYST
+VIEWER
+
+Implement:
+
+- login
+- logout
+- protected routes
+- role-based access
+- session management
+
+Never expose:
+
+SUPABASE_SERVICE_ROLE_KEY
+
+to the frontend.
+
+Use environment variables.
+
+
+============================================================
+8. MAIN APPLICATION NAVIGATION
+============================================================
+
+Create the following navigation:
+
+Dashboard
+
+Cases
+
+Financial Intelligence
+
+Fund Flow
+
+Crypto Intelligence
+
+VASP Intelligence
+
+Geospatial Intelligence
+
+Predictive Cash-out
+
+Alerts
+
+Interventions
+
+Reports
+
+Evidence
+
+Audit Logs
+
+Settings
+
+
+============================================================
+9. DASHBOARD
+============================================================
+
+Create an investigator-oriented dashboard.
+
+Display:
+
+ACTIVE CASES
+HIGH-RISK CASES
+TRANSACTIONS ANALYZED
+ENTITIES ANALYZED
+WALLETS ANALYZED
+PROBABLE VASPs
+CROSS-BORDER FLOWS
+PREDICTED CASH-OUT HOTSPOTS
+PENDING INTERVENTIONS
+
+Charts:
+
+Transaction volume
+Fraud amount
+Fund-flow activity
+Risk distribution
+Blockchain activity
+Geographic activity
+
+Recent cases table.
+
+High-risk alerts panel.
+
+Pending intervention panel.
+
+
+============================================================
+10. CASE MANAGEMENT
+============================================================
+
+Create a complete case management system.
+
+CASE FIELDS:
+
+case_id
+complaint_reference
+ncrp_reference
+title
+fraud_type
+reported_amount
+incident_date
+complaint_date
+victim_state
+victim_district
+victim_city
+priority
+status
+description
+assigned_investigator
+created_at
+updated_at
+
+STATUS:
+
+NEW
+UNDER_ANALYSIS
+INVESTIGATION
+HIGH_PRIORITY
+CLOSED
+ARCHIVED
+
+PRIORITY:
+
+LOW
+MEDIUM
+HIGH
+CRITICAL
+
+
+============================================================
+11. COMPLAINT INGESTION
+============================================================
+
+Create complaint form.
+
+Input:
+
+Victim information
+Reported amount
+Transaction IDs
+Bank accounts
+UPI IDs
+Phone numbers
+Wallet addresses
+Payment references
+Dates
+Locations
+Description
+
+Sensitive values must be masked in the UI.
+
+Example:
+
+Bank Account:
+
+XXXXXX1234
+
+UPI:
+
+sa****@bank
+
+Wallet:
+
+0x1234...ABCD
+
+
+============================================================
+12. UNIFIED ENTITY MODEL
+============================================================
+
+CASHNET must use a unified investigative graph.
+
+ENTITY TYPES:
+
+VICTIM
+
+BANK_ACCOUNT
+
+BANK
+
+BANK_BRANCH
+
+UPI_ID
+
+PAYMENT_ID
+
+TRANSACTION
+
+MULE_ACCOUNT
+
+MERCHANT
+
+CRYPTO_WALLET
+
+VASP
+
+EXCHANGE
+
+ATM
+
+UNKNOWN_ENTITY
+
+FOREIGN_ENTITY
+
+LOCATION
+
+CASH_OUT_LOCATION
+
+
+RELATIONSHIPS:
+
+OWNS
+
+CONTROLS
+
+TRANSFERRED_TO
+
+RECEIVED_FROM
+
+DEPOSITED_TO
+
+WITHDRAWN_FROM
+
+CONVERTED_TO
+
+ASSOCIATED_WITH
+
+INTERACTED_WITH
+
+POSSIBLE_VASP_LINK
+
+LOCATED_AT
+
+
+Every relationship should support:
+
+timestamp
+amount
+currency
+transaction_id
+source
+confidence
+
+
+============================================================
+13. FINANCIAL ACCOUNT INTELLIGENCE
+============================================================
+
+Create a dedicated:
+
+FINANCIAL ACCOUNT INTELLIGENCE
+
+module.
+
+For every bank account display:
+
+Account number
+masked account number
+Bank
+IFSC
+Branch
+State
+District
+Account risk
+Total inflow
+Total outflow
+Transaction count
+Unique senders
+Unique recipients
+First activity
+Last activity
+Fund-flow position
+
+Example:
+
+ACCOUNT INTELLIGENCE
+
+Account:
+XXXXXX1234
+
+Bank:
+Example Bank
+
+IFSC:
+XXXX0001234
+
+Branch:
+Example Branch
+
+Risk:
+91/100
+
+Total Inflow:
+₹8,42,000
+
+Total Outflow:
+₹8,17,500
+
+Transactions:
+57
+
+Unique Senders:
+17
+
+Unique Recipients:
+23
+
+
+============================================================
+14. ACCOUNT BEHAVIOR ANALYSIS
+============================================================
+
+Analyze:
+
+transaction velocity
+incoming transaction count
+outgoing transaction count
+average transaction amount
+maximum transaction
+minimum transaction
+inflow/outflow ratio
+time between incoming and outgoing transactions
+rapid fund movement
+fan-in
+fan-out
+transaction fragmentation
+account centrality
+geographic diversity
+cross-border indicators
+crypto conversion
+cash-out behavior
+
+Display explainable indicators.
+
+Example:
+
+HIGH VELOCITY
+
+RAPID ONWARD TRANSFERS
+
+MULTIPLE UNRELATED SENDERS
+
+HIGH FAN-OUT
+
+CROSS-BORDER MOVEMENT
+
+
+============================================================
+15. TRANSACTION HISTORY
+============================================================
+
+Every account must have a transaction history page.
+
+Columns:
+
+Transaction ID
+Timestamp
+Source
+Destination
+Amount
+Currency
+Type
+Status
+Risk
+Case
+Confidence
+
+Filters:
+
+date
+amount
+risk
+transaction type
+source
+destination
+case
+
+Clicking a transaction opens:
+
+transaction details
+related entities
+fund-flow location
+evidence
+risk analysis
+
+
+============================================================
+16. FUND-FLOW ENGINE
+============================================================
+
+This is one of the CORE components of CASHNET.
+
+Use NetworkX.
+
+Create:
+
+backend/app/graph/fund_flow.py
+
+The system must reconstruct multi-hop fund flows.
+
+Example:
+
+Victim
+↓
+Account A
+↓
+Account B
+↓
+Account C
+↓
+VASP
+↓
+Wallet A
+↓
+Wallet B
+↓
+Foreign VASP
+↓
+Bank Account
+↓
+ATM
+
+
+Support:
+
+linear flow
+fan-in
+fan-out
+fragmentation
+aggregation
+multiple intermediaries
+cross-border movement
+bank-to-crypto
+crypto-to-bank
+crypto-to-crypto
+incomplete flow
+unknown entities
+
+
+============================================================
+17. FUND-FLOW CALCULATIONS
+============================================================
+
+For each path calculate:
+
+hop count
+total amount
+remaining amount
+amount lost/converted
+time between hops
+velocity
+number of intermediaries
+number of countries
+number of chains
+number of VASPs
+number of bank accounts
+number of wallets
+risk score
+confidence
+
+
+============================================================
+18. FUND-FLOW VISUALIZATION
+============================================================
+
+Create a dedicated:
+
+FUND FLOW INTELLIGENCE
+
+page.
+
+Use:
+
+React Flow
+OR
+Cytoscape.js
+
+The graph must be interactive.
+
+Nodes:
+
+Victim
+Bank Account
+Mule Account
+Bank
+Branch
+UPI
+VASP
+Exchange
+Wallet
+ATM
+Unknown
+Foreign Entity
+Predicted Cash-out Location
+
+
+Edges:
+
+transactions.
+
+
+============================================================
+19. VISUAL MONEY MOVEMENT
+============================================================
+
+The fund-flow graph must support animated transaction playback.
+
+Controls:
+
+PLAY
+PAUSE
+RESET
+NEXT
+PREVIOUS
+
+Speed:
+
+0.5x
+1x
+2x
+5x
+
+The playback must follow transaction timestamps.
+
+Example:
+
+10:01
+
+Victim
+  |
+  | ₹2,00,000
+  ↓
+Mule A
+
+10:03
+
+Mule A
+  |
+  | ₹1,95,000
+  ↓
+Mule B
+
+10:07
+
+Mule B
+  ├── ₹80,000 → Account C
+  └── ₹1,10,000 → VASP A
+
+The UI should visually animate the movement along edges.
+
+
+============================================================
+20. FUND-FLOW CONTROLS
+============================================================
+
+Implement:
+
+Search
+
+Zoom
+
+Pan
+
+Fit Graph
+
+Reset
+
+Trace Upstream
+
+Trace Downstream
+
+Trace Both
+
+Shortest Path
+
+Highest Value Path
+
+Highest Risk Path
+
+Most Recent Path
+
+Cross-Border Path
+
+Show Banks
+
+Show Accounts
+
+Show Wallets
+
+Show VASPs
+
+Show ATMs
+
+Show Unknown
+
+Filter by Risk
+
+Filter by Amount
+
+Filter by Date
+
+Play Flow
+
+Export Graph
+
+
+============================================================
+21. UPSTREAM / DOWNSTREAM ANALYSIS
+============================================================
+
+UPSTREAM:
+
+Answer:
+
+"Where did this money come from?"
+
+Example:
+
+Account C
+↑
+Account B
+↑
+Account A
+↑
+Victim
+
+
+DOWNSTREAM:
+
+Answer:
+
+"Where did this money go?"
+
+Example:
+
+Account C
+↓
+VASP
+↓
+Wallet A
+↓
+Wallet B
+↓
+Foreign VASP
+
+
+BIDIRECTIONAL:
+
+Show both.
+
+
+============================================================
+22. FUND SPLITTING
+============================================================
+
+Support:
+
+Victim
+↓
+₹2,00,000
+↓
+Mule A
+
+Then:
+
+Mule A
+├── ₹80,000 → Account B
+├── ₹70,000 → Account C
+└── ₹50,000 → VASP
+
+Display each branch visually.
+
+Calculate:
+
+branch amount
+percentage
+timestamp
+destination risk
+
+
+============================================================
+23. FUND AGGREGATION
+============================================================
+
+Support:
+
+Account A ─₹50,000─┐
+Account B ─₹80,000─┼→ Account D
+Account C ─₹70,000─┘
+
+Display:
+
+Total received:
+₹2,00,000
+
+Sources:
+3
+
+
+============================================================
+24. UNKNOWN ENTITIES
+============================================================
+
+Do not fabricate missing information.
+
+If:
+
+Wallet A
+↓
+UNKNOWN
+↓
+VASP
+
+display:
+
+UNKNOWN ENTITY
+
+and allow investigators to inspect:
+
+transactions
+timestamps
+amounts
+counterparties
+chain
+risk
+confidence
+
+
+============================================================
+25. INVESTIGATION TIMELINE
+============================================================
+
+Create synchronized timeline.
+
+Example:
+
+10:01
+Victim → Mule A
+₹2,00,000
+
+10:03
+Mule A → Mule B
+₹1,95,000
+
+10:07
+Mule B → VASP
+₹1,90,000
+
+10:11
+VASP → Wallet A
+
+10:16
+Wallet A → Wallet B
+
+
+Timeline must synchronize with fund-flow playback.
+
+
+============================================================
+26. CRYPTO WALLET INTELLIGENCE
+============================================================
+
+Create a dedicated:
+
+CRYPTO INTELLIGENCE
+
+module.
+
+For each wallet display:
+
+wallet address
+blockchain
+first seen
+last active
+total inflow
+total outflow
+transaction count
+unique counterparties
+token/asset types
+risk score
+probable VASP
+confidence
+
+
+Example:
+
+CRYPTO WALLET
+
+0x7A...92F
+
+Blockchain:
+Ethereum
+
+Risk:
+87/100
+
+Total Inflow:
+$84,230
+
+Total Outflow:
+$81,910
+
+Transactions:
+247
+
+Unique Counterparties:
+63
+
+
+============================================================
+27. WALLET TRANSACTION ANALYSIS
+============================================================
+
+Display:
+
+Transaction hash
+Block number
+Timestamp
+From
+To
+Asset
+Amount
+Contract
+Direction
+Risk
+
+Support:
+
+incoming
+outgoing
+
+
+============================================================
+28. BLOCKCHAIN TRACING
+============================================================
+
+Create:
+
+BlockchainProvider
+
+Methods:
+
+get_transactions()
+get_balance()
+get_token_transfers()
+trace_wallet()
+get_transaction()
+get_block()
+
+Providers:
+
+SyntheticBlockchainProvider
+
+BlockchairProvider
+
+EtherscanProvider
+
+The synthetic provider is the default.
+
+External providers must use environment variables for API keys.
+
+
+============================================================
+29. BLOCKCHAINS
+============================================================
+
+Architecturally support:
+
+Bitcoin
+
+Ethereum
+
+Tron
+
+BNB Chain
+
+Solana
+
+Polygon
+
+
+If a provider does not support a particular chain:
+
+return:
+
+PROVIDER_UNAVAILABLE
+
+Do not fabricate data.
+
+
+============================================================
+30. WALLET FUND-FLOW
+============================================================
+
+Wallets must participate in the same unified fund-flow graph.
+
+Example:
+
+Bank Account
+↓
+VASP
+↓
+Wallet A
+↓
+Wallet B
+↓
+Wallet C
+↓
+VASP B
+↓
+Bank Account
+
+
+Wallet analysis must connect back to the financial fund-flow.
+
+
+============================================================
+31. VASP ATTRIBUTION
+============================================================
+
+Create:
+
+VASP Intelligence
+
+Given a wallet:
+
+rank probable VASPs.
+
+Example:
+
+VASP A
+Confidence:
+91%
+
+VASP B
+Confidence:
+64%
+
+VASP C
+Confidence:
+29%
+
+
+Evidence:
+
+known deposit address
+known cluster
+direct interaction
+graph proximity
+transaction behavior
+historical association
+
+
+Classifications:
+
+DIRECT
+
+CLUSTER_BASED
+
+HEURISTIC
+
+INFERRED
+
+UNKNOWN
+
+
+Never describe an inferred attribution as confirmed.
+
+
+============================================================
+32. CRYPTO GRAPH ANALYSIS
+============================================================
+
+Create wallet graph.
+
+Example:
+
+Wallet A
+   |
+   +---- Wallet B
+   |
+   +---- Wallet C
+             |
+             ↓
+           VASP
+
+
+Support:
+
+upstream tracing
+downstream tracing
+path analysis
+centrality
+clusters
+risk
+counterparties
+
+
+============================================================
+33. CROSS-CHAIN ANALYSIS
+============================================================
+
+Architecturally support:
+
+Ethereum
+Bitcoin
+Tron
+BNB Chain
+Solana
+Polygon
+
+
+Represent:
+
+bridges
+swaps
+cross-chain transfers
+wrapped assets
+
+
+If a cross-chain movement cannot be verified:
+
+display:
+
+POSSIBLE CROSS-CHAIN MOVEMENT
+
+not:
+
+CONFIRMED CROSS-CHAIN MOVEMENT.
+
+
+============================================================
+34. CROSS-BORDER ANALYSIS
+============================================================
+
+Detect:
+
+India → foreign
+foreign → India
+India → foreign VASP
+foreign VASP → wallet
+multiple countries
+
+Display:
+
+source country
+destination country
+intermediate countries
+timestamp
+amount
+asset
+confidence
+
+
+Generate:
+
+CROSS-BORDER FLOW
+
+
+============================================================
+35. RISK ENGINE
+============================================================
+
+Use:
+
+scikit-learn
+
+XGBoost
+
+Features:
+
+transaction amount
+transaction velocity
+transaction frequency
+number of hops
+fan-in
+fan-out
+graph centrality
+time gaps
+account behavior
+wallet behavior
+cross-border movement
+country changes
+amount fragmentation
+VASP proximity
+cash-out history
+geographic features
+
+
+Output:
+
+Risk Score:
+
+0–100
+
+
+Categories:
+
+LOW
+
+MEDIUM
+
+HIGH
+
+CRITICAL
+
+
+Every prediction must include:
+
+score
+category
+confidence
+top contributing features
+model version
+
+
+Do not state that an entity is criminal.
+
+The model identifies suspicious patterns.
+
+
+============================================================
+36. GRAPH NEURAL NETWORK
+============================================================
+
+Use:
+
+PyTorch
+
+PyTorch Geometric
+
+Implement optional GNN experiments for:
+
+node classification
+link prediction
+graph anomaly detection
+risk prediction
+
+
+Create:
+
+ml/training/train_gnn.py
+
+
+The system must continue working if the GNN is unavailable.
+
+Fallback:
+
+XGBoost / scikit-learn.
+
+
+============================================================
+37. EXPLAINABLE AI
+============================================================
+
+Every model result must show:
+
+prediction
+confidence
+model version
+features
+reasoning indicators
+
+
+Example:
+
+Risk:
+
+91/100
+
+Contributing factors:
+
+High transaction velocity
+
+Multiple intermediary accounts
+
+Rapid onward transfers
+
+Cross-border movement
+
+High graph centrality
+
+
+============================================================
+38. GEOSPATIAL INTELLIGENCE
+============================================================
+
+Use:
+
+GeoPandas
+
+Shapely
+
+OSMnx
+
+Leaflet
+
+React Leaflet
+
+
+Analyze:
+
+ATM locations
+bank branches
+cash-out locations
+transaction locations
+fraud hotspots
+distance
+geographic clustering
+state
+district
+city
+PIN code
+ATM density
+
+
+============================================================
+39. SYNTHETIC GEOGRAPHIC DATA
+============================================================
+
+Generate:
+
+Indian states
+districts
+cities
+PIN codes
+bank branches
+ATMs
+cash withdrawal locations
+
+Use realistic geographic coordinates.
+
+Clearly label:
+
+SYNTHETIC DATA
+
+
+============================================================
+40. PREDICTIVE CASH-OUT ENGINE
+============================================================
+
+This is a CORE feature.
+
+The system must predict likely future cash-out locations
+based on available synthetic historical data.
+
+Do NOT simply show ATM locations.
+
+Calculate:
+
+cashout_probability
+risk_score
+predicted_amount
+predicted_time_window
+confidence
+latitude
+longitude
+
+
+Conceptually:
+
+P(Cash-Out Location | Fund Flow + Transaction History +
+Geospatial Features + Historical Behavior)
+
+
+============================================================
+41. CASH-OUT MODEL FEATURES
+============================================================
+
+Use:
+
+ATM proximity
+ATM density
+bank branch proximity
+historical withdrawal activity
+fraud-linked withdrawals
+transaction velocity
+fund amount
+time of day
+day of week
+historical behavior
+distance from last known entity
+geographic clustering
+cash-out history
+entity risk
+fund-flow direction
+
+
+============================================================
+42. PREDICTIVE CASH-OUT HEATMAP
+============================================================
+
+Create dedicated:
+
+PREDICTIVE CASH-OUT
+
+page.
+
+Map layers:
+
+ATM Locations
+
+Bank Branches
+
+Historical Fraud Withdrawals
+
+Transaction Density
+
+Suspicious Entity Density
+
+Predicted Cash-out Probability
+
+Predicted Hotspots
+
+Cross-Border Risk
+
+Fund-Flow Direction
+
+
+============================================================
+43. HEATMAP CONTROLS
+============================================================
+
+Filters:
+
+Last 1 hour
+Last 6 hours
+Last 24 hours
+Last 7 days
+Custom Range
+
+Prediction windows:
+
+Next 30 minutes
+Next 1 hour
+Next 3 hours
+Next 6 hours
+
+
+============================================================
+44. PREDICTED HOTSPOTS
+============================================================
+
+Show ranked locations.
+
+Example:
+
+HOTSPOT 01
+Probability:
+82%
+
+HOTSPOT 02
+Probability:
+74%
+
+HOTSPOT 03
+Probability:
+63%
+
+
+Each hotspot:
+
+latitude
+longitude
+probability
+risk
+estimated amount
+predicted time
+nearest ATM
+nearest branch
+historical activity
+confidence
+contributing factors
+
+
+============================================================
+45. HOTSPOT EXPLANATION
+============================================================
+
+For every prediction show:
+
+WHY THIS LOCATION?
+
+Examples:
+
+High historical withdrawal activity
+
+Multiple nearby ATMs
+
+Recent high-value transfer
+
+Short distance from last known entity
+
+Similar historical pattern
+
+High transaction velocity
+
+
+These explanations must be generated from actual model features.
+
+Do not hardcode explanations.
+
+
+============================================================
+46. MAP ↔ FUND-FLOW INTEGRATION
+============================================================
+
+The map and fund-flow graph must be linked.
+
+From graph:
+
+SHOW ON MAP
+
+From map:
+
+SHOW FUND FLOW
+
+
+Selecting the last known entity must:
+
+1. trace downstream flow
+2. identify relevant geographic features
+3. run prediction
+4. update heatmap
+5. display hotspots
+6. highlight relevant fund-flow paths
+
+
+============================================================
+47. ACTIONABLE INVESTIGATIVE INTELLIGENCE
+============================================================
+
+Create:
+
+ACTIONABLE INTELLIGENCE
+
+module.
+
+Recommendations must be evidence-driven.
+
+Examples:
+
+HIGH PRIORITY:
+
+"Prioritize authorized investigative review of the
+identified high-risk intermediary."
+
+PREDICTED CASH-OUT:
+
+"Prioritize analytical review of the predicted
+cash-out cluster and associated entities."
+
+VASP IDENTIFIED:
+
+"Prepare an authorized information-preservation or
+disclosure request for the identified VASP."
+
+CROSS-BORDER:
+
+"Flag the transaction path for appropriate authorized
+cross-border investigative coordination."
+
+INCOMPLETE FLOW:
+
+"Request additional transaction records through
+authorized channels."
+
+
+Each recommendation:
+
+priority
+reason
+evidence
+confidence
+case
+timestamp
+model version
+
+
+============================================================
+48. LAST KNOWN CREDITED ACCOUNT
+============================================================
+
+After fund-flow analysis, identify:
+
+LAST KNOWN CREDITED ACCOUNT
+
+
+Example:
+
+Victim
+↓ ₹2,00,000
+Mule A
+↓ ₹1,95,000
+Mule B
+↓ ₹1,90,000
+Account C
+
+
+Display:
+
+LAST KNOWN CREDITED ACCOUNT
+
+Account:
+XXXXXX1234
+
+Transaction:
+TXN-001923
+
+Amount:
+₹1,90,000
+
+Timestamp:
+10:42:17
+
+Risk:
+CRITICAL
+
+
+============================================================
+49. BANK → BRANCH → IFSC RESOLUTION
+============================================================
+
+Resolve:
+
+Account
+↓
+Bank
+↓
+IFSC
+↓
+Branch
+↓
+District
+↓
+State
+↓
+Coordinates
+
+
+Use synthetic bank data for MVP.
+
+Do not attempt unauthorized discovery of confidential
+banking information.
+
+
+============================================================
+50. BANK DIRECTORY
+============================================================
+
+Create:
+
+banks
+
+bank_branches
+
+bank_contact_channels
+
+
+banks:
+
+bank_id
+bank_name
+institution_code
+
+
+bank_branches:
+
+branch_id
+bank_id
+branch_name
+IFSC
+district
+state
+latitude
+longitude
+
+
+bank_contact_channels:
+
+channel_id
+bank_id
+branch_id
+channel_type
+endpoint
+active
+
+
+Use:
+
+AUTHORIZED_API
+
+OFFICIAL_PORTAL
+
+DESIGNATED_CONTACT
+
+INSTITUTIONAL_WORKFLOW
+
+
+Synthetic contact endpoints must be marked:
+
+SYNTHETIC / DEMONSTRATION
+
+
+Do not invent real contact information.
+
+
+============================================================
+51. AUTHORIZED BANK INTERVENTION WORKFLOW
+============================================================
+
+Create:
+
+ACCOUNT INTERVENTION
+
+module.
+
+IMPORTANT:
+
+CASHNET must NOT automatically:
+
+freeze accounts
+suspend accounts
+debit accounts
+seize funds
+contact banks
+issue legal orders
+
+
+Instead:
+
+1. Identify account.
+2. Resolve bank.
+3. Resolve branch.
+4. Generate evidence-backed request.
+5. Investigator reviews.
+6. Investigator explicitly approves.
+7. Prepare request for authorized submission.
+8. Record audit trail.
+
+
+============================================================
+52. INTERVENTION REQUEST TYPES
+============================================================
+
+INFORMATION_REQUEST
+
+TRANSACTION_RECORD_PRESERVATION
+
+ACCOUNT_REVIEW
+
+FUNDS_PRESERVATION_FREEZE_REQUEST
+
+TRANSACTION_MONITORING_REQUEST
+
+OTHER_AUTHORIZED_REQUEST
+
+
+============================================================
+53. INTERVENTION REQUEST UI
+============================================================
+
+Display:
+
+ACCOUNT INTERVENTION REQUEST
+
+Case:
+CASE-CASHNET-001
+
+Account:
+XXXXXX1234
+
+Bank:
+Example Bank
+
+Branch:
+Example Branch
+
+IFSC:
+XXXX0001234
+
+Last Credit:
+₹1,90,000
+
+Transaction:
+TXN-001923
+
+Risk:
+91/100
+
+Reason:
+
+Account identified as the latest known recipient of
+suspected fraud proceeds within the analyzed fund flow.
+
+
+Evidence:
+
+[VIEW FUND FLOW]
+
+[VIEW TRANSACTION]
+
+[VIEW RISK]
+
+[VIEW ACCOUNT]
+
+[VIEW EVIDENCE]
+
+
+Actions:
+
+[PREPARE REQUEST]
+
+[REVIEW REQUEST]
+
+[APPROVE]
+
+[SUBMIT THROUGH AUTHORIZED CHANNEL]
+
+[CANCEL]
+
+
+============================================================
+54. INTERVENTION STATUS
+============================================================
+
+DRAFT
+
+UNDER_REVIEW
+
+APPROVED
+
+SUBMITTED
+
+ACKNOWLEDGED
+
+ACTIONED
+
+REJECTED
+
+CANCELLED
+
+
+============================================================
+55. BANK API ABSTRACTION
+============================================================
+
+Create:
+
+BankInterventionProvider
+
+
+Methods:
+
+resolve_account()
+
+resolve_branch()
+
+prepare_request()
+
+submit_request()
+
+get_request_status()
+
+
+Default:
+
+SyntheticBankProvider
+
+
+Future:
+
+AuthorizedBankAPIProvider
+
+
+Never hardcode credentials.
+
+
+============================================================
+56. INTERVENTION AUDIT LOG
+============================================================
+
+Record:
+
+user
+case_id
+account_id
+bank_id
+branch_id
+request_type
+action
+timestamp
+status
+evidence_reference
+approval_reference
+submission_reference
+
+
+============================================================
+57. EVIDENCE MANAGEMENT
+============================================================
+
+Create:
+
+Evidence
+
+module.
+
+Evidence types:
+
+transaction
+bank record
+wallet transaction
+blockchain transaction
+screenshot
+document
+complaint
+investigation note
+model output
+
+
+Store:
+
+evidence_id
+case_id
+type
+source
+description
+file
+hash
+created_at
+uploaded_by
+
+
+Use Supabase Storage where appropriate.
+
+
+============================================================
+58. DATA PROVENANCE
+============================================================
+
+Every dataset and analytical result must specify:
+
+SYNTHETIC
+
+USER_PROVIDED
+
+API
+
+DATABASE
+
+MODEL_INFERENCE
+
+
+Do not mix synthetic and real data without clearly identifying
+the source.
+
+
+============================================================
+59. AUDIT LOGGING
+============================================================
+
+Record:
+
+login
+case creation
+case modification
+analysis execution
+graph generation
+risk analysis
+wallet analysis
+VASP attribution
+cash-out prediction
+intervention generation
+approval
+submission
+report generation
+
+
+Record:
+
+user
+case
+action
+timestamp
+model version
+data source
+
+
+============================================================
+60. REPORT GENERATION
+============================================================
+
+Generate investigation-ready reports.
+
+Include:
+
+Case Summary
+
+Complaint Details
+
+Financial Indicators
+
+Account Analysis
+
+Transaction History
+
+Fund Flow
+
+Fund Flow Graph
+
+Timeline
+
+Crypto Wallet Analysis
+
+Blockchain Transactions
+
+VASP Attribution
+
+Risk Analysis
+
+Cross-Border Analysis
+
+Geospatial Analysis
+
+Cash-Out Predictions
+
+Predictive Heatmap Summary
+
+Actionable Recommendations
+
+Intervention Requests
+
+Evidence
+
+Confidence
+
+Audit Information
+
+
+Every analytical conclusion must include:
+
+"Analytical prediction — requires investigator validation."
+
+
+============================================================
+61. DATABASE SCHEMA
+============================================================
+
+Create Supabase/PostgreSQL tables:
+
+users
+
+cases
+
+complaints
+
+entities
+
+persons
+
+banks
+
+bank_accounts
+
+bank_branches
+
+bank_contact_channels
+
+upi_ids
+
+payment_ids
+
+transactions
+
+blockchain_transactions
+
+wallets
+
+vasps
+
+vasp_clusters
+
+fund_flow_edges
+
+cashout_locations
+
+geospatial_predictions
+
+prediction_hotspots
+
+risk_scores
+
+interventions
+
+intervention_requests
+
+alerts
+
+evidence
+
+investigation_notes
+
+audit_logs
+
+
+Use UUIDs.
+
+Use timestamps.
+
+Create appropriate indexes.
+
+Important indexes:
+
+case_id
+
+transaction_timestamp
+
+source_entity
+
+destination_entity
+
+wallet_address
+
+transaction_hash
+
+risk_score
+
+IFSC
+
+
+============================================================
+62. API ENDPOINTS
+============================================================
+
+Create:
+
+POST /api/cases
+
+GET /api/cases
+
+GET /api/cases/{id}
+
+POST /api/complaints
+
+POST /api/transactions
+
+GET /api/transactions
+
+GET /api/accounts/{id}
+
+GET /api/accounts/{id}/transactions
+
+POST /api/fund-flow/analyze
+
+GET /api/fund-flow/{case_id}
+
+POST /api/fund-flow/upstream
+
+POST /api/fund-flow/downstream
+
+POST /api/wallet/analyze
+
+POST /api/wallet/trace
+
+GET /api/wallet/{address}
+
+POST /api/vasp/attribute
+
+POST /api/risk/score
+
+POST /api/cashout/predict
+
+POST /api/geospatial/heatmap
+
+GET /api/geospatial/hotspots/{case_id}
+
+POST /api/interventions/generate
+
+POST /api/interventions/bank-request
+
+GET /api/interventions/{case_id}
+
+GET /api/graph/{case_id}
+
+GET /api/timeline/{case_id}
+
+POST /api/reports/generate
+
+
+============================================================
+63. SYNTHETIC DATASET
+============================================================
+
+Create a comprehensive synthetic dataset.
+
+At minimum:
+
+500 entities
+
+5,000 transactions
+
+100 wallets
+
+20 VASPs/exchanges
+
+100 ATMs
+
+50 bank branches
+
+50+ cases
+
+
+Include:
+
+legitimate transactions
+
+fraud transactions
+
+mule accounts
+
+multi-hop transfers
+
+fan-in
+
+fan-out
+
+fragmentation
+
+aggregation
+
+crypto conversion
+
+bank-to-crypto
+
+crypto-to-bank
+
+crypto-to-crypto
+
+cross-border movement
+
+multiple currencies/assets
+
+cash withdrawals
+
+unknown entities
+
+decoy transactions
+
+legitimate noise
+
+
+Use deterministic random seeds.
+
+
+============================================================
+64. SYNTHETIC DATA RELATIONSHIPS
+============================================================
+
+The synthetic dataset must have meaningful relationships.
+
+Do not generate random disconnected records.
+
+Example:
+
+CASE-001
+
+Victim
+↓
+Account A
+↓
+Account B
+↓
+VASP A
+↓
+Wallet A
+↓
+Wallet B
+↓
+Foreign VASP
+↓
+Account C
+↓
+ATM
+
+
+The same relationships must be visible in:
+
+database
+
+fund-flow graph
+
+timeline
+
+map
+
+risk engine
+
+cash-out prediction
+
+
+============================================================
+65. MACHINE LEARNING DATASET
+============================================================
+
+Generate features from transaction data.
+
+Features:
+
+transaction amount
+transaction velocity
+transaction count
+fan-in
+fan-out
+account age
+time gap
+geographic distance
+graph centrality
+cross-border indicator
+wallet activity
+VASP proximity
+cash-out history
+
+
+Models:
+
+Logistic Regression
+
+Random Forest
+
+XGBoost
+
+
+Use XGBoost as the primary tabular model where appropriate.
+
+
+============================================================
+66. MODEL EVALUATION
+============================================================
+
+Calculate actual metrics from test data.
+
+Use:
+
+precision
+recall
+F1
+ROC-AUC
+confusion matrix
+
+
+Never fabricate accuracy.
+
+If a model has not been trained:
+
+display:
+
+MODEL NOT TRAINED
+
+
+============================================================
+67. GNN
+============================================================
+
+Implement optional:
+
+Graph Neural Network
+
+using:
+
+PyTorch Geometric
+
+
+Use synthetic graph data.
+
+Tasks:
+
+node classification
+link prediction
+graph anomaly detection
+
+
+Provide fallback to XGBoost.
+
+The application must not break if PyTorch Geometric is
+unavailable.
+
+
+============================================================
+68. KAFKA
+============================================================
+
+Create:
+
+TransactionEventProducer
+
+TransactionEventConsumer
+
+
+Architecture:
+
+Transaction Event
+↓
+Kafka
+↓
+Consumer
+↓
+Fund Flow Engine
+↓
+Risk Engine
+↓
+Database
+↓
+Dashboard
+
+
+MVP must provide:
+
+MockEventBus
+
+
+Kafka should be optional.
+
+
+============================================================
+69. ELASTICSEARCH
+============================================================
+
+Optional operational search layer.
+
+Indexes:
+
+transactions
+
+alerts
+
+audit_events
+
+risk_events
+
+system_events
+
+
+Use for:
+
+fast search
+
+operational analytics
+
+investigation search
+
+
+============================================================
+70. KIBANA
+============================================================
+
+Provide optional Kibana configuration.
+
+Use for:
+
+transaction monitoring
+
+system events
+
+risk events
+
+audit analytics
+
+operational dashboards
+
+
+Do not make Kibana mandatory.
+
+
+============================================================
+71. DOCKER
+============================================================
+
+Create:
+
+Dockerfile.backend
+
+Dockerfile.frontend
+
+docker-compose.yml
+
+
+Services:
+
+frontend
+
+backend
+
+optional kafka
+
+optional elasticsearch
+
+optional kibana
+
+
+The application should also run without Docker.
+
+
+============================================================
+72. SECURITY
+============================================================
+
+Implement:
+
+input validation
+
+Pydantic schemas
+
+authentication
+
+authorization
+
+secure secrets
+
+environment variables
+
+parameterized SQL
+
+CORS restrictions
+
+rate limiting
+
+audit logging
+
+masked sensitive identifiers
+
+secure file uploads
+
+error handling
+
+API validation
+
+
+Never hardcode credentials.
+
+
+============================================================
+73. PRIVACY
+============================================================
+
+Mask sensitive data.
+
+Bank:
+
+XXXXXX1234
+
+UPI:
+
+sa****@bank
+
+Wallet:
+
+0x1234...ABCD
+
+
+Only authorized roles should access sensitive information.
+
+
+============================================================
+74. UI / UX
+============================================================
+
+Design a professional cybercrime intelligence dashboard.
+
+Dark theme.
+
+High information density.
+
+Professional typography.
+
+Use:
+
+cards
+
+tables
+
+graphs
+
+maps
+
+timelines
+
+risk indicators
+
+filters
+
+side panels
+
+evidence panels
+
+interactive graphs
+
+
+Avoid:
+
+generic startup UI
+
+excessive gradients
+
+meaningless animations
+
+fake data
+
+fake statistics
+
+fake intelligence
+
+unnecessary decorative elements
+
+
+The UI should resemble a professional:
+
+Cybercrime Financial Intelligence Platform.
+
+
+============================================================
+75. MAIN DASHBOARD LAYOUT
+============================================================
+
+Header:
+
+CASHNET
+
+I4C / CIS Division
+
+Investigation Search
+
+Notifications
+
+User
+
+
+Sidebar:
+
+Dashboard
+
+Cases
+
+Financial Intelligence
+
+Fund Flow
+
+Crypto Intelligence
+
+VASP Intelligence
+
+Geospatial Intelligence
+
+Predictive Cash-out
+
+Alerts
+
+Interventions
+
+Reports
+
+Evidence
+
+Audit Logs
+
+
+============================================================
+76. FUND-FLOW PAGE UI
+============================================================
+
+Large graph area.
+
+Right-side intelligence panel.
+
+Bottom timeline.
+
+Top filters.
+
+Example:
+
+------------------------------------------------------------
+CASE | SEARCH | DATE | RISK | AMOUNT
+------------------------------------------------------------
+
+                    FUND FLOW GRAPH
+
+------------------------------------------------------------
+
+PLAY | PAUSE | RESET | TRACE | FILTER
+
+------------------------------------------------------------
+
+SELECTED ENTITY
+
+Account
+Risk
+Transactions
+Inflow
+Outflow
+Evidence
+
+[ACCOUNT DETAILS]
+
+[TRACE UPSTREAM]
+
+[TRACE DOWNSTREAM]
+
+[SHOW ON MAP]
+
+[GENERATE INTERVENTION]
+
+
+============================================================
+77. CRYPTO INTELLIGENCE PAGE
+============================================================
+
+Display:
+
+Wallet Search
+
+Blockchain Selector
+
+Wallet Risk
+
+Transaction History
+
+Wallet Graph
+
+VASP Attribution
+
+Cross-chain analysis
+
+Upstream/Downstream tracing
+
+Transaction details
+
+
+============================================================
+78. GEOSPATIAL PAGE
+============================================================
+
+Display:
+
+Interactive India map.
+
+Layers:
+
+ATMs
+
+Branches
+
+Fraud Activity
+
+Transactions
+
+Suspicious Accounts
+
+Wallet Activity
+
+Historical Withdrawals
+
+Predicted Hotspots
+
+
+============================================================
+79. PREDICTIVE CASH-OUT PAGE
+============================================================
+
+Top:
+
+Case
+
+Prediction Window
+
+Time Range
+
+Risk
+
+Amount
+
+
+Center:
+
+Large interactive heatmap.
+
+
+Right:
+
+HOTSPOT DETAILS
+
+
+Bottom:
+
+Ranked prediction table.
+
+
+============================================================
+80. ACTIONABLE INTELLIGENCE PANEL
+============================================================
+
+For every case show:
+
+KEY FINDINGS
+
+RISK
+
+FUND FLOW
+
+VASP
+
+CROSS-BORDER
+
+CASH-OUT
+
+RECOMMENDED ACTION
+
+
+Each recommendation must include:
+
+Reason
+
+Evidence
+
+Confidence
+
+Priority
+
+
+============================================================
+81. DEMONSTRATION CASE 1
+============================================================
+
+Create:
+
+CASE-CASHNET-001
+
+Domestic financial fraud.
+
+Flow:
+
+Victim
+↓
+Mule A
+↓
+Mule B
+↓
+Account C
+↓
+ATM
+
+
+System must:
+
+analyze account
+
+show transaction history
+
+build fund-flow graph
+
+animate money flow
+
+identify last credited account
+
+resolve bank/branch
+
+predict cash-out location
+
+show heatmap
+
+generate intervention request
+
+
+============================================================
+82. DEMONSTRATION CASE 2
+============================================================
+
+CASE-CASHNET-002
+
+Crypto + cross-border fraud.
+
+Flow:
+
+Victim
+↓
+Bank
+↓
+VASP A
+↓
+Wallet A
+↓
+Wallet B
+↓
+Foreign VASP
+↓
+Wallet C
+
+
+System must:
+
+trace wallets
+
+identify VASP
+
+show cross-border movement
+
+calculate risk
+
+display crypto graph
+
+display unified fund flow
+
+
+============================================================
+83. DEMONSTRATION CASE 3
+============================================================
+
+CASE-CASHNET-003
+
+Complex laundering.
+
+Flow:
+
+Victim
+↓
+Account A
+↓
+Account B
+↓
+Account C
+↓
+VASP
+↓
+Wallet A
+      ├→ Wallet B
+      ├→ Wallet C
+      └→ Foreign Wallet
+               ↓
+             VASP
+               ↓
+            Account D
+               ↓
+              ATM
+
+
+Include:
+
+fan-out
+
+cross-border
+
+crypto
+
+VASP
+
+cash-out prediction
+
+
+============================================================
+84. DEMONSTRATION CASE 4
+============================================================
+
+CASE-CASHNET-004
+
+Incomplete flow.
+
+Victim
+↓
+Account A
+↓
+UNKNOWN
+↓
+VASP
+
+
+The system must preserve:
+
+UNKNOWN ENTITY
+
+
+It must not invent the missing account/wallet.
+
+
+============================================================
+85. INVESTIGATION WORKFLOW
+============================================================
+
+The complete workflow should be:
+
+1. Login.
+
+2. Create case.
+
+3. Add complaint.
+
+4. Add financial indicators.
+
+5. Add transaction IDs.
+
+6. Add bank accounts.
+
+7. Add UPI IDs.
+
+8. Add wallet addresses.
+
+9. Run account analysis.
+
+10. Run transaction analysis.
+
+11. Run fund-flow analysis.
+
+12. View animated fund flow.
+
+13. Trace upstream.
+
+14. Trace downstream.
+
+15. Analyze crypto wallets.
+
+16. Run VASP attribution.
+
+17. Run risk analysis.
+
+18. Run cross-border analysis.
+
+19. Run geospatial analysis.
+
+20. Run cash-out prediction.
+
+21. View predictive heatmap.
+
+22. Select hotspot.
+
+23. View related fund flow.
+
+24. Identify last credited account.
+
+25. Resolve bank.
+
+26. Resolve branch.
+
+27. Generate intervention request.
+
+28. Investigator reviews.
+
+29. Investigator approves.
+
+30. Prepare authorized submission.
+
+31. Record audit trail.
+
+32. Generate report.
+
+
+============================================================
+86. REPORT
+============================================================
+
+Report must include:
+
+CASE SUMMARY
+
+COMPLAINT
+
+FINANCIAL INDICATORS
+
+ACCOUNT ANALYSIS
+
+TRANSACTION HISTORY
+
+FUND FLOW
+
+FUND FLOW GRAPH
+
+TIMELINE
+
+CRYPTO ANALYSIS
+
+VASP ATTRIBUTION
+
+RISK ANALYSIS
+
+CROSS-BORDER ANALYSIS
+
+GEOSPATIAL ANALYSIS
+
+CASH-OUT PREDICTION
+
+PREDICTIVE HOTSPOTS
+
+ACTIONABLE INTELLIGENCE
+
+INTERVENTION REQUESTS
+
+EVIDENCE
+
+AUDIT LOG
+
+MODEL INFORMATION
+
+
+============================================================
+87. MODEL PROVENANCE
+============================================================
+
+Every prediction stores:
+
+model_name
+
+model_version
+
+training_dataset
+
+training_date
+
+features
+
+prediction_timestamp
+
+confidence
+
+
+============================================================
+88. DATA PROVENANCE
+============================================================
+
+Every record should identify:
+
+source_type
+
+source_reference
+
+created_at
+
+updated_at
+
+
+SOURCE TYPES:
+
+SYNTHETIC
+
+USER_PROVIDED
+
+API
+
+DATABASE
+
+MODEL_INFERENCE
+
+
+============================================================
+89. API PROVIDER ARCHITECTURE
+============================================================
+
+Create interfaces:
+
+BlockchainProvider
+
+BankProvider
+
+VASPProvider
+
+TransactionProvider
+
+GeospatialProvider
+
+EventBusProvider
+
+
+Implement default:
+
+SyntheticBlockchainProvider
+
+SyntheticBankProvider
+
+SyntheticVASPProvider
+
+SyntheticTransactionProvider
+
+MockEventBus
+
+
+Future:
+
+BlockchairProvider
+
+EtherscanProvider
+
+AuthorizedBankProvider
+
+AuthorizedVASPProvider
+
+KafkaEventBus
+
+
+============================================================
+90. ENVIRONMENT VARIABLES
+============================================================
+
+Create:
+
+.env.example
+
+
+Include:
+
+SUPABASE_URL
+
+SUPABASE_ANON_KEY
+
+SUPABASE_SERVICE_ROLE_KEY
+
+BLOCKCHAIR_API_KEY
+
+ETHERSCAN_API_KEY
+
+KAFKA_BROKER_URL
+
+ELASTICSEARCH_URL
+
+ELASTICSEARCH_API_KEY
+
+JWT_SECRET
+
+
+Never commit actual credentials.
+
+
+============================================================
+91. TESTING
+============================================================
+
+Create tests for:
+
+authentication
+
+case creation
+
+transaction creation
+
+account analysis
+
+fund-flow reconstruction
+
+upstream tracing
+
+downstream tracing
+
+wallet analysis
+
+VASP attribution
+
+risk scoring
+
+geospatial prediction
+
+cash-out prediction
+
+intervention generation
+
+audit logging
+
+
+Test the complete end-to-end workflow.
+
+
+============================================================
+92. PERFORMANCE
+============================================================
+
+Optimize for:
+
+large transaction datasets
+
+graph traversal
+
+database queries
+
+map rendering
+
+pagination
+
+API response time
+
+incremental graph loading
+
+
+Use:
+
+pagination
+
+indexes
+
+caching where appropriate
+
+lazy loading
+
+
+Do not load thousands of graph nodes simultaneously
+unless requested.
+
+
+============================================================
+93. ERROR HANDLING
+============================================================
+
+If an API is unavailable:
+
+show:
+
+DATA SOURCE UNAVAILABLE
+
+
+If a provider fails:
+
+fall back to synthetic data when appropriate.
+
+
+If model unavailable:
+
+use fallback model.
+
+
+If no evidence:
+
+display:
+
+INSUFFICIENT DATA
+
+
+Never fabricate.
+
+
+============================================================
+94. IMPORTANT INVESTIGATIVE SAFETY RULES
+============================================================
+
+CASHNET is an analytical and decision-support platform.
+
+It must NOT automatically:
+
+freeze bank accounts
+
+freeze cryptocurrency wallets
+
+seize assets
+
+debit accounts
+
+contact suspects
+
+contact victims
+
+issue legal notices
+
+perform enforcement
+
+make legal determinations
+
+declare an entity guilty
+
+
+All intervention actions require:
+
+AUTHORIZED INVESTIGATOR
+
++
+
+EVIDENCE REVIEW
+
++
+
+EXPLICIT APPROVAL
+
++
+
+AUTHORIZED CHANNEL
+
+
+============================================================
+95. NO FABRICATION RULE
+============================================================
+
+Never fabricate:
+
+bank information
+
+real account ownership
+
+VASP ownership
+
+wallet ownership
+
+government data
+
+NCRP data
+
+SAHYOG data
+
+transaction records
+
+real-world investigations
+
+model accuracy
+
+API responses
+
+
+Synthetic data must be clearly marked.
+
+
+============================================================
+96. FINAL ACCEPTANCE TEST
+============================================================
+
+The completed application must demonstrate the following:
+
+A user logs in.
+
+↓
+
+Creates:
+
+CASE-CASHNET-001
+
+↓
+
+Adds:
+
+Victim
+
+Bank Account
+
+Transaction
+
+UPI
+
+Wallet
+
+↓
+
+Runs:
+
+ACCOUNT ANALYSIS
+
+↓
+
+CASHNET displays:
+
+account details
+
+transaction history
+
+inflow
+
+outflow
+
+risk
+
+behavior
+
+↓
+
+Runs:
+
+FUND FLOW ANALYSIS
+
+↓
+
+CASHNET creates:
+
+Victim
+↓
+Mule A
+↓
+Mule B
+↓
+VASP
+↓
+Wallet
+↓
+Wallet
+↓
+Account
+↓
+ATM
+
+
+↓
+
+The investigator presses:
+
+PLAY
+
+↓
+
+The system animates the movement of money.
+
+↓
+
+Investigator selects an account.
+
+↓
+
+CASHNET displays:
+
+ACCOUNT INTELLIGENCE
+
+↓
+
+Investigator selects:
+
+TRACE DOWNSTREAM
+
+↓
+
+CASHNET traces the flow.
+
+↓
+
+Investigator selects:
+
+CRYPTO WALLET
+
+↓
+
+CASHNET displays:
+
+wallet intelligence
+
+transaction history
+
+wallet graph
+
+risk
+
+VASP candidates
+
+↓
+
+Investigator runs:
+
+VASP ATTRIBUTION
+
+↓
+
+CASHNET returns:
+
+VASP
+
+confidence
+
+evidence
+
+↓
+
+Investigator runs:
+
+CROSS-BORDER ANALYSIS
+
+↓
+
+CASHNET displays:
+
+countries
+
+amounts
+
+timestamps
+
+paths
+
+↓
+
+Investigator runs:
+
+CASH-OUT PREDICTION
+
+↓
+
+CASHNET displays:
+
+predicted locations
+
+probability
+
+risk
+
+time window
+
+confidence
+
+↓
+
+The map displays:
+
+PREDICTIVE CASH-OUT HEATMAP
+
+↓
+
+Investigator selects hotspot.
+
+↓
+
+CASHNET displays:
+
+location
+
+probability
+
+risk
+
+nearest ATM
+
+nearest branch
+
+estimated amount
+
+predicted time
+
+contributing factors
+
+↓
+
+Investigator selects:
+
+LAST CREDITED ACCOUNT
+
+↓
+
+CASHNET identifies the latest known recipient.
+
+↓
+
+CASHNET resolves:
+
+Account
+↓
+Bank
+↓
+IFSC
+↓
+Branch
+
+↓
+
+Investigator selects:
+
+GENERATE INTERVENTION
+
+↓
+
+CASHNET creates:
+
+AUTHORIZED INTERVENTION REQUEST
+
+↓
+
+Investigator reviews.
+
+↓
+
+Investigator explicitly approves.
+
+↓
+
+CASHNET records:
+
+approval
+
+timestamp
+
+investigator
+
+case
+
+evidence
+
+status
+
+↓
+
+CASHNET generates investigation report.
+
+↓
+
+All activity appears in audit logs.
+
+
+============================================================
+97. FINAL PRODUCT STANDARD
+============================================================
+
+Do not build a collection of disconnected demo pages.
+
+Build ONE unified platform.
+
+The following must use the SAME underlying case,
+entity and transaction data:
+
+ACCOUNT ANALYSIS
+
+TRANSACTION ANALYSIS
+
+FUND FLOW
+
+CRYPTO ANALYSIS
+
+VASP ATTRIBUTION
+
+RISK ANALYSIS
+
+CROSS-BORDER ANALYSIS
+
+GEOSPATIAL ANALYSIS
+
+PREDICTIVE CASH-OUT
+
+ACTIONABLE INTELLIGENCE
+
+BANK INTERVENTION
+
+REPORTING
+
+AUDIT LOGGING
+
+
+The core architecture must be:
+
+                    CASE
+                     │
+                     ▼
+                ENTITIES
+                     │
+                     ▼
+               TRANSACTIONS
+                     │
+                     ▼
+              FUND-FLOW GRAPH
+                /         \
+               /           \
+              ▼             ▼
+        BANK ANALYSIS    CRYPTO ANALYSIS
+              │             │
+              │             ▼
+              │       VASP ATTRIBUTION
+              │             │
+              └──────┬──────┘
+                     ▼
+               RISK ENGINE
+                     │
+                     ▼
+             GEOSPATIAL ENGINE
+                     │
+                     ▼
+          CASH-OUT PREDICTION
+                     │
+                     ▼
+             PREDICTIVE HEATMAP
+                     │
+                     ▼
+          ACTIONABLE INTELLIGENCE
+                     │
+                     ▼
+          LAST KNOWN RECIPIENT
+                     │
+                     ▼
+               BANK / BRANCH
+                     │
+                     ▼
+         AUTHORIZED INTERVENTION
+                     │
+                     ▼
+              AUDIT + REPORT
+
+
+============================================================
+98. IMPLEMENTATION INSTRUCTION
+============================================================
+
+IMPORTANT:
+
+Build the COMPLETE CASHNET APPLICATION described above.
+
+Do NOT stop after creating:
+
+- a landing page
+- a dashboard mockup
+- database tables
+- placeholder APIs
+- static graphs
+- fake ML results
+
+Implement the complete working prototype using synthetic data.
+
+All major buttons must perform real actions.
+
+All pages must connect to the same backend.
+
+All backend services must connect to the same database.
+
+The fund-flow engine must use actual transaction records.
+
+The graph must be generated from actual transaction relationships.
+
+The account analysis must use actual transaction data.
+
+The crypto analysis must use actual synthetic blockchain data.
+
+The VASP attribution must use actual synthetic wallet/VASP
+relationships.
+
+The heatmap must use actual geospatial data.
+
+The cash-out prediction must use an actual model or transparent
+analytical baseline.
+
+The intervention request must use actual case/fund-flow/account
+data.
+
+The report must use actual case results.
+
+The audit trail must record actual user actions.
+
+
+============================================================
+99. DEVELOPMENT QUALITY
+============================================================
+
+Write clean, maintainable, modular code.
+
+Use:
+
+TypeScript types
+
+Pydantic schemas
+
+Python type hints
+
+service layers
+
+repository patterns where useful
+
+API validation
+
+centralized error handling
+
+logging
+
+unit tests
+
+integration tests
+
+documentation
+
+
+Avoid:
+
+giant files
+
+duplicate code
+
+hardcoded data
+
+hardcoded API responses
+
+hardcoded model outputs
+
+hardcoded graphs
+
+hardcoded predictions
+
+
+============================================================
+100. FINAL OBJECTIVE
+============================================================
+
+The final CASHNET system should demonstrate a complete
+cybercrime financial intelligence workflow:
+
+A cybercrime complaint enters the system.
+
+↓
+
+Financial and cryptocurrency indicators are extracted.
+
+↓
+
+Accounts and wallets are analyzed.
+
+↓
+
+Transactions are reconstructed.
+
+↓
+
+The movement of funds is represented as an interactive graph.
+
+↓
+
+Investigators can visually watch the money move through
+the transaction chain.
+
+↓
+
+Bank and crypto ecosystems are analyzed together.
+
+↓
+
+Suspicious intermediaries are identified.
+
+↓
+
+VASP/exchange relationships are estimated.
+
+↓
+
+Cross-border and cross-chain movement is identified.
+
+↓
+
+Risk is calculated.
+
+↓
+
+Geospatial intelligence is generated.
+
+↓
+
+Likely cash-out locations are predicted.
+
+↓
+
+Those locations are displayed on a predictive heatmap.
+
+↓
+
+The system generates actionable investigative recommendations.
+
+↓
+
+The latest known credited account is identified.
+
+↓
+
+Its bank and branch are resolved from authorized/synthetic data.
+
+↓
+
+An evidence-backed intervention request is prepared.
+
+↓
+
+An authorized investigator reviews and approves the request.
+
+↓
+
+The request is prepared for submission through the appropriate
+authorized institutional channel.
+
+↓
+
+Everything is recorded in the audit trail.
+
+↓
+
+A complete investigation report is generated.
+
+
+============================================================
+END OF CASHNET COMPLETE PROJECT SPECIFICATION
+============================================================
