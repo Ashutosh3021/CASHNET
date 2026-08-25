@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: cashnet
+    description: CASHNET investigative intelligence operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,185 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [cashnet]
+      summary: Dashboard intelligence summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /cases:
+    get:
+      operationId: listCases
+      tags: [cashnet]
+      summary: List synthetic investigation cases
+      responses:
+        "200":
+          description: Cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Case" }
+    post:
+      operationId: createCase
+      tags: [cashnet]
+      summary: Create a case from a scam report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseInput" }
+      responses:
+        "201":
+          description: Created case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Case" }
+  /cases/{caseId}:
+    get:
+      operationId: getCase
+      tags: [cashnet]
+      summary: Get a case and linked intelligence
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Case detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseDetail" }
+  /cases/{caseId}/analyze:
+    post:
+      operationId: analyzeCase
+      tags: [cashnet]
+      summary: Run the complete synthetic analysis pipeline
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseDetail" }
+  /cases/{caseId}/complaint:
+    post:
+      operationId: addComplaint
+      tags: [cashnet]
+      summary: Ingest a scam report
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ComplaintInput" }
+      responses:
+        "200":
+          description: Updated case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseDetail" }
+  /fund-flow/{caseId}:
+    get:
+      operationId: getFundFlow
+      tags: [cashnet]
+      summary: Get unified fund-flow graph and timeline
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Graph
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FundFlow" }
+  /wallets:
+    get:
+      operationId: listWallets
+      tags: [cashnet]
+      summary: List wallet intelligence
+      responses:
+        "200":
+          description: Wallets
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Wallet" }
+  /predictions/{caseId}:
+    get:
+      operationId: getPredictions
+      tags: [cashnet]
+      summary: Get predictive cash-out hotspots
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Predictions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PredictionResult" }
+  /interventions/{caseId}:
+    get:
+      operationId: getIntervention
+      tags: [cashnet]
+      summary: Get intervention request
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Intervention
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Intervention" }
+    post:
+      operationId: createIntervention
+      tags: [cashnet]
+      summary: Prepare an evidence-backed intervention request
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InterventionInput" }
+      responses:
+        "201":
+          description: Draft intervention
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Intervention" }
+  /interventions/{caseId}/approve:
+    post:
+      operationId: approveIntervention
+      tags: [cashnet]
+      summary: Explicitly approve an intervention draft
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Approved intervention
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Intervention" }
+  /reports/{caseId}:
+    get:
+      operationId: getReport
+      tags: [cashnet]
+      summary: Generate investigation report data
+      parameters:
+        - { name: caseId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
 components:
   schemas:
     HealthStatus:
@@ -33,4 +214,261 @@ components:
           type: string
       required:
         - status
+    Case:
+      type: object
+      required: [id, reference, title, fraudType, amount, priority, status, state, city, conversionAt]
+      properties:
+        id: { type: string }
+        reference: { type: string }
+        title: { type: string }
+        fraudType: { type: string }
+        amount: { type: number }
+        priority: { type: string }
+        status: { type: string }
+        state: { type: string }
+        city: { type: string }
+        conversionAt: { type: string }
+        sourceType: { type: string }
+        updatedAt: { type: string }
+    CaseInput:
+      type: object
+      required: [title, fraudType, amount, description]
+      properties:
+        title: { type: string, minLength: 3 }
+        fraudType: { type: string }
+        amount: { type: number, minimum: 1 }
+        description: { type: string, minLength: 10 }
+        victimCity: { type: string }
+        victimState: { type: string }
+        account: { type: string }
+        wallet: { type: string }
+    ComplaintInput:
+      type: object
+      required: [description]
+      properties:
+        description: { type: string, minLength: 10 }
+        transactionIds: { type: array, items: { type: string } }
+        accounts: { type: array, items: { type: string } }
+        upiIds: { type: array, items: { type: string } }
+        wallets: { type: array, items: { type: string } }
+        incidentDate: { type: string }
+        location: { type: string }
+    CaseDetail:
+      allOf:
+        - $ref: "#/components/schemas/Case"
+        - type: object
+          required: [complaint, accounts, transactions, fundFlow, wallets, vasp, risk, predictions, recommendations, lastCredited, intervention, audit]
+          properties:
+            complaint: { $ref: "#/components/schemas/Complaint" }
+            accounts: { type: array, items: { $ref: "#/components/schemas/Account" } }
+            transactions: { type: array, items: { $ref: "#/components/schemas/Transaction" } }
+            fundFlow: { $ref: "#/components/schemas/FundFlow" }
+            wallets: { type: array, items: { $ref: "#/components/schemas/Wallet" } }
+            vasp: { type: array, items: { $ref: "#/components/schemas/Vasp" } }
+            risk: { $ref: "#/components/schemas/Risk" }
+            predictions: { $ref: "#/components/schemas/PredictionResult" }
+            recommendations: { type: array, items: { $ref: "#/components/schemas/Recommendation" } }
+            lastCredited: { $ref: "#/components/schemas/LastCredited" }
+            intervention: { $ref: "#/components/schemas/Intervention" }
+            audit: { type: array, items: { $ref: "#/components/schemas/Audit" } }
+    Complaint:
+      type: object
+      required: [description, indicators]
+      properties:
+        description: { type: string }
+        indicators: { type: array, items: { type: string } }
+        sourceType: { type: string }
+        receivedAt: { type: string }
+    Account:
+      type: object
+      required: [id, masked, bank, ifsc, branch, risk, inflow, outflow, transactions, indicators]
+      properties:
+        id: { type: string }
+        masked: { type: string }
+        bank: { type: string }
+        ifsc: { type: string }
+        branch: { type: string }
+        district: { type: string }
+        state: { type: string }
+        risk: { type: number }
+        inflow: { type: number }
+        outflow: { type: number }
+        transactions: { type: number }
+        indicators: { type: array, items: { type: string } }
+    Transaction:
+      type: object
+      required: [id, timestamp, source, destination, amount, currency, type, risk, confidence]
+      properties:
+        id: { type: string }
+        timestamp: { type: string }
+        source: { type: string }
+        destination: { type: string }
+        amount: { type: number }
+        currency: { type: string }
+        type: { type: string }
+        risk: { type: number }
+        confidence: { type: number }
+        chain: { type: ["string", "null"] }
+        isConversion: { type: boolean }
+    GraphNode:
+      type: object
+      required: [id, label, kind, risk, x, y]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        kind: { type: string }
+        risk: { type: number }
+        x: { type: number }
+        y: { type: number }
+    GraphEdge:
+      type: object
+      required: [id, source, target, amount, timestamp, label, risk]
+      properties:
+        id: { type: string }
+        source: { type: string }
+        target: { type: string }
+        amount: { type: number }
+        timestamp: { type: string }
+        label: { type: string }
+        risk: { type: number }
+        conversion: { type: boolean }
+    FundFlow:
+      type: object
+      required: [nodes, edges, timeline, metrics]
+      properties:
+        nodes: { type: array, items: { $ref: "#/components/schemas/GraphNode" } }
+        edges: { type: array, items: { $ref: "#/components/schemas/GraphEdge" } }
+        timeline: { type: array, items: { $ref: "#/components/schemas/TimelineEvent" } }
+        metrics: { type: object, additionalProperties: true }
+    TimelineEvent:
+      type: object
+      required: [id, time, title, detail, amount, category]
+      properties:
+        id: { type: string }
+        time: { type: string }
+        title: { type: string }
+        detail: { type: string }
+        amount: { type: number }
+        category: { type: string }
+    Wallet:
+      type: object
+      required: [id, address, chain, risk, inflow, outflow, transactions, vasp, confidence]
+      properties:
+        id: { type: string }
+        address: { type: string }
+        chain: { type: string }
+        risk: { type: number }
+        inflow: { type: number }
+        outflow: { type: number }
+        transactions: { type: number }
+        vasp: { type: string }
+        confidence: { type: number }
+        firstSeen: { type: string }
+        lastActive: { type: string }
+    Vasp:
+      type: object
+      required: [name, confidence, classification, evidence]
+      properties:
+        name: { type: string }
+        confidence: { type: number }
+        classification: { type: string }
+        evidence: { type: array, items: { type: string } }
+    Risk:
+      type: object
+      required: [score, category, confidence, features, modelVersion]
+      properties:
+        score: { type: number }
+        category: { type: string }
+        confidence: { type: number }
+        features: { type: array, items: { type: string } }
+        modelVersion: { type: string }
+    Hotspot:
+      type: object
+      required: [id, city, lat, lng, probability, risk, amount, timeWindow, atm, branch, factors, confidence]
+      properties:
+        id: { type: string }
+        city: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+        probability: { type: number }
+        risk: { type: number }
+        amount: { type: number }
+        timeWindow: { type: string }
+        atm: { type: string }
+        branch: { type: string }
+        factors: { type: array, items: { type: string } }
+        confidence: { type: number }
+    PredictionResult:
+      type: object
+      required: [hotspots, generatedAt, modelVersion]
+      properties:
+        hotspots: { type: array, items: { $ref: "#/components/schemas/Hotspot" } }
+        generatedAt: { type: string }
+        modelVersion: { type: string }
+    LastCredited:
+      type: object
+      required: [account, transaction, amount, timestamp, risk, bank, branch, ifsc]
+      properties:
+        account: { type: string }
+        transaction: { type: string }
+        amount: { type: number }
+        timestamp: { type: string }
+        risk: { type: string }
+        bank: { type: string }
+        branch: { type: string }
+        ifsc: { type: string }
+    Recommendation:
+      type: object
+      required: [priority, title, reason, evidence, confidence]
+      properties:
+        priority: { type: string }
+        title: { type: string }
+        reason: { type: string }
+        evidence: { type: array, items: { type: string } }
+        confidence: { type: number }
+    Intervention:
+      type: object
+      required: [id, status, requestType, caseId, account, bank, branch, ifsc, reason, approvalRequired]
+      properties:
+        id: { type: string }
+        status: { type: string }
+        requestType: { type: string }
+        caseId: { type: string }
+        account: { type: string }
+        bank: { type: string }
+        branch: { type: string }
+        ifsc: { type: string }
+        reason: { type: string }
+        approvalRequired: { type: boolean }
+        submittedAt: { type: ["string", "null"] }
+    InterventionInput:
+      type: object
+      required: [requestType]
+      properties:
+        requestType: { type: string }
+    Audit:
+      type: object
+      required: [action, actor, timestamp, source]
+      properties:
+        action: { type: string }
+        actor: { type: string }
+        timestamp: { type: string }
+        source: { type: string }
+    Dashboard:
+      type: object
+      required: [metrics, transactionVolume, riskDistribution, recentCases, alerts, conversionWindow]
+      properties:
+        metrics: { type: object, additionalProperties: true }
+        transactionVolume: { type: array, items: { type: object, additionalProperties: true } }
+        riskDistribution: { type: array, items: { type: object, additionalProperties: true } }
+        recentCases: { type: array, items: { $ref: "#/components/schemas/Case" } }
+        alerts: { type: array, items: { type: object, additionalProperties: true } }
+        conversionWindow: { type: string }
+    Report:
+      type: object
+      required: [case, sections, disclaimer]
+      properties:
+        case: { $ref: "#/components/schemas/Case" }
+        sections: { type: array, items: { type: object, additionalProperties: true } }
+        disclaimer: { type: string }
 

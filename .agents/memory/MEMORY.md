@@ -1,0 +1,1 @@
+- [CASHNET decisions](cashnet-decisions.md) — synthetic-first, case-centric intelligence with explicit conversion timestamps and intervention approval.

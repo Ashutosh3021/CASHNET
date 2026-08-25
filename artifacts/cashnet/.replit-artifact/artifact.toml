@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CASHNET"
+description = "A synthetic-data cybercrime financial intelligence platform for investigators to ingest scam reports, reconstruct fund flow, analyze fiat-to-crypto conversion, predict cash-out ATM locations, and prepare evidence-backed authorized interventions."
+version = "1.0.0"
+id = "artifacts/cashnet"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25788
+
+[services.development]
+run = "pnpm --filter @workspace/cashnet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cashnet", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cashnet/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25788"
+BASE_PATH = "/"
