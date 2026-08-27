@@ -5,7 +5,7 @@ import {
   ChevronRight, CircleDot, Clock3, Crosshair, Database, FileCheck2, FileText,
   Fingerprint, Globe2, LayoutDashboard, LockKeyhole, Menu, Network, PanelLeftClose,
   PanelLeftOpen, Pause, Plus, Radar, RefreshCw, Search, Send, Settings2, Shield,
-  Sparkles, Target, Upload, WalletCards, X, Zap
+  Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned
 } from 'lucide-react';
 import {
   useAddComplaint, useAnalyzeCase, useApproveIntervention, useCreateCase,
@@ -20,6 +20,7 @@ import type {
 import { Link, Route, Router as WouterRouter, Switch, useLocation, useParams } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import NotFound from '@/pages/not-found';
+import HistoricalActivityPage from '@/components/historical-activity-page';
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const navGroups = [
     { href: '/crypto', label: 'Crypto wallets', icon: WalletCards },
     { href: '/vasp', label: 'VASP attribution', icon: Building2 },
     { href: '/geo', label: 'Geo & prediction', icon: Globe2 },
+    { href: '/historical-activity', label: 'Historical activity', icon: MapPinned },
   ] },
   { label: 'Action', items: [
     { href: '/interventions', label: 'Interventions', icon: Shield },
@@ -285,6 +287,7 @@ function Router() {
     <Route path="/crypto" component={WalletsPage} />
     <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
     <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
+    <Route path="/historical-activity" component={HistoricalActivityPage} />
     <Route path="/interventions" component={InterventionsPage} />
     <Route path="/reports" component={ReportsPage} />
     <Route path="/audit" component={AuditPage} />
