@@ -1,0 +1,20 @@
+{
+  "sahyog_data": {
+    "request_id": "SAH-2026-08-25-001",
+    "investigation_id": "INV-2026-08-25-056",
+    "request_type": "freeze_account",
+    "target_account": {
+      "account_number": "XXXXXXXXX5678",
+      "bank_name": "State Bank of India",
+      "ifsc_code": "SBIN0005678"
+    },
+    "request_date": "2026-08-25T08:30:00Z",
+    "status": "pending",
+    "freeze_response": {
+      "response_date": "2026-08-25T09:00:00Z",
+      "status": "frozen",
+      "balance_frozen": 75000,
+      "remarks": "Account frozen due to fraud complaint CMP-2026-08-25-001234"
+    }
+  }
+}

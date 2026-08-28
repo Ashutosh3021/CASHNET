@@ -1,0 +1,40 @@
+{
+  "notification_id": "NOTIF-2026-08-25-001",
+  "notification_type": "real_time_alert",
+  "priority": "CRITICAL",
+  "timestamp": "2026-08-25T08:20:00Z",
+  "channels": ["SMS", "EMAIL", "DASHBOARD", "API"],
+  "recipients": [
+    {
+      "type": "LEA",
+      "recipient_id": "MH-CYB-001",
+      "name": "Mumbai Cyber Cell",
+      "contact": "+91 98765 43210",
+      "role": "primary_investigator"
+    },
+    {
+      "type": "I4C",
+      "recipient_id": "I4C-OPS-001",
+      "name": "I4C Operations Team",
+      "contact": "ops@i4c.gov.in",
+      "role": "coordination"
+    },
+    {
+      "type": "BANK",
+      "recipient_id": "SBI-DEL-001",
+      "name": "SBI Delhi Regional Office",
+      "contact": "dpo.delhi@sbi.co.in",
+      "role": "freeze_execution"
+    }
+  ],
+  "message": {
+    "subject": "🚨 URGENT: Predicted Fraud Withdrawal - Immediate Action Required",
+    "body": "Complaint CMP-2026-08-25-001234\nVictim: Rajesh Kumar, Mumbai\nAmount: ₹125,000\nPredicted Withdrawal Location: ATM-DEL-045, Connaught Place, Delhi\nPredicted Time: 09:30 AM - 11:30 AM Today\nConfidence: 89%\n\nAction Required:\n1. Deploy team to ATM-DEL-045 immediately\n2. Freeze accounts XXXXXXXXX5678 and XXXXXXXXX9012\n3. Alert nearby banks\n\nView full report: https://dashboard.i4c.gov.in/reports/INTEL-2026-08-25-001",
+    "short_sms": "URGENT: Fraud withdrawal predicted ATM-DEL-045 Delhi 9:30-11:30 AM. Case CMP-001234. Deploy team NOW."
+  },
+  "read_status": {
+    "LEA": "unread",
+    "I4C": "unread",
+    "BANK": "unread"
+  }
+}

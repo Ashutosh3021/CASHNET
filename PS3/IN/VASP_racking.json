@@ -1,0 +1,41 @@
+{
+  "multi_vasp_requests": {
+    "sahyog_case_id": "SAH-2026-08-25-002",
+    "requests_sent": [
+      {
+        "request_id": "REQ-2026-08-25-001",
+        "vasp": "Binance",
+        "wallet": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+        "request_type": "freeze_and_kyc",
+        "sent_date": "2026-08-25T10:00:00Z",
+        "status": "pending",
+        "response_deadline": "2026-08-27T10:00:00Z"
+      },
+      {
+        "request_id": "REQ-2026-08-25-002",
+        "vasp": "CoinDCX",
+        "wallet": "0x3C9dE6F5A4B8C7D2E1F0G3H4I5J6K7L8M9N0O1P2Q",
+        "request_type": "kyc_disclosure",
+        "sent_date": "2026-08-25T10:15:00Z",
+        "status": "pending",
+        "response_deadline": "2026-08-27T10:15:00Z"
+      },
+      {
+        "request_id": "REQ-2026-08-25-003",
+        "vasp": "WazirX",
+        "wallet": "TNYg6yMpYz1c6b4LK8Ht7Yx5WZvXgYqK4m",
+        "request_type": "freeze_request",
+        "sent_date": "2026-08-25T10:30:00Z",
+        "status": "pending",
+        "response_deadline": "2026-08-27T10:30:00Z"
+      }
+    ],
+    "aggregated_status": {
+      "total_requests": 3,
+      "pending": 3,
+      "complied": 0,
+      "partially_complied": 0,
+      "rejected": 0
+    }
+  }
+}

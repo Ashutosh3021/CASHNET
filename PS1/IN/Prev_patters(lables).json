@@ -1,0 +1,35 @@
+{
+  "historical_pattern": {
+    "pattern_id": "PAT-2026-001",
+    "detected_patterns": [
+      {
+        "pattern_type": "withdrawal_location",
+        "description": "Fraud cases from Mumbai city often have withdrawals at Delhi ATMs within 2-4 hours",
+        "confidence": 0.87,
+        "data_points": 145,
+        "timeframe": "Last 30 days",
+        "common_factors": {
+          "victim_cities": ["Mumbai", "Pune", "Surat"],
+          "withdrawal_cities": ["Delhi", "Gurugram", "Noida"],
+          "avg_time_to_withdrawal": 3.2,
+          "avg_amount": 45000,
+          "common_banks": ["State Bank of India", "HDFC Bank"],
+          "fraud_types": ["investment_scam", "job_fraud"]
+        }
+      },
+      {
+        "pattern_type": "fund_routing",
+        "description": "Sextortion funds move through 2-3 mule accounts before ATM withdrawal",
+        "confidence": 0.92,
+        "data_points": 89,
+        "timeframe": "Last 45 days",
+        "common_factors": {
+          "mule_accounts_used": 2.3,
+          "avg_amount": 65000,
+          "time_to_withdrawal": 1.8,
+          "cash_withdrawal_percentage": 78
+        }
+      }
+    ]
+  }
+}

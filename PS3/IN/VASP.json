@@ -1,0 +1,27 @@
+{
+  "vasp_responses": {
+    "response_id": "VASP-RES-2026-08-25-001",
+    "sahyog_case_id": "SAH-2026-08-25-001",
+    "legal_request_id": "LEGAL-2026-08-21-001",
+    "vasp_name": "Binance",
+    "response_date": "2026-08-25T14:00:00Z",
+    "response_status": "partially_complied",
+    "response_details": {
+      "kyc_information_provided": true,
+      "account_holder_name": "John Doe",
+      "registration_country": "Malta",
+      "verified_status": "verified",
+      "total_transactions": 45,
+      "total_volume_30_days": "12.5 ETH",
+      "withdrawal_details": {
+        "fiat_withdrawn": true,
+        "amount_withdrawn": "3.0 ETH",
+        "withdrawal_method": "bank_transfer",
+        "destination_bank_country": "UAE"
+      }
+    },
+    "freeze_compliance": "assets_frozen",
+    "frozen_amount": "3.0 ETH",
+    "compliance_notes": "Cooperation in progress. Awaiting additional KYC documents."
+  }
+}

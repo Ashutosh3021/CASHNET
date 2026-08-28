@@ -1,0 +1,27 @@
+{
+  "sahyog_cases": {
+    "case_id": "SAH-2026-08-25-001",
+    "investigation_id": "INV-CRYPTO-2026-001",
+    "complaint_id": "CMP-CRYPTO-2026-08-25-001",
+    "vasp_request": {
+      "request_type": "freeze_assets",
+      "target_vasp": "Binance",
+      "suspect_wallet": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "amount_to_freeze": "3.0",
+      "currency": "ETH",
+      "request_date": "2026-08-25T08:30:00Z",
+      "status": "pending",
+      "response": null
+    }
+  },
+  "sahyog_legal_requests": {
+    "request_id": "LEGAL-2026-08-25-001",
+    "type": "kyc_disclosure",
+    "vasp_name": "Binance",
+    "wallet_address": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+    "request_date": "2026-08-25T09:00:00Z",
+    "request_status": "sent",
+    "response_deadline": "2026-08-26T09:00:00Z",
+    "acknowledgement": "received"
+  }
+}
