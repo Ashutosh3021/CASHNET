@@ -1,0 +1,360 @@
+{
+  "exchange_wallet_clusters": {
+    "binance": {
+      "exchange_name": "Binance",
+      "website": "binance.com",
+      "legal_country": "Malta",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0xa043bae1603803a839c0cb52f511d9cb8f68d9d9",
+          "0xb0341314a5534ea92b26fa8adc30543fe5a6e743",
+          "0x849e63f8101ac616f8fd0ba84a167fe482ed4a92",
+          "0xc8c8050eed40ef171cc2784d638b34fa78135933",
+          "0x1a3ed13a32e97cc31667baf165d337643e7d80fd",
+          "0xfed273606f4c76ff8b24f98b098d2f129a31e399",
+          "0x698e3b36a45c17ff134eee52db9fa0d4af211849",
+          "0xb3a47ed1640ca4b8601ee8d9224ecde331ce692e",
+          "0xdfce0b5ecdc4c1dd3d74c3035df4a6f8f1f2f416",
+          "0xb598694b0e8bba51a55db4466426fae9480469a7",
+          "0x737ec218a5dca33037d16a3b73a0cc162f803d7c",
+          "0xaf9fe9b8d8eb743ac8a41445823bb168636e9bdc",
+          "0x605cdf6b8933605a627290690a270635c6cd4108",
+          "0xf5acacf3022a93bc29b1df104af6b1ba1cd91fc5",
+          "0x6585dd1fadb6bf4c876b4dd1e37960d23c5eb40f",
+          "0x1b7cba7c13b49786b5b441318c237bf841332084",
+          "0xf8b2d7d97720f7d61a0294f1c9c3877df499bf33",
+          "0xa22107943bb7aecaae68aed124b941bbf8710654",
+          "0x1fd9ffa40c7ae29a7155ad5b4fd8755f68fa8635",
+          "0xcac38e7b1f932881fe71d7b84df386e8ed4c6e8d",
+          "0x449f728588753b93c0bbc6adf7089dd787b6a27f",
+          "0x5baddd65bcd01aefb61ad7be0c45289c21d93e27",
+          "0x440cea2759a64d367399f4fa49ab097e4c95a9ab",
+          "0xadaea479b14b228f8ed4d7cb51f2fdbffc5c087a",
+          "0xa9df130e8e31de462f471e27abf6b26176f057fd",
+          "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+          "0x1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8s9T0u",
+          "0x8B5c9E3A4F2D6A7B1C8E9F0D2A3B4C5D6E7F8A9B"
+        ],
+        "ethereum_deposit_addresses": [
+          "0x1a8f5631d7aa90c3291c33d52e0d2242a00c3520",
+          "0xb8b7c818f0cd87f076a7e11914a85f8791bdacb3",
+          "0x7357616a52e1d11bc898515acdbf9593a31d5c9c",
+          "0xdfd9a0ed42b450d962a0b3655bc91029a4a774c1",
+          "0x64a7a0690432450b26b8dc1d00ed99b6105c9de1",
+          "0xd39864552818e5bdd3239ca2c7cc7e9a9da21744",
+          "0x08470d1dd9878ce7ca57201e5b823778254659ca",
+          "0x11a4baed5925fb69f46cdadba8a65523f7321d1c",
+          "0xde05c262dcc276a374b784c7d5ff7468fdc24ad8",
+          "0x1dd4c4e26f3750083f50edac24db2b7014d8b814",
+          "0x406c71e908326936a1f188f867af40c5bacb508d",
+          "0x2c7bac1c74030e8f84c35cd515ebe6f77e8cb19d",
+          "0x851a496b50d5f4ff1a5caf29c01c5699af5c986a",
+          "0x31b768447f4e71d7e71ad5518edbeac8132c085c",
+          "0x8914fb8cd1fa7a5eca2f6e01225b5fed4a824882",
+          "0xf2ab9d9d00a9ac6a7a4f7ca41077395bbdf25857",
+          "0x4314693d2595c78740f8f3507ea78d6ebc569381",
+          "0x8c4fa1f6c5fc3880257798592fb45d8b4d5af9cb",
+          "0xb07fcc9b92a9d2a0f1052b6cedb0235a852e55cb",
+          "0xab93383f443b55ec41a6fdfc44b574738eb2993a",
+          "0x8a06b1c08e6ee73f5ae198bee2e2ef67efee091f",
+          "0x4f87fd7312742bc9c2ded81a225343cf4b0ab014",
+          "0x68eb41e49322b96878a33cd17b19088925813918",
+          "0xc78707cb6db9051fe1e06ccfa6f6de6aa8a5288b",
+          "0x3004a88d354eb1c6ce03109b0b633d084db59a54",
+          "0x2a340feea67ffac5626c7d4bce8f8233aed1b34a",
+          "0x9d3cb87d5f0ef1f7393e8c6854871f7de569324e",
+          "0x96256d7aa4dfa72c2b7e8a00dfac6d3b0859a977",
+          "0x08084f0dace11238d46569f3adadc16800276c9d",
+          "0x1803de701ee90e5f9cb6123d6e5c2fb8f06d5cf6",
+          "0xc04f75f6aa19cb12bab51045422786051956461e",
+          "0xef9262471667143a9314f59c55ddf25f35ff4b79",
+          "0x36d61998a8f7b74bdc67a3abc1f768eb8c5e8a1c",
+          "0x1dd4ca27d9ccdbafdaba99d7be958bfdaedfcbfc2c4dc1c4ad",
+          "0xdaa2f3228f362a609396b3cc11d2574d8a9995d9",
+          "0xdb4912142b86262abaf872570502df87a6d710c4",
+          "0x4827bc811cd5d0b8f1dc4f75d7fc3c95ba223305",
+          "0x3be7c960d066d54112241462950065656d13c97c",
+          "0x7a5183634d59975a01c71d70f3b2a2e4a45e264b",
+          "0x3ab0723a0bdf6216b15e2cc2f280a7ba26ad11c9"
+        ],
+        "bitcoin_hot_wallets": [
+          "3vAXpNpLSr6b02mLlyOWXoxoNe3awtx0AH",
+          "1V7VbeqcdWFMFzRfHMrtFmYHyNZQeRT0df",
+          "3hLdPOkaiaEvGYqxU2Th3uAGq8MEFd1kjV",
+          "bc1q4rhqmqpta97pek588a26jr4p8spvumcfzwtfeh",
+          "1CKEVm3Vpazov026aO0TgGoEd9Sf53GRx8",
+          "1KFNyKdPis05yZuCo6iVggBthwVCC0fYsR",
+          "bc1qp62z8ts4glqvwh8weyq6ly6t55jg6qzuwyu62p",
+          "3d5ASExAv4rBjMMOE2DfxzNXp9HbxSDWvJ",
+          "3yltn3Wd9GV98gOqY4d9n0Xv00kKXR4bR6",
+          "bc1qy76el39ppnq02ne29empykyrstzk4j22lhd502",
+          "bc1q7kae8j9fkyh77vl7pna78jayh8l9uzk5uwg8zg",
+          "1ScBAkz2vxZWJVnBXcbqgv3je68u93RAOL",
+          "3jgmlRSTqrodJ0jwAsPLmbksf0tyEOfHl2",
+          "3lcBqZIjRfPYzUodyG7Q6Josy0cJGJ8j6B",
+          "18YhA9A9MZp44eyyurC2WMGAzjKV65IgrH",
+          "3Bc9X8p4Qk2J6mN5R7T1wY3L8F0D2A6B4C7E9F1"
+        ],
+        "tron_hot_wallets": [
+          "TvzxELcriLRc3uoU53bYsrERg1i8BZqzOl",
+          "TnZTV1YFjtFi02blZZpC4RqZFNhbxKl1Kv",
+          "Tk3UQrxkJ71OQqzbWVa4OLapXs7NAxvpCP",
+          "TZygFP0xOLsgd9N1qS3sjV3XXLOQSO9qzy",
+          "TcRJlTnHW4PF002lghqYVlQufwUtWuqs0D",
+          "T1K6e3F1xsd0imzJ4CtSWENkNaqVkVEVfM",
+          "TNz7xcmxatZlPMpQvhxKkZssTKu39v3wl6",
+          "T4zoTiTKkwOc2pHd9PObQzxHDjRNsPPqLi",
+          "TZgShhgmmqGmRscEm5uaP4ZPjfFSgpo9sC",
+          "TgkcsXtTfVc0PkwBM2fYly7qx0XOXhRd6j",
+          "T7MOkd5qpQ90n0rkHefRZS92nFX26N8RqPt",
+          "Tx0I9dNj001eEo8dnNzoCXB1BhEOgzIafL"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@binance.com",
+        "legal_email": "legal@binance.com",
+        "india_contact": "india@binance.com"
+      }
+    },
+    "coindcx": {
+      "exchange_name": "CoinDCX",
+      "website": "coindcx.com",
+      "legal_country": "India",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0x9483af5037897ab1c35df48b022bb193e67cb16e",
+          "0xd9c7af2780ed78e29b269e86fec4ff726bb4bdbe",
+          "0xa3945afaf8b51579a6bd4dc802a3c244db4c0d1d",
+          "0xbdb83cc4ae6ff58049cddebac89cf42a22866829",
+          "0x45b2250e9a795c5321868133553c8fdf0a7e99fa",
+          "0x5ef684ed5c70e38f2f801acd618bfcafb27510c8",
+          "0x9dfabbe10cee7bc73af0ae9406e71d",
+          "0x1098f4be56a823d32cddef78411b752a19e57949",
+          "0x9556033b6d2be754829dd284e11080969e88f7c5",
+          "0x3cb47868adc92872fafb75371503e5770f5b8dd4",
+          "0x82a5ad86e85d7798221a325b13cb7732d0092a09",
+          "0x042f990ba417fd2d9cd2a4b5793613d8621790c8"
+        ],
+        "bitcoin_hot_wallets": [
+          "1fO3Ha6QAA2RA6DVvX4ZJApV4fLHpaUaGG",
+          "3OQtwjOp1AwrQUzWDwIptvRT1OUBRknyuI",
+          "bc1q4pv5e60nzgtnhav5f7pc90qmasxeskn4t5lzgv",
+          "bc1qvjshzzf6at7gnxajgdrzf7e7u6jk7jcc7wwjqr",
+          "1xWnRXzvHRqryUvIltnJlU5lTopqoZZwWh",
+          "1PPMVHcDME931E94rnJdXDHFyQk8RCQanK",
+          "3w1lqq7vlAzUwyBJ8QYSXI1mXTDaAi3NHt",
+          "3sIJyQdYDNBuwI5pbh17mJOkWwPET3xrNi"
+        ],
+        "tron_hot_wallets": [
+          "TkYuNJ0ekotsqNqB1wK7zlbTP6Rekgd2Ib",
+          "TyVfqjO2tprMiZbP1uD8HqB8RkLNNIGNtv",
+          "THXBwqsaY0vDa56DaAsoaxzIykTyxqAoV4",
+          "TYQrUYz0lrNMqMlbdHlgqSTojEvtX9CXu0",
+          "T7dWeDl0YZhVpVBTcCVG8DQtuNc6GpNm31",
+          "TnhNukrhWacWDKxfjfM59MdNRXho8WUXBl"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@coindcx.com"
+      }
+    },
+    "wazirx": {
+      "exchange_name": "WazirX",
+      "website": "wazirx.com",
+      "legal_country": "India",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0xb52e774b325b4de8124450a620dc3ba8687895a1",
+          "0x81d2d3719da8b4591e37e1c08f65bd4014ff1b83",
+          "0x83a2b61a57ae22652f755f55c6b993ce4f76bf98",
+          "0xf443d0db488e2052593c16ebbc2db9e94b910c5d",
+          "0x6dd3a90c64082830b67983462190618c2287a39b",
+          "0x31c5e1a655904f9f720d35cd10fedd0b17038384",
+          "0x7b2b09a024c90a064dad0da36f15d8287e038562",
+          "0x55a3f8caeed0842ea16f9a332fe58328cd4b82ff",
+          "0x2ee58f15ebce667eee4c12c94933a5b789b5d723",
+          "0x0c046bfc1efd757360b659b98ec87d0f86b88a04",
+          "0x64d769082d7b1cfb26729b374becb117586c8f66",
+          "0xce9a2d2b64c7a123947d80e3976193898d02a0da",
+          "0xd4e062a9b9c279e145616842b488b91baf7bef49",
+          "0x58f5298a729bf00a1dcf658a034c4850a5b90255",
+          "0xaeca7ae85c6bd4b583ace5f40fad969dcb506737"
+        ],
+        "bitcoin_hot_wallets": [
+          "3nsgWW4BbDFl5TGWi2Y6PiSCSGa5QKfCcG",
+          "bc1qhqc5xxf3c4g9r73r33g7ej9fu3pqupvzvku5kw",
+          "3tYSPH8UCiY5DCQSCon1M4yRPW2CbDvCkV",
+          "bc1qjsvkr3zfwj8890zxkdlj2k94hk6rn2rwfvn4n6",
+          "3EOfY34NajjGyJmQtJ4s6A8vfa9zhswIdR",
+          "3grbAKMSzAnkiI0wzr2haOi2O8iiX13R5M",
+          "3FIBwlLJ0oFzHw8JRhDQiT88WCe3fDT7eN"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@wazirx.com"
+      }
+    },
+    "bitbns": {
+      "exchange_name": "Bitbns",
+      "website": "bitbns.com",
+      "legal_country": "India",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0xc405c787b6fc40ebb90720fc9418d424d012927c",
+          "0x4b7cd512e27fc37a3b5ac1264bc86b72d0e7afa0",
+          "0xeaf6ed541a6cbb935b28ad011734301fadfab1d2",
+          "0xae9feb47eae46ec521c650f477e9272c3aeb1194",
+          "0x7e2aea4be98f76dcc80fd79e5a6af18f17ca2063",
+          "0xbea51ab23b971848d7f00c01ca7ad29e02a7e0b2",
+          "0x204c729d17c3c6cfa5f92dcc95126b87e01d9c07",
+          "0x021ae6ccb3a86f9027fac5031815c83ca43caf72"
+        ],
+        "bitcoin_hot_wallets": [
+          "bc1qaptxgnuwrp39qsz8wjdhu8r88dxuzjpdxn9twx",
+          "38mhQdi0Ckv2LWNLk81f1E9KZrTTpuJ3Kj",
+          "bc1qudplhsdvekr0zckdxt8lq49wjjlwyk9m5kq5vk",
+          "bc1qpdg73eezuhp74urtnt93zkxl8r07j7xh8tg4gz",
+          "1fJbT8AepktMfDYKMupgovduX6WMVMJ"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@bitbns.com"
+      }
+    },
+    "coinswitch": {
+      "exchange_name": "CoinSwitch",
+      "website": "coinswitch.co",
+      "legal_country": "India",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0x030cd859ac7a8879e4c354d24f92822bec21f975",
+          "0x3baf27f810ecfe2f88a4efcfacbe5170a1093559",
+          "0x38cc31daff67980a6b66054783eb672beb6d924f",
+          "0x85e960a4279e3d47d497b3c24aa1a42ea0c7f957",
+          "0x64afd5b04927b505af04a13ac9255dc4b585224c",
+          "0x6e238dc8bfdbbc6e1205b27f8f24b12bb43f6c10",
+          "0x7630a97e04011993a02b495dc981dc8bf2c0beed",
+          "0x7b2a1df686c578754b1767bad36f6decf50aa68a",
+          "0x16bfbe2533d6367cc9ccf5aff827173f0bd70295",
+          "0x49ca8774788c80cfe17d702ace2646c978878204"
+        ],
+        "tron_hot_wallets": [
+          "TKxPVrdKhwYKVMxA9zdpotfQ1hkHcOAFAb",
+          "TDbtJtgEQmEYPks8mN8e0nqsJXM7SJKqJG",
+          "TAveZFsPtzpFPH2MGlEOZ6qNY045TdmCoU",
+          "TV0z14N0qrjQoojbXtE9A4mqbWrINcSWd3",
+          "Ttsd73P2y00oJFhPJWGEfLVtZTXU6ngnrz",
+          "T1dHRhHDprWiDwtO4cTXd4PpxNR3QHoBa7",
+          "T54s6Us1jBtYNWqeWET5uA4gjqeATHuRVN",
+          "TlBNamsJgpSVOiKz6B2ikKurfwyxZJbbIL"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@coinswitch.co"
+      }
+    },
+    "zebpay": {
+      "exchange_name": "ZebPay",
+      "website": "zebpay.com",
+      "legal_country": "India",
+      "clusters": {
+        "ethereum_hot_wallets": [
+          "0x3174d0992f2908ced733fd4b6633db32c0f3739a",
+          "0x17df63669180e759acbc086fa2e0227571b645f7",
+          "0xf456e4de862b7f8ea73027271e77f871b2534dbd",
+          "0xdd7eb9742d1b4ce59f95b169fa6db36780ce1bcc944db7effd",
+          "0x89143c60366af24cbee9515376491652a18faabe",
+          "0x8a171c4fa43698e8867bd59c0b7cd06b5bc7c5ec",
+          "0x31f4a6060a76abb4d9bfac123db30723dd81c261"
+        ],
+        "bitcoin_hot_wallets": [
+          "1TBEbBpsZyug0AzEJT9cyFS541odbJIqO3",
+          "1E6vRbrlvon4vL0OisS7ZPTXX0MrUPimLg",
+          "36EoI9wqPk1FYuhoIE9WVVI302Lgd6X7U8",
+          "bc1qnmr3s9rxthkc0myt6rxlcq60f9gkd58cseydau",
+          "bc1qetqyqe7z2l9pc45up5k4sfv43fhaqgsakwx3e5",
+          "bc1qte5cuz3vhus3xsf25qu3g6fdsh6gsrc7wjq28h"
+        ]
+      },
+      "contact": {
+        "compliance_email": "compliance@zebpay.com"
+      }
+    }
+  },
+  "known_mixers_tumblers": {
+    "tornado_cash": {
+      "type": "ethereum_mixer",
+      "contract_addresses": [
+        "0x303393bf5b32f5101439c0032eb5820de0a6c1e4",
+        "0x3cafffee12ec3659f30938c50cddfe317a18ca87",
+        "0x755bb746e9033d64e9e582175979676c5623a51d",
+        "0x8ace1103354da4bffcbe04dc669a78c263b78ccb",
+        "0x7c53cb378592f0cd56a6c850ce2f5a99df368319",
+        "0x7e1180b721f43a1082d621871fd236b79f98a402",
+        "0x16c8ee79b4e7bb49c23eb7e296f3d4a4ebb37f8f",
+        "0x11c574871bb6bd601e5b7183f2dd2014861ca253"
+      ],
+      "risk_level": "HIGH"
+    },
+    "wasabi_wallet": {
+      "type": "bitcoin_mixer",
+      "wallet_addresses": [
+        "13HBcNGPOgQBLdxmp4mabaYQd7fZPScFYu",
+        "bc1qxx37rxt9v2vwz65tzxfnlr3lm97nlk4lk25u2m",
+        "3eb4BFTFRabVhoApeiEmxNoS9B2itWcXzY",
+        "1oTvmd49XRn2GlNeE7d96hkIXmFACkmALs",
+        "bc1qw5gezlv9wshc6eqvmcanyhgwwvnzy0yxqsh0a7",
+        "bc1qt05jdpavjxdgahs0kk5ah8p654k5gw4gn76qc5"
+      ],
+      "risk_level": "HIGH"
+    },
+    "chipmixer": {
+      "type": "bitcoin_mixer",
+      "wallet_addresses": [
+        "3yK3GlAZps7Oxtz2TfNWviU5yt9YaeRGOT",
+        "1kliEFgJnmUYl82B4gNefhdboEVaq7PWcn",
+        "1xG7qEULuQvtowyL82Xa1yZ5bhG6UpCQ1F",
+        "bc1qxl76qtpe2wnvnzdaalmuhfxysjmsyef43m9wr4",
+        "1pk6Rg9b5uxrSP6PP5NEXunJ5ev4USOW7B"
+      ],
+      "risk_level": "HIGH"
+    },
+    "railgun": {
+      "type": "ethereum_mixer",
+      "contract_addresses": [
+        "0x3441593f9256b49366cce2a910d5d43a24bdd058",
+        "0xb4d9a34f0c2bde3becdb4de20667561b4eb815cd",
+        "0x0e4a977e3c3a5d1cd6fa2057f18562b316492bcf",
+        "0xa17d6a7011ae39f7b196fb425bd86b6dc81d8dac"
+      ],
+      "risk_level": "HIGH"
+    }
+  },
+  "defi_protocols": {
+    "uniswap": {
+      "router_address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "type": "decentralized_exchange",
+      "risk_level": "MEDIUM"
+    },
+    "pancakeswap": {
+      "router_address": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+      "type": "decentralized_exchange",
+      "risk_level": "MEDIUM"
+    },
+    "sushiswap": {
+      "router_address": "0x3a1db07509a14c114f2fa30fe48275ef98ba002d",
+      "type": "decentralized_exchange",
+      "risk_level": "MEDIUM"
+    },
+    "1inch": {
+      "router_address": "0x32894b684a27faf23a4aab9a82d5c6f348a651ec",
+      "type": "aggregator",
+      "risk_level": "MEDIUM"
+    },
+    "curve": {
+      "router_address": "0x2c41f3fc18e9c15944105c2cac8e694aba294ea5",
+      "type": "stable_swap",
+      "risk_level": "LOW"
+    }
+  }
+}
