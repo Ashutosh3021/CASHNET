@@ -1,0 +1,26 @@
+{
+  "bank_transaction_data": {
+    "transaction_id": "BANK-TXN-2026-08-25-001",
+    "source_account": {
+      "account_number": "XXXXXXXXX1234",
+      "bank_name": "State Bank of India",
+      "ifsc_code": "SBIN0001234",
+      "account_holder": "Rajesh Kumar",
+      "city": "Mumbai",
+      "state": "Maharashtra"
+    },
+    "destination_account": {
+      "account_number": "XXXXXXXXX5678",
+      "bank_name": "State Bank of India",
+      "ifsc_code": "SBIN0005678",
+      "account_holder": "Mohan Singh",
+      "city": "Delhi",
+      "state": "Delhi"
+    },
+    "transaction_amount": 50000,
+    "currency": "INR",
+    "timestamp": "2026-08-25T06:30:00Z",
+    "transaction_type": "UPI",
+    "status": "completed"
+  }
+}

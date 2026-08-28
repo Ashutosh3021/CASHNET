@@ -1,0 +1,33 @@
+{
+  "legal_request_templates": {
+    "template_id": "SAH-LEGAL-TEMPLATE-001",
+    "template_name": "VASP_KYC_DISCLOSURE_REQUEST",
+    "applicable_law": "Information Technology Act, 2000 (Section 69)",
+    "request_type": "kyc_information",
+    "purpose": "Identification of account holder for fraud investigation",
+    "standard_content": {
+      "subject": "Legal Disclosure Request under Section 69 of IT Act 2000",
+      "body": "We, the Indian Cyber Crime Coordination Centre (I4C), request KYC information for the following wallet address: [WALLET_ADDRESS]. This is in connection with [CASE_ID] and is required for investigation under [APPLICABLE_LAW]. Please provide information within 7 days as per legal requirements."
+    },
+    "required_fields": [
+      "wallet_address",
+      "blockchain",
+      "case_id",
+      "investigation_officer_name",
+      "contact_details",
+      "urgency_level"
+    ]
+  },
+  "freeze_request_template": {
+    "template_id": "SAH-LEGAL-TEMPLATE-002",
+    "template_name": "VASP_ASSET_FREEZE_REQUEST",
+    "applicable_law": "Prevention of Money Laundering Act, 2002 (PMLA)",
+    "request_type": "asset_freeze",
+    "standard_content": {
+      "subject": "URGENT: Request for Freezing of Crypto Assets",
+      "body": "We request immediate freezing of [AMOUNT] [CURRENCY] at wallet address [WALLET_ADDRESS]. This is linked to fraud investigation [CASE_ID] under Section [APPLICABLE_LAW]. Please freeze all assets and provide KYC details of the account holder."
+    },
+    "urgency_levels": ["IMMEDIATE", "HIGH", "NORMAL"],
+    "compliance_deadline": "48 hours"
+  }
+}

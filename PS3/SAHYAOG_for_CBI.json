@@ -1,0 +1,37 @@
+{
+  "sahyog_case_id": "SAH-2026-08-25-002",
+  "case_type": "cross_border_crypto_fraud",
+  "investigation_details": {
+    "investigation_id": "INV-BLR-2026-032",
+    "agency": "Bangalore Cyber Crime Cell",
+    "officer_name": "Inspector Priya Reddy",
+    "badge_number": "KA-45678",
+    "contact": "+91 87654 32109"
+  },
+  "international_coordination": {
+    "countries_involved": ["India", "Singapore", "UAE"],
+    "interpol_case_id": "INT-2026-089",
+    "mutual_legal_assistance_request": "pending"
+  },
+  "target_wallets": [
+    {
+      "wallet_address": "0x3C9dE6F5A4B8C7D2E1F0G3H4I5J6K7L8M9N0O1P2Q",
+      "blockchain": "ethereum",
+      "associated_complaint": "CMP-2026-08-22-123",
+      "priority": "CRITICAL"
+    },
+    {
+      "wallet_address": "TNYg6yMpYz1c6b4LK8Ht7Yx5WZvXgYqK4m",
+      "blockchain": "tron",
+      "associated_complaint": "CMP-2026-08-22-124",
+      "priority": "CRITICAL"
+    },
+    {
+      "wallet_address": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "blockchain": "ethereum",
+      "associated_complaint": "CMP-2026-08-22-125",
+      "priority": "HIGH"
+    }
+  ],
+  "case_notes": "Organized crime syndicate using multiple wallets across chains. Need automated attribution for all wallets to build case."
+}

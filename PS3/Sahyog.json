@@ -1,0 +1,41 @@
+{
+  "sahyog_case_id": "SAH-2026-08-25-001",
+  "case_type": "crypto_investigation",
+  "investigation_details": {
+    "investigation_id": "INV-DEL-2026-045",
+    "agency": "Delhi Cyber Crime Cell",
+    "officer_name": "Inspector Sanjay Verma",
+    "badge_number": "DL-78901",
+    "contact": "+91 98765 43210"
+  },
+  "case_status": "under_investigation",
+  "created_date": "2026-08-20T10:00:00Z",
+  "last_updated": "2026-08-25T09:00:00Z",
+  "target_wallets": [
+    {
+      "wallet_address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "blockchain": "ethereum",
+      "associated_complaint": "CMP-2026-08-20-789",
+      "priority": "HIGH",
+      "notes": "This wallet appears in multiple fraud cases across India"
+    },
+    {
+      "wallet_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "blockchain": "bitcoin",
+      "associated_complaint": "CMP-2026-08-21-456",
+      "priority": "MEDIUM"
+    }
+  ],
+  "legal_requests_already_sent": [
+    {
+      "request_id": "LEGAL-2026-08-21-001",
+      "vasp": "Binance",
+      "request_type": "kyc_disclosure",
+      "status": "pending_response",
+      "sent_date": "2026-08-21T11:00:00Z",
+      "response_deadline": "2026-08-28T11:00:00Z"
+    }
+  ],
+  "case_priority": "HIGH",
+  "reason_for_priority": "Victim fund totaling ₹1.5M INR needs urgent recovery"
+}

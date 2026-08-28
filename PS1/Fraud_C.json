@@ -1,0 +1,59 @@
+{
+  "complaint_id": "CMP-2026-08-25-002345",
+  "complaint_date": "2026-08-25T10:30:00Z",
+  "victim_details": {
+    "name": "Priya Singh",
+    "age": 28,
+    "gender": "Female",
+    "phone": "+91 87654 32109",
+    "email": "priya.s@email.com",
+    "address": {
+      "street": "45, Park Street",
+      "city": "Delhi",
+      "district": "New Delhi",
+      "state": "Delhi",
+      "pincode": "110001",
+      "coordinates": {
+        "latitude": 28.6139,
+        "longitude": 77.2090
+      }
+    },
+    "bank_details": {
+      "bank_name": "HDFC Bank",
+      "account_number": "XXXXXXXXX5678",
+      "ifsc_code": "HDFC0005678",
+      "upi_id": "priya.s@hdfcbank"
+    }
+  },
+  "fraud_details": {
+    "type": "job_fraud",
+    "sub_type": "part_time_job",
+    "description": "Offered part-time job as online content reviewer. Asked to pay 'security deposit' and 'training fee'.",
+    "reported_through": "NCRP Portal",
+    "fraudster_contact": {
+      "phone": "+91 66666 77777",
+      "telegram_id": "@job_offer_2026"
+    }
+  },
+  "transaction_details": {
+    "transactions": [
+      {
+        "transaction_id": "TXN-2026-08-25-003",
+        "date": "2026-08-25T09:00:00Z",
+        "amount": 15000,
+        "currency": "INR",
+        "method": "NEFT",
+        "from_account": "XXXXXXXXX5678",
+        "to_account": "XXXXXXXXX9012",
+        "reference": "Training fee"
+      }
+    ],
+    "total_amount_lost": 15000,
+    "currency": "INR"
+  },
+  "time_details": {
+    "fraud_start_time": "2026-08-25T08:30:00Z",
+    "fraud_end_time": "2026-08-25T09:15:00Z",
+    "reporting_delay_hours": 1.25
+  }
+}
