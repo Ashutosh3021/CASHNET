@@ -1,0 +1,74 @@
+{
+  "blockchain": "ethereum",
+  "chain_id": 1,
+  "transactions": [
+    {
+      "tx_hash": "0xabc123def456789abc123def456789abc123def4",
+      "block_number": 18967234,
+      "timestamp": 1724582400,
+      "from": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "to": "0x8B5c9E3A4F2D6A7B1C8E9F0D2A3B4C5D6E7F8A9B",
+      "value": "2.0",
+      "currency": "ETH",
+      "gas_used": 21000,
+      "gas_price": "50000000000",
+      "status": "success",
+      "input_data": "0x",
+      "token_transfers": []
+    },
+    {
+      "tx_hash": "0xdef789abc123def456789abc123def456789abc1",
+      "block_number": 18967236,
+      "timestamp": 1724582700,
+      "from": "0x8B5c9E3A4F2D6A7B1C8E9F0D2A3B4C5D6E7F8A9B",
+      "to": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "value": "3.0",
+      "currency": "ETH",
+      "gas_used": 21000,
+      "gas_price": "52000000000",
+      "status": "success",
+      "input_data": "0x",
+      "token_transfers": []
+    },
+    {
+      "tx_hash": "0xeth456789abcdef123456789abcdef123456789ab",
+      "block_number": 18967240,
+      "timestamp": 1724583600,
+      "from": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "to": "0x1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8s9T0u",
+      "value": "0.5",
+      "currency": "ETH",
+      "gas_used": 21000,
+      "gas_price": "48000000000",
+      "status": "success",
+      "input_data": "0x",
+      "token_transfers": []
+    }
+  ],
+  "erc20_transfers": [
+    {
+      "tx_hash": "0xeth123abc456def789ghi012jkl345mno678pqr9",
+      "block_number": 18967238,
+      "timestamp": 1724583000,
+      "from": "0x5E7F8A9B0C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R",
+      "to": "0x7F9A8B7C6D5E4F3G2H1I0J9K8L7M6N5O4P3Q2R1S0T",
+      "value": "10000",
+      "token_symbol": "USDC",
+      "token_address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "decimals": 6,
+      "status": "success"
+    },
+    {
+      "tx_hash": "0xeth789ghi012jkl345mno678pqr9abc123def456",
+      "block_number": 18967239,
+      "timestamp": 1724583300,
+      "from": "0x6F9G8H7I6J5K4L3M2N1O0P9Q8R7S6T5U4V3W2X1Y0Z",
+      "to": "0x7F9A8B7C6D5E4F3G2H1I0J9K8L7M6N5O4P3Q2R1S0T",
+      "value": "5000",
+      "token_symbol": "USDC",
+      "token_address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "decimals": 6,
+      "status": "success"
+    }
+  ]
+}

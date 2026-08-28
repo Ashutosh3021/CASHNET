@@ -1,0 +1,69 @@
+{
+  "complaint_id": "CMP-2026-08-25-004567",
+  "complaint_date": "2026-08-25T16:45:00Z",
+  "victim_details": {
+    "name": "Sunita Patel",
+    "age": 55,
+    "gender": "Female",
+    "phone": "+91 65432 10987",
+    "email": "sunita.p@email.com",
+    "address": {
+      "street": "56, Law Garden",
+      "city": "Ahmedabad",
+      "district": "Ahmedabad",
+      "state": "Gujarat",
+      "pincode": "380006",
+      "coordinates": {
+        "latitude": 23.0225,
+        "longitude": 72.5714
+      }
+    },
+    "bank_details": {
+      "bank_name": "Bank of Baroda",
+      "account_number": "XXXXXXXXX7890",
+      "ifsc_code": "BARB0007890",
+      "upi_id": "sunita.p@bob"
+    }
+  },
+  "fraud_details": {
+    "type": "banking_fraud",
+    "sub_type": "kyc_update_scam",
+    "description": "Received SMS claiming bank KYC needs urgent update. Clicked link and entered OTP. Money was transferred out.",
+    "reported_through": "NCRP Portal",
+    "fraudster_contact": {
+      "sms_sender": "BANK-ALERT",
+      "link": "https://fake-bank-update.com"
+    }
+  },
+  "transaction_details": {
+    "transactions": [
+      {
+        "transaction_id": "TXN-2026-08-25-006",
+        "date": "2026-08-25T15:30:00Z",
+        "amount": 25000,
+        "currency": "INR",
+        "method": "UPI Auto Pay",
+        "from_account": "sunita.p@bob",
+        "to_account": "fraud_merchant@paytm",
+        "reference": "Auto debit"
+      },
+      {
+        "transaction_id": "TXN-2026-08-25-007",
+        "date": "2026-08-25T15:35:00Z",
+        "amount": 20000,
+        "currency": "INR",
+        "method": "UPI Auto Pay",
+        "from_account": "sunita.p@bob",
+        "to_account": "fraud_merchant2@googlepay",
+        "reference": "Auto debit"
+      }
+    ],
+    "total_amount_lost": 45000,
+    "currency": "INR"
+  },
+  "time_details": {
+    "fraud_start_time": "2026-08-25T15:20:00Z",
+    "fraud_end_time": "2026-08-25T15:40:00Z",
+    "reporting_delay_hours": 1.08
+  }
+}

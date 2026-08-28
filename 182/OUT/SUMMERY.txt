@@ -1,0 +1,22 @@
+INPUT:
+1. SAHYOG Case Data (Existing investigations)
+2. Legal Request Templates
+3. Wallet Attribution History
+4. VASP Response Data
+5. Multi-Jurisdiction Rules
+
+PROCESSING:
+↓ (Automated Attribution Engine)
+↓ 1. Connect to SAHYOG Portal
+↓ 2. Fetch case details
+↓ 3. Run attribution analysis
+↓ 4. Match to VASP
+↓ 5. Generate legal request
+↓ 6. Send through SAHYOG
+↓
+OUTPUT:
+1. Automated Legal Request to VASP
+2. SAHYOG Dashboard Update
+3. Compliance Monitoring Report
+4. Multi-Jurisdiction Routing
+5. SLA & Performance Dashboard

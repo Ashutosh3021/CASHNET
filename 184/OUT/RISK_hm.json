@@ -1,0 +1,66 @@
+{
+  "heatmap_id": "HEAT-2026-08-25-001",
+  "timestamp": "2026-08-25T08:00:00Z",
+  "time_period": "next_24_hours",
+  "risk_zones": [
+    {
+      "zone_id": "ZONE-DEL-01",
+      "city": "Delhi",
+      "state": "Delhi",
+      "coordinates": {
+        "latitude": 28.6328,
+        "longitude": 77.2197,
+        "radius_km": 3
+      },
+      "risk_score": 0.92,
+      "risk_level": "EXTREME",
+      "predicted_crimes": 12,
+      "affected_victims": 8,
+      "total_predicted_amount": 450000,
+      "crime_types": [
+        {"type": "investment_scam", "count": 5},
+        {"type": "job_fraud", "count": 3},
+        {"type": "banking_fraud", "count": 2}
+      ]
+    },
+    {
+      "zone_id": "ZONE-MUM-04",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "coordinates": {
+        "latitude": 19.0760,
+        "longitude": 72.8777,
+        "radius_km": 2
+      },
+      "risk_score": 0.78,
+      "risk_level": "HIGH",
+      "predicted_crimes": 8,
+      "affected_victims": 6,
+      "total_predicted_amount": 280000,
+      "crime_types": [
+        {"type": "sextortion", "count": 3},
+        {"type": "banking_fraud", "count": 3},
+        {"type": "investment_scam", "count": 2}
+      ]
+    },
+    {
+      "zone_id": "ZONE-BLR-02",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "coordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "radius_km": 2.5
+      },
+      "risk_score": 0.65,
+      "risk_level": "MEDIUM",
+      "predicted_crimes": 5,
+      "affected_victims": 4,
+      "total_predicted_amount": 150000,
+      "crime_types": [
+        {"type": "job_fraud", "count": 3},
+        {"type": "investment_scam", "count": 2}
+      ]
+    }
+  ]
+}

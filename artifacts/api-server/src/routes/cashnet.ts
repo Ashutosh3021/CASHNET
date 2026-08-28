@@ -4,6 +4,7 @@ import {
   CreateCaseBody,
   CreateInterventionBody,
 } from "@workspace/api-zod";
+import { detectHotspots, syntheticGeoData } from "../providers/synthetic-geospatial";
 
 type AnyRecord = Record<string, any>;
 
@@ -90,6 +91,6 @@ router.get("/predictions/:caseId", (req, res) => res.json(detail(req.params.case
 router.get("/interventions/:caseId", (req, res) => res.json(detail(req.params.caseId).intervention));
 router.post("/interventions/:caseId", (req, res) => { const parsed = CreateInterventionBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid intervention input" }); return; } const d = detail(req.params.caseId); d.intervention.status = "DRAFT"; d.intervention.requestType = parsed.data.requestType; res.status(201).json(d.intervention); });
 router.post("/interventions/:caseId/approve", (req, res) => { const d = detail(req.params.caseId); d.intervention.status = "APPROVED"; d.audit.push({ action: "INTERVENTION_APPROVED", actor: "demo.investigator", timestamp: new Date().toISOString(), source: "USER_ACTION" }); res.json(d.intervention); });
-router.get("/reports/:caseId", (req, res) => { const d = detail(req.params.caseId); res.json({ case: d, sections: ["CASE SUMMARY", "COMPLAINT", "ACCOUNT ANALYSIS", "TRANSACTION HISTORY", "FUND FLOW", "FIAT → CRYPTO CONVERSION TIMESTAMP", "CRYPTO ANALYSIS", "VASP ATTRIBUTION", "RISK ANALYSIS", "PREDICTIVE HOTSPOTS", "ACTIONABLE INTELLIGENCE", "INTERVENTION REQUEST", "AUDIT LOG"].map((title) => ({ title, status: "INCLUDED", source: "SYNTHETIC / MODEL_INFERENCE" })), disclaimer: "Analytical prediction — requires investigator validation." }); });
+router.get("/reports/:caseId", (req, res) => { const d = detail(req.params.caseId); const historical = detectHotspots(syntheticGeoData.records, syntheticGeoData.atms, syntheticGeoData.branches); const historicalSummary = { transactions: syntheticGeoData.records.length, hotspots: historical.length, topHotspot: [...historical].sort((a, b) => b.historicalScore - a.historicalScore)[0]?.clusterId ?? "NONE", dataSource: "SYNTHETIC" }; res.json({ case: d, sections: [...["CASE SUMMARY", "COMPLAINT", "ACCOUNT ANALYSIS", "TRANSACTION HISTORY", "FUND FLOW", "FIAT → CRYPTO CONVERSION TIMESTAMP", "CRYPTO ANALYSIS", "VASP ATTRIBUTION", "RISK ANALYSIS", "PREDICTIVE HOTSPOTS", "ACTIONABLE INTELLIGENCE", "INTERVENTION REQUEST", "AUDIT LOG"].map((title) => ({ title, status: "INCLUDED", source: "SYNTHETIC / MODEL_INFERENCE" })), { title: "HISTORICAL SUSPICIOUS ACTIVITY", status: "INCLUDED", source: "SYNTHETIC DATA — DEMONSTRATION", summary: historicalSummary }], disclaimer: "Analytical prediction — requires investigator validation. Historical geographic activity uses synthetic demonstration data." }); });
 
 export default router;

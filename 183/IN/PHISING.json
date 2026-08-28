@@ -1,0 +1,51 @@
+{
+  "complaint_id": "CMP-CRYPTO-2026-08-25-005",
+  "complaint_date": "2026-08-25T11:45:00Z",
+  "victim_details": {
+    "name": "Sneha Patel",
+    "phone": "+91 54321 09876",
+    "email": "sneha.p@email.com",
+    "address": {
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "country": "India"
+    }
+  },
+  "fraud_details": {
+    "type": "phishing",
+    "sub_type": "wallet_connect_scam",
+    "description": "Clicked on fake wallet connect link. Approved fraudulent transaction signing.",
+    "platform_used": "Email",
+    "fraudster_contact": "no-reply@fake-wallet.io"
+  },
+  "suspect_wallets": [
+    {
+      "wallet_address": "0x5E7F8A9B0C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R",
+      "blockchain": "ethereum",
+      "amount_sent": 10000,
+      "currency": "USDC",
+      "transaction_hash": "0xeth123abc456def789ghi012jkl345mno678pqr9",
+      "transaction_date": "2026-08-25T11:00:00Z"
+    },
+    {
+      "wallet_address": "0x6F9G8H7I6J5K4L3M2N1O0P9Q8R7S6T5U4V3W2X1Y0Z",
+      "blockchain": "ethereum",
+      "amount_sent": 5000,
+      "currency": "USDC",
+      "transaction_hash": "0xeth789ghi012jkl345mno678pqr9abc123def456",
+      "transaction_date": "2026-08-25T11:15:00Z"
+    }
+  ],
+  "transaction_details": {
+    "total_amount_lost": 15000,
+    "currency": "USDC",
+    "fiat_equivalent": 1260000,
+    "fiat_currency": "INR",
+    "conversion_rate_at_time": 84
+  },
+  "time_details": {
+    "fraud_start_time": "2026-08-25T10:30:00Z",
+    "fraud_end_time": "2026-08-25T11:20:00Z",
+    "reporting_delay_minutes": 25
+  }
+}

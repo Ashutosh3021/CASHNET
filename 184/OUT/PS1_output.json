@@ -1,0 +1,75 @@
+{
+  "alert_id": "PRED-2026-08-25-001",
+  "alert_type": "withdrawal_location_prediction",
+  "severity": "HIGH",
+  "timestamp": "2026-08-25T08:15:00Z",
+  "triggered_by": {
+    "complaint_id": "CMP-2026-08-25-001234",
+    "victim_city": "Mumbai",
+    "fraud_type": "investment_scam",
+    "amount_lost": 125000
+  },
+  "prediction": {
+    "target_locations": [
+      {
+        "atm_id": "ATM-DEL-045",
+        "address": "Connaught Place, New Delhi",
+        "coordinates": {
+          "latitude": 28.6328,
+          "longitude": 77.2197
+        },
+        "probability": 0.89,
+        "estimated_timeframe": {
+          "start": "2026-08-25T09:30:00Z",
+          "end": "2026-08-25T11:30:00Z"
+        }
+      },
+      {
+        "atm_id": "ATM-DEL-067",
+        "address": "Karol Bagh, New Delhi",
+        "coordinates": {
+          "latitude": 28.6518,
+          "longitude": 77.1870
+        },
+        "probability": 0.73,
+        "estimated_timeframe": {
+          "start": "2026-08-25T10:00:00Z",
+          "end": "2026-08-25T12:00:00Z"
+        }
+      }
+    ],
+    "estimated_withdrawal_amount": {
+      "min": 40000,
+      "max": 80000,
+      "currency": "INR"
+    }
+  },
+  "recommended_actions": [
+    {
+      "action": "DEPLOY_TEAM",
+      "priority": 1,
+      "location": "ATM-DEL-045",
+      "teams_required": 2,
+      "officers_per_team": 3
+    },
+    {
+      "action": "ALERT_BANK",
+      "priority": 1,
+      "banks_to_alert": [
+        "State Bank of India",
+        "HDFC Bank",
+        "ICICI Bank"
+      ],
+      "message": "High probability of fraud withdrawal at ATM-DEL-045 between 9:30-11:30 AM"
+    },
+    {
+      "action": "MONITOR_ACCOUNTS",
+      "priority": 2,
+      "accounts_to_monitor": [
+        "XXXXXXXXX5678",
+        "XXXXXXXXX9012"
+      ]
+    }
+  ],
+  "intelligence_report_id": "INTEL-2026-08-25-001"
+}
