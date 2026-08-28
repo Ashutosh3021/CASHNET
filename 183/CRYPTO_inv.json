@@ -1,0 +1,51 @@
+{
+  "complaint_id": "CMP-CRYPTO-2026-08-25-001",
+  "complaint_date": "2026-08-25T08:00:00Z",
+  "victim_details": {
+    "name": "Rahul Sharma",
+    "phone": "+91 98765 43210",
+    "email": "rahul.s@email.com",
+    "address": {
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "country": "India"
+    }
+  },
+  "fraud_details": {
+    "type": "crypto_investment_scam",
+    "sub_type": "fake_trading_platform",
+    "description": "Victim contacted via Telegram about crypto investment. Deposited ETH to provided wallet address.",
+    "platform_used": "Telegram",
+    "fraudster_username": "@crypto_profits_2026"
+  },
+  "suspect_wallets": [
+    {
+      "wallet_address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "blockchain": "ethereum",
+      "amount_sent": 2.5,
+      "currency": "ETH",
+      "transaction_hash": "0xabc123def456789abc123def456789abc123def4",
+      "transaction_date": "2026-08-25T07:30:00Z"
+    },
+    {
+      "wallet_address": "0x3C9dE6F5A4B8C7D2E1F0G3H4I5J6K7L8M9N0O1P2Q",
+      "blockchain": "ethereum",
+      "amount_sent": 1.0,
+      "currency": "ETH",
+      "transaction_hash": "0xdef789abc123def456789abc123def456789abc1",
+      "transaction_date": "2026-08-25T07:45:00Z"
+    }
+  ],
+  "transaction_details": {
+    "total_amount_lost": 3.5,
+    "currency": "ETH",
+    "fiat_equivalent": 805000,
+    "fiat_currency": "INR",
+    "conversion_rate_at_time": 230000
+  },
+  "time_details": {
+    "fraud_start_time": "2026-08-25T06:00:00Z",
+    "fraud_end_time": "2026-08-25T07:50:00Z",
+    "reporting_delay_minutes": 10
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "wallet_tagging": {
+    "address": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+    "blockchain": "ethereum",
+    "tags": [
+      "exchange",
+      "binance",
+      "hot_wallet",
+      "deposit_address",
+      "verified"
+    ],
+    "cluster_name": "Binance_Hot_Wallet_Cluster_01",
+    "confidence_score": 0.98,
+    "last_verified": "2026-08-24T12:00:00Z",
+    "transactions_in_24h": 15234,
+    "total_volume_24h": "234.5 ETH"
+  },
+  "address": "0x8B5c9E3A4F2D6A7B1C8E9F0D2A3B4C5D6E7F8A9B",
+    "blockchain": "ethereum",
+    "tags": [
+      "exchange",
+      "binance",
+      "intermediary_wallet",
+      "verified"
+    ],
+    "cluster_name": "Binance_Intermediary_Cluster_02",
+    "confidence_score": 0.92,
+    "last_verified": "2026-08-24T14:00:00Z",
+    "transactions_in_24h": 8765,
+    "total_volume_24h": "156.7 ETH"
+  }
+}

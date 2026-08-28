@@ -1,0 +1,43 @@
+{
+  "complaint_id": "CMP-CRYPTO-2026-08-25-004",
+  "complaint_date": "2026-08-25T20:00:00Z",
+  "victim_details": {
+    "name": "Vikram Singh",
+    "phone": "+91 65432 10987",
+    "email": "vikram.s@email.com",
+    "address": {
+      "city": "Delhi",
+      "state": "Delhi",
+      "country": "India"
+    }
+  },
+  "fraud_details": {
+    "type": "sextortion",
+    "sub_type": "video_call_scam",
+    "description": "Video call recorded during explicit chat. Threatened to share with family and colleagues.",
+    "platform_used": "Skype",
+    "fraudster_contact": "Unknown"
+  },
+  "suspect_wallets": [
+    {
+      "wallet_address": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "blockchain": "ethereum",
+      "amount_sent": 0.5,
+      "currency": "ETH",
+      "transaction_hash": "0xeth456789abcdef123456789abcdef123456789ab",
+      "transaction_date": "2026-08-25T19:00:00Z"
+    }
+  ],
+  "transaction_details": {
+    "total_amount_lost": 0.5,
+    "currency": "ETH",
+    "fiat_equivalent": 115000,
+    "fiat_currency": "INR",
+    "conversion_rate_at_time": 230000
+  },
+  "time_details": {
+    "fraud_start_time": "2026-08-25T18:30:00Z",
+    "fraud_end_time": "2026-08-25T19:15:00Z",
+    "reporting_delay_minutes": 45
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "sahyog_case_id": "SAH-2026-08-25-003",
+  "case_type": "ransomware_investigation",
+  "investigation_details": {
+    "investigation_id": "INV-HYD-2026-067",
+    "agency": "Hyderabad Cyber Crime Cell",
+    "officer_name": "Inspector Ahmed Khan",
+    "badge_number": "TG-12345",
+    "contact": "+91 76543 21098"
+  },
+  "victim_details": {
+    "company_name": "TechCorp Solutions",
+    "industry": "IT Services",
+    "employee_count": 250,
+    "ransom_amount": "0.8 BTC",
+    "ransom_fiat_value": "₹5,200,000",
+    "data_encrypted": true,
+    "deadline_for_payment": "2026-08-30T23:59:59Z"
+  },
+  "target_wallets": [
+    {
+      "wallet_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "blockchain": "bitcoin",
+      "associated_complaint": "CMP-2026-08-23-567",
+      "priority": "URGENT",
+      "note": "Ransom payment wallet - Need immediate attribution and freezing"
+    }
+  ],
+  "previous_attribution_attempts": [
+    {
+      "attempt_date": "2026-08-23T15:00:00Z",
+      "method": "manual_tracing",
+      "result": "incomplete",
+      "reason": "Multiple hops and possible mixer usage"
+    }
+  ]
+}

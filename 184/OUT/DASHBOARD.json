@@ -1,0 +1,44 @@
+{
+  "dashboard_timestamp": "2026-08-25T08:00:00Z",
+  "summary_metrics": {
+    "total_complaints_today": 8234,
+    "high_risk_cases": 234,
+    "predictions_generated": 156,
+    "successful_predictions_yesterday": 142,
+    "accuracy_rate": 0.91,
+    "avg_prediction_time": 4.2,
+    "total_value_lost_today": 342000000,
+    "predicted_recovery_amount": 187000000,
+    "currency": "INR"
+  },
+  "geographic_summary": {
+    "top_5_victim_cities": [
+      {"city": "Mumbai", "count": 823, "total_amount": 41150000},
+      {"city": "Delhi", "count": 745, "total_amount": 37250000},
+      {"city": "Bangalore", "count": 634, "total_amount": 31700000},
+      {"city": "Hyderabad", "count": 512, "total_amount": 25600000},
+      {"city": "Chennai", "count": 489, "total_amount": 24450000}
+    ],
+    "top_5_withdrawal_cities": [
+      {"city": "Delhi", "count": 456, "total_amount": 22800000},
+      {"city": "Mumbai", "count": 345, "total_amount": 17250000},
+      {"city": "Gurugram", "count": 289, "total_amount": 14450000},
+      {"city": "Bangalore", "count": 267, "total_amount": 13350000},
+      {"city": "Jaipur", "count": 234, "total_amount": 11700000}
+    ]
+  },
+  "fraud_type_breakdown": {
+    "investment_scam": {"count": 2345, "percentage": 28.5},
+    "job_fraud": {"count": 1876, "percentage": 22.8},
+    "banking_fraud": {"count": 1567, "percentage": 19.0},
+    "sextortion": {"count": 1234, "percentage": 15.0},
+    "others": {"count": 1212, "percentage": 14.7}
+  },
+  "success_rate_by_city": {
+    "Mumbai": 0.92,
+    "Delhi": 0.88,
+    "Bangalore": 0.85,
+    "Hyderabad": 0.83,
+    "Chennai": 0.79
+  }
+}

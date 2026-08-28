@@ -1,0 +1,55 @@
+{
+  "historical_patterns": {
+    "pattern_id": "CRYPTO-PAT-2026-001",
+    "pattern_type": "fraud_wallet_to_exchange",
+    "description": "Analysis of 500 crypto fraud cases showing common wallet-to-exchange patterns",
+    "findings": {
+      "most_common_path": {
+        "step_1": "Victim sends to fraudster wallet",
+        "step_2": "Funds move to intermediary wallet (1-2 hops)",
+        "step_3": "Funds deposited to Binance hot wallet",
+        "probability": 0.45
+      },
+      "second_most_common_path": {
+        "step_1": "Victim sends to fraudster wallet",
+        "step_2": "Funds move to intermediary wallet (2-3 hops)",
+        "step_3": "Funds deposited to CoinDCX",
+        "probability": 0.25
+      },
+      "third_most_common_path": {
+        "step_1": "Victim sends to fraudster wallet",
+        "step_2": "Funds go through mixer/tumbler",
+        "step_3": "Deposited to WazirX",
+        "probability": 0.15
+      }
+    },
+    "time_patterns": {
+      "avg_time_to_exchange": 45,
+      "avg_number_of_hops": 2.5,
+      "most_active_hours": "9:00 AM - 6:00 PM IST"
+    },
+    "blockchain_preference": {
+      "ethereum": 0.45,
+      "tron": 0.30,
+      "bitcoin": 0.15,
+      "bnb_chain": 0.10
+    }
+  },
+  "fraud_typology_wallet_patterns": {
+    "investment_scam": {
+      "common_exchanges": ["Binance", "CoinDCX"],
+      "avg_hops": 2.3,
+      "common_intermediaries": ["Exchange_hot_wallets", "DeFi_swaps"]
+    },
+    "ransomware": {
+      "common_exchanges": ["Binance", "Unknown"],
+      "avg_hops": 3.5,
+      "common_intermediaries": ["Mixers", "Chain_swaps"]
+    },
+    "sextortion": {
+      "common_exchanges": ["Binance", "WazirX"],
+      "avg_hops": 1.8,
+      "common_intermediaries": ["Direct_deposit"]
+    }
+  }
+}

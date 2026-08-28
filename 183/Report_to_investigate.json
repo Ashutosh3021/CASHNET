@@ -1,0 +1,84 @@
+{
+  "report_id": "RPT-CRYPTO-2026-08-25-001",
+  "report_type": "CRYPTO_FRAUD_ATTRIBUTION",
+  "generated_for": {
+    "investigation_id": "INV-CRYPTO-2026-001",
+    "complaint_id": "CMP-CRYPTO-2026-08-25-001",
+    "officer": "Inspector Rajesh Kumar",
+    "agency": "Mumbai Cyber Cell"
+  },
+  "report_date": "2026-08-25T08:30:00Z",
+  "executive_summary": {
+    "wallet_analyzed": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "attributed_to": "Binance",
+    "confidence": "95%",
+    "total_funds_traced": "3.0 ETH (₹690,000)",
+    "action_required": "Immediate freezing request to Binance"
+  },
+  "detailed_findings": {
+    "wallet_analysis": {
+      "suspect_wallet": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "first_seen": "2026-08-20T00:00:00Z",
+      "transaction_count_last_7_days": 45,
+      "total_volume_last_7_days": "15.7 ETH",
+      "suspicious_transactions": 12
+    },
+    "transaction_path_analysis": {
+      "hops": 2,
+      "intermediary_wallets": ["0x8B5c9E3A4F2D6A7B1C8E9F0D2A3B4C5D6E7F8A9B"],
+      "final_destination": "Binance Hot Wallet (0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A)",
+      "time_to_complete": "15 minutes",
+      "gas_fees_paid": "0.002 ETH"
+    },
+    "vasp_attribution": {
+      "exchange_name": "Binance",
+      "exchange_wallet": "0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "cluster_type": "Hot Wallet - Deposit",
+      "confidence": 0.95,
+      "verified_by": "Exchange wallet database match"
+    },
+    "fund_status": {
+      "deposited": true,
+      "amount_at_vasp": "3.0 ETH",
+      "estimated_current_value": "₹690,000",
+      "status": "Available for freezing"
+    }
+  },
+  "evidence_documentation": [
+    {
+      "evidence_id": "EVID-001",
+      "type": "transaction_graph",
+      "description": "Visual representation of fund flow from suspect wallet to Binance",
+      "link": "https://dashboard.i4c.gov.in/graph/INV-CRYPTO-2026-001"
+    },
+    {
+      "evidence_id": "EVID-002",
+      "type": "transaction_list",
+      "description": "Detailed list of all transactions in the path",
+      "transactions": [...]
+    },
+    {
+      "evidence_id": "EVID-003",
+      "type": "vasp_wallet_match",
+      "description": "Binance wallet identification confirmation",
+      "database_match": true
+    }
+  ],
+  "recommendations": {
+    "immediate_actions": [
+      "Submit freezing request to Binance through SAHYOG Portal",
+      "Request transaction records from Binance for wallet 0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A",
+      "Request KYC information for the Binance account holder"
+    ],
+    "long_term_actions": [
+      "Add suspect wallet to watchlist",
+      "Monitor for any additional deposits to same Binance wallet",
+      "Coordinate with Interpol if cross-border element found"
+    ]
+  },
+  "freeze_request_template": {
+    "recipient": "Binance Compliance Team",
+    "subject": "URGENT: Request to freeze assets in fraud investigation",
+    "body": "We request immediate freezing of 3.0 ETH at wallet 0x4A7a7c46c2a6A56F3F9Dd1F24E5D0c3E4B0c8F2A. This is linked to fraud case INV-CRYPTO-2026-001. Please provide KYC details of the account holder."
+  }
+}
