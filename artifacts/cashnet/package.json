@@ -12,7 +12,11 @@
   "dependencies": {
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "@esbuild/win32-x64": "0.27.3",
+    "@rollup/rollup-win32-x64-msvc": "^4.63.0",
+    "@tailwindcss/oxide-win32-x64-msvc": "4.3.3",
+    "lightningcss-win32-x64-msvc": "^1.32.0"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
