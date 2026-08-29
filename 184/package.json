@@ -4,6 +4,8 @@
   "scripts": {
     "import:osm-atms": "python scripts/geospatial/import_osm_atms.py import",
     "generate:synthetic-atms": "python scripts/geospatial/import_osm_atms.py generate",
+    "generate:synthetic-bank": "python scripts/banking/generate_bank_transactions.py",
+    "validate:synthetic-bank": "python scripts/banking/generate_bank_transactions.py --validate",
     "test": "python -m unittest discover -s tests"
   }
 }
