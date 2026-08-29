@@ -8,6 +8,8 @@
     "validate:synthetic-bank": "python scripts/banking/generate_bank_transactions.py --validate",
     "generate:synthetic-complaints": "python scripts/complaints/generate_bm_c.py",
     "validate:synthetic-complaints": "python scripts/complaints/generate_bm_c.py --validate",
+    "generate:complaints": "python scripts/complaints/generate_complaints.py",
+    "validate:complaints": "python scripts/complaints/validate_complaints.py",
     "test": "python -m unittest discover -s tests"
   }
 }
