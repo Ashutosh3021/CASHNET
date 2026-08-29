@@ -6,6 +6,8 @@
     "generate:synthetic-atms": "python scripts/geospatial/import_osm_atms.py generate",
     "generate:synthetic-bank": "python scripts/banking/generate_bank_transactions.py",
     "validate:synthetic-bank": "python scripts/banking/generate_bank_transactions.py --validate",
+    "generate:synthetic-complaints": "python scripts/complaints/generate_bm_c.py",
+    "validate:synthetic-complaints": "python scripts/complaints/generate_bm_c.py --validate",
     "test": "python -m unittest discover -s tests"
   }
 }
