@@ -2,6 +2,7 @@ import { Router } from "express";
 import { detectHotspots, filterTransactions, haversineKm, nearby, syntheticGeoData, type GeoFilters } from "../providers/synthetic-geospatial";
 
 const router = Router();
+const geoAudit: Array<{ action: string; actor: string; caseId?: string; timestamp: string; dataSource: "SYNTHETIC" }> = [];
 const numberQuery = (value: unknown) => typeof value === "string" && value !== "" && Number.isFinite(Number(value)) ? Number(value) : undefined;
 const textQuery = (value: unknown) => typeof value === "string" && value.trim() ? value.trim() : undefined;
 
@@ -51,7 +52,19 @@ router.post("/geospatial/proximity-analysis", (req, res) => {
 router.get("/geospatial/case-context/:caseId", (req, res) => {
   const location = currentCaseLocation(req.params.caseId); if (!location) { res.status(404).json({ error: "No synthetic geographic location for this case" }); return; }
   const records = syntheticGeoData.records; const hotspots = detectHotspots(records, syntheticGeoData.atms, syntheticGeoData.branches); const radiusKm = numberQuery(req.query.radiusKm) ?? 2;
-  res.json({ dataSource: "SYNTHETIC", currentCaseLocation: location, radiusKm, relatedTransactions: nearby(records, location.latitude, location.longitude, radiusKm), relatedHotspots: hotspots.filter((item) => haversineKm(location.latitude, location.longitude, item.centroidLatitude, item.centroidLongitude) <= radiusKm), nearbyAtms: nearby(syntheticGeoData.atms, location.latitude, location.longitude, radiusKm), nearbyBranches: nearby(syntheticGeoData.branches, location.latitude, location.longitude, radiusKm) });
+  res.json({ dataSource: "SYNTHETIC", currentCaseLocation: location, currentFundFlow: [{ id: "CURRENT-FLOW-01", latitude: location.latitude, longitude: location.longitude, label: "Synthetic last known entity" }], radiusKm, relatedTransactions: nearby(records, location.latitude, location.longitude, radiusKm), relatedHotspots: hotspots.filter((item) => haversineKm(location.latitude, location.longitude, item.centroidLatitude, item.centroidLongitude) <= radiusKm), nearbyAtms: nearby(syntheticGeoData.atms, location.latitude, location.longitude, radiusKm), nearbyBranches: nearby(syntheticGeoData.branches, location.latitude, location.longitude, radiusKm) });
+});
+router.post("/geospatial/audit", (req, res) => {
+  const action = typeof req.body?.action === "string" ? req.body.action : "MAP_OPENED";
+  const caseId = typeof req.body?.caseId === "string" ? req.body.caseId : undefined;
+  const event = { action, caseId, actor: "demo.investigator", timestamp: new Date().toISOString(), dataSource: "SYNTHETIC" as const };
+  geoAudit.push(event); res.status(201).json(event);
+});
+router.get("/geospatial/audit", (_req, res) => res.json({ dataSource: "SYNTHETIC", events: geoAudit }));
+router.get("/geospatial/export", (req, res) => {
+  const records = filterTransactions(syntheticGeoData.records, filters(req.query as Record<string, unknown>));
+  const lines = [["transaction_id", "case_id", "amount", "timestamp", "state", "district", "city", "risk_score", "fraud_type", "location_type", "data_source"], ...records.map((item) => [item.transactionId, item.caseId, item.amount, item.timestamp, item.state, item.district, item.city, item.riskScore, item.fraudType, item.locationType, item.dataSource])].map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","));
+  res.setHeader("Content-Type", "text/csv; charset=utf-8"); res.setHeader("Content-Disposition", "attachment; filename=cashnet-historical-synthetic-analysis.csv"); res.send(lines.join("\n"));
 });
 
 export default router;

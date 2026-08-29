@@ -14,6 +14,11 @@ enforcement source is queried. The service can be replaced by an authorised
 PostgreSQL/PostGIS or FastAPI/GeoPandas provider without changing the frontend
 route contract.
 
+To materialize the same deterministic dataset for the optional FastAPI service,
+run `python scripts/generate_synthetic_geo_data.py`. The generated JSON is
+deliberately excluded from source control; it can always be reproduced from the
+fixed seed.
+
 ## API
 
 - `GET /api/geospatial/historical-transactions`
@@ -24,6 +29,8 @@ route contract.
 - `GET /api/geospatial/location-history`
 - `POST /api/geospatial/proximity-analysis`
 - `GET /api/geospatial/case-context/:caseId`
+- `GET /api/geospatial/export`
+- `GET|POST /api/geospatial/audit`
 
 List endpoints accept filters including `days`, `startDate`, `endDate`, `city`,
 `state`, `district`, `fraudType`, `riskCategory`, `minAmount`, `maxAmount`,
