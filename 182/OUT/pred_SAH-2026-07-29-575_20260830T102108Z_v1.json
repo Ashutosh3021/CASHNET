@@ -1,0 +1,55 @@
+{
+  "risk_object": {
+    "risk_score": 1.0,
+    "risk_label": "high",
+    "entities": [
+      {
+        "type": "wallet",
+        "id": "bc11RdziBtfT7MZgcWdWVh6jGLK8Rn4ZPBf",
+        "blockchain": "bitcoin",
+        "priority": "CRITICAL"
+      },
+      {
+        "type": "wallet",
+        "id": "TykaiYoq9r4GYw9sJfNqcMJzi8nF6bhdum",
+        "blockchain": "tron",
+        "priority": "CRITICAL"
+      },
+      {
+        "type": "wallet",
+        "id": "0xe07e670b7802927ef5273037f19504e716f57e64",
+        "blockchain": "ethereum",
+        "priority": "CRITICAL"
+      }
+    ]
+  },
+  "dashboard": {
+    "title": "Model 182 \u2014 Crypto / VASP / Cross-border",
+    "metrics": {
+      "num_target_wallets": 3.0,
+      "num_countries": 5.0,
+      "attributed_vasp": "Giottus",
+      "routing_action": "INTERPOL"
+    }
+  },
+  "routing_action_list": [
+    {
+      "action": "VASP_ATTRIBUTION",
+      "target": "Giottus",
+      "priority": "CRITICAL",
+      "confidence": 1.0
+    },
+    {
+      "action": "INTERPOL",
+      "target": "INTERPOL",
+      "confidence": 1.0
+    }
+  ],
+  "confidence": 1.0,
+  "needs_review": false,
+  "metadata": {
+    "model": "182",
+    "weak_label": true,
+    "attributed_vasp": "Giottus"
+  }
+}

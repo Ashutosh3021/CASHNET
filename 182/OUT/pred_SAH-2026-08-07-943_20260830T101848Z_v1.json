@@ -1,0 +1,49 @@
+{
+  "risk_object": {
+    "risk_score": 0.8200000000000001,
+    "risk_label": "high",
+    "entities": [
+      {
+        "type": "wallet",
+        "id": "bc1EXWX9J7fJxFsCMEddpa1pAxuZF5dPqmdc",
+        "blockchain": "bitcoin",
+        "priority": "HIGH"
+      },
+      {
+        "type": "wallet",
+        "id": "0x70df6987439886ad30ea5c341432d17415cd0ed5",
+        "blockchain": "ethereum",
+        "priority": "HIGH"
+      }
+    ]
+  },
+  "dashboard": {
+    "title": "Model 182 \u2014 Crypto / VASP / Cross-border",
+    "metrics": {
+      "num_target_wallets": 2.0,
+      "num_countries": 3.0,
+      "attributed_vasp": "Crypto.com",
+      "routing_action": "INTERPOL"
+    }
+  },
+  "routing_action_list": [
+    {
+      "action": "VASP_ATTRIBUTION",
+      "target": "Crypto.com",
+      "priority": "CRITICAL",
+      "confidence": 0.4
+    },
+    {
+      "action": "INTERPOL",
+      "target": "INTERPOL",
+      "confidence": 1.0
+    }
+  ],
+  "confidence": 0.4,
+  "needs_review": true,
+  "metadata": {
+    "model": "182",
+    "weak_label": true,
+    "attributed_vasp": "Crypto.com"
+  }
+}

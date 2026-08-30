@@ -1,0 +1,39 @@
+{
+  "risk_object": {
+    "risk_score": 0.5516483625525825,
+    "risk_label": "medium",
+    "entities": [
+      {
+        "type": "complaint",
+        "id": "CMP-CRYPTO-2026-08-25-0016"
+      }
+    ]
+  },
+  "dashboard": {
+    "title": "Model 183 \u2014 Complaints / Support / Transactions",
+    "metrics": {
+      "intent": "beneficiary_not_allowed",
+      "product": "Checking or savings account",
+      "severity": 1.0
+    }
+  },
+  "routing_action_list": [
+    {
+      "action": "CLASSIFY_COMPLAINT",
+      "target": "beneficiary_not_allowed",
+      "confidence": 0.17216120850860828
+    },
+    {
+      "action": "ROUTE_TO_QUEUE",
+      "target": "Checking or savings account",
+      "confidence": 0.8624975723149926
+    }
+  ],
+  "confidence": 0.17216120850860828,
+  "needs_review": true,
+  "metadata": {
+    "model": "183",
+    "intent": "beneficiary_not_allowed",
+    "product": "Checking or savings account"
+  }
+}
