@@ -18,8 +18,11 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+
+import lib.eval_utils as ev
 
 import lib.io_utils as io
 from lib.schema import empty_contract
@@ -50,38 +53,46 @@ class Model183:
                                   ("clf", LogisticRegression(max_iter=1000))])
         self.risk_cols: List[str] = []
         self.metrics: Dict[str, Any] = {}
+        self.train_metrics: Dict[str, Any] = {}
         self.trained = False
 
     def fit(self) -> "Model183":
-        # intent head — Banking77
+        rs = 42
+        # intent head — Banking77 (held-out split)
         texts, labels = io.load_banking77()
         if texts:
-            self.intent.fit(texts, labels)
-            pred = self.intent.predict(texts)
-            p, r, f, _ = precision_recall_fscore_support(labels, pred, average="macro", zero_division=0)
-            self.metrics["intent"] = {"precision": float(p), "recall": float(r), "f1": float(f),
-                                      "n": int(len(labels)), "classes": int(len(set(labels)))}
+            tr, te = ev.split_idx(labels, 0.2, rs)
+            self.intent.fit([texts[i] for i in tr], [labels[i] for i in tr])
+            pred = self.intent.predict([texts[i] for i in te])
+            self.metrics["intent"] = {**ev.clf_metrics([labels[i] for i in te], pred, "macro"),
+                                      "classes": int(len(set(labels)))}
+            self.train_metrics["intent"] = ev.clf_metrics([labels[i] for i in tr],
+                                                         self.intent.predict([texts[i] for i in tr]), "macro")
 
-        # product head — CFPB (sampled; the file is ~9 GB)
+        # product head — CFPB (sampled; ~9 GB file streamed)
         cfpb = io.load_cfpb_sample(n=100_000)
         if len(cfpb):
             txt = cfpb["Consumer complaint narrative"].fillna("").astype(str)
             y = cfpb["Product"].astype(str)
-            self.product.fit(txt, y)
-            pred = self.product.predict(txt)
-            p, r, f, _ = precision_recall_fscore_support(y, pred, average="macro", zero_division=0)
-            self.metrics["product"] = {"precision": float(p), "recall": float(r), "f1": float(f),
-                                       "n": int(len(y)), "classes": int(y.nunique())}
+            tr, te = ev.split_idx(y, 0.2, rs)
+            self.product.fit(txt.iloc[tr], y.iloc[tr])
+            pred = self.product.predict(txt.iloc[te])
+            self.metrics["product"] = {**ev.clf_metrics(y.iloc[te], pred, "macro"),
+                                       "classes": int(y.nunique())}
+            self.train_metrics["product"] = ev.clf_metrics(y.iloc[tr],
+                                                          self.product.predict(txt.iloc[tr]), "macro")
 
-        # risk/alert head — creditcard fraud
+        # risk/alert head — creditcard fraud (held-out split)
         X, y = io.load_creditcard()
         if len(X):
             self.risk_cols = list(X.columns)
-            self.risk_clf.fit(X.values, y.values)
-            pred = self.risk_clf.predict(X.values)
-            p, r, f, _ = precision_recall_fscore_support(y.values, pred, average="binary", zero_division=0)
-            self.metrics["risk"] = {"precision": float(p), "recall": float(r), "f1": float(f),
-                                    "n": int(len(y))}
+            tr, te = ev.split_idx(y, 0.2, rs)
+            self.risk_clf.fit(X.values[tr], y.values[tr])
+            pred = self.risk_clf.predict(X.values[te])
+            proba = self.risk_clf.predict_proba(X.values[te])[:, 1]
+            self.metrics["risk"] = ev.binary_metrics(y.values[te], pred, proba)
+            self.train_metrics["risk"] = ev.binary_metrics(y.values[tr],
+                                                           self.risk_clf.predict(X.values[tr]))
         self.trained = True
         return self
 

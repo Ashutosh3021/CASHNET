@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import pickle
+import tempfile
 from pathlib import Path
 from typing import Any, Tuple
 
@@ -34,12 +36,20 @@ def save_model(obj: Any, path: str | Path, provenance: dict | None = None) -> Pa
         "provenance": provenance or {},
     }
     blob = pickle.dumps(obj)
-    with open(path, "wb") as fh:
-        fh.write(HEADER_MAGIC)
-        fh.write(len(blob).to_bytes(8, "big"))
-        fh.write(json.dumps(header).encode("utf-8"))
-        fh.write(b"\n")
-        fh.write(blob)
+    path = Path(path)
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(HEADER_MAGIC)
+            fh.write(len(blob).to_bytes(8, "big"))
+            fh.write(json.dumps(header).encode("utf-8"))
+            fh.write(b"\n")
+            fh.write(blob)
+        os.replace(tmp, path)
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
     return path
 
 
