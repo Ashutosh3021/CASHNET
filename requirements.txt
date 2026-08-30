@@ -1,0 +1,5 @@
+# for data collection
+requests
+kaggle
+kagglehub
+# for the model
