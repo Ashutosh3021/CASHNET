@@ -5,7 +5,7 @@ import {
   ChevronRight, CircleDot, Clock3, Crosshair, Database, FileCheck2, FileText,
   Fingerprint, Globe2, LayoutDashboard, LockKeyhole, Menu, Network, PanelLeftClose,
   PanelLeftOpen, Pause, Plus, Radar, RefreshCw, Search, Send, Settings2, Shield,
-  Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned
+  Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned, Cpu
 } from 'lucide-react';
 import {
   useAddComplaint, useAnalyzeCase, useApproveIntervention, useCreateCase,
@@ -21,6 +21,8 @@ import { Link, Route, Router as WouterRouter, Switch, useLocation, useParams } f
 import { ErrorBoundary } from '@/components/error-boundary';
 import NotFound from '@/pages/not-found';
 import HistoricalActivityPage from '@/components/historical-activity-page';
+import PredictiveEnginePage from '@/components/predictive-engine-page';
+import AlertsPage from '@/components/alerts-page';
 
 const queryClient = new QueryClient();
 
@@ -81,18 +83,20 @@ function Panel({ title, eyebrow, action, children, className = '' }: { title: st
 }
 
 const navGroups = [
-  { label: 'Workspace', items: [
-    { href: '/', label: 'Overview', icon: LayoutDashboard },
-    { href: '/cases', label: 'Cases', icon: Fingerprint },
-    { href: '/fund-flow', label: 'Fund flow', icon: Network },
+  { label: 'I4C Problem Deliverables', items: [
+    { href: '/predictive-engine', label: 'a. Predictive Engine (Model 184)', icon: Cpu },
+    { href: '/historical-activity', label: 'b. Risk Heatmap Dashboard (GIS)', icon: MapPinned },
+    { href: '/cases', label: 'c. Law Enforcement Interface', icon: Fingerprint },
+    { href: '/alerts', label: 'd. Alert & Notification System', icon: Bell },
   ] },
-  { label: 'Intelligence', items: [
+  { label: 'Investigator Workbench', items: [
+    { href: '/', label: 'Overview', icon: LayoutDashboard },
+    { href: '/fund-flow', label: 'Fund flow graph', icon: Network },
     { href: '/crypto', label: 'Crypto wallets', icon: WalletCards },
     { href: '/vasp', label: 'VASP attribution', icon: Building2 },
     { href: '/geo', label: 'Geo & prediction', icon: Globe2 },
-    { href: '/historical-activity', label: 'Historical activity', icon: MapPinned },
   ] },
-  { label: 'Action', items: [
+  { label: 'Actions & Audit', items: [
     { href: '/interventions', label: 'Interventions', icon: Shield },
     { href: '/reports', label: 'Reports', icon: FileText },
     { href: '/audit', label: 'Audit trail', icon: FileCheck2 },
@@ -289,6 +293,8 @@ function Router() {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}><Shell><Switch>
     <Route path="/" component={DashboardPage} />
+    <Route path="/predictive-engine" component={PredictiveEnginePage} />
+    <Route path="/alerts" component={AlertsPage} />
     <Route path="/cases" component={CasesPage} />
     <Route path="/cases/:id" component={CaseWorkspacePage} />
     <Route path="/fund-flow" component={FundFlowRoute} />
