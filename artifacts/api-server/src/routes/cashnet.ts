@@ -1,4 +1,8 @@
 import { Router, type IRouter } from "express";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import path from "path";
+const execFileAsync = promisify(execFile);
 import {
   AddComplaintBody,
   CreateCaseBody,
@@ -83,7 +87,78 @@ router.get("/dashboard", (_req, res) => res.json({ metrics: { activeCases: 4, hi
 router.get("/cases", (_req, res) => res.json(cases));
 router.post("/cases", (req, res) => { const parsed = CreateCaseBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid case input" }); return; } const id = `CASE-CASHNET-${String(cases.length + 1).padStart(3, "0")}`; const data = { id, reference: "USER-PROVIDED", title: parsed.data.title, fraudType: parsed.data.fraudType, amount: money(parsed.data.amount), priority: "MEDIUM", status: "NEW", state: parsed.data.victimState ?? "Unspecified", city: parsed.data.victimCity ?? "Unspecified", conversionAt: iso(0), sourceType: "USER_PROVIDED", updatedAt: new Date().toISOString() }; cases.push(data); res.status(201).json(data); });
 router.get("/cases/:caseId", (req, res) => res.json(detail(req.params.caseId)));
-router.post("/cases/:caseId/analyze", (req, res) => res.json(detail(req.params.caseId)));
+router.post("/cases/:caseId/analyze", async (req, res) => {
+  const d = detail(req.params.caseId);
+  try {
+    const transaction = {
+      bank_transaction_data: {
+        transaction_id: `TXN-${d.id}`,
+        transaction_amount: d.amount,
+        source_account: { account_number: d.accounts[0]?.masked, city: d.city },
+        destination_account: { city: d.city }
+      },
+      scenario_metadata: { is_suspicious: d.priority === "CRITICAL" || d.priority === "HIGH" }
+    };
+    
+    // Path relative to dist/routes/cashnet.js -> artifacts/api-server/dist/routes/
+    const scriptPath = path.resolve(__dirname, "../../../../../scripts/predict_184.py");
+    const { stdout } = await execFileAsync("python", [scriptPath], { 
+      input: JSON.stringify(transaction) 
+    });
+    
+    const prediction = JSON.parse(stdout);
+    if (prediction.error) {
+      console.error("Python prediction error:", prediction.error);
+      return res.json(d);
+    }
+    
+    if (prediction.risk_object) {
+      d.risk = {
+        score: Math.round(prediction.risk_object.risk_score * 100),
+        category: prediction.risk_object.risk_label.toUpperCase(),
+        confidence: prediction.confidence,
+        features: ["Live Python Model Inference", "Real-time assessment"],
+        modelVersion: prediction.metadata?.model || "184-active"
+      };
+    }
+    
+    if (prediction.dashboard) {
+      const city = prediction.dashboard.metrics?.predicted_withdrawal_city || "unknown";
+      d.predictions = {
+        hotspots: [{
+          id: "live-1",
+          city,
+          lat: 28.61, lng: 77.20, // Default to Delhi coords for live example if needed
+          probability: prediction.confidence,
+          risk: Math.round((prediction.risk_object?.risk_score || 0.8) * 100),
+          amount: d.amount,
+          timeWindow: "Next 24 hours",
+          atm: "Predicted Region",
+          branch: "Unknown",
+          factors: ["ML Model Inference", `ATMs in city: ${prediction.dashboard.metrics?.atms_in_city}`],
+          confidence: prediction.confidence
+        }],
+        generatedAt: new Date().toISOString(),
+        modelVersion: prediction.metadata?.model || "184-active"
+      };
+    }
+
+    if (prediction.routing_action_list && prediction.routing_action_list.length > 0) {
+      d.recommendations = prediction.routing_action_list.map((act: any) => ({
+        priority: act.priority,
+        title: act.action.replace(/_/g, " "),
+        reason: `Target: ${act.target}`,
+        evidence: ["Live ML Inference"],
+        confidence: act.confidence
+      }));
+    }
+
+    res.json(d);
+  } catch (error) {
+    console.error("Prediction execution failed:", error);
+    res.json(d);
+  }
+});
 router.post("/cases/:caseId/complaint", (req, res) => { const parsed = AddComplaintBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid report input" }); return; } res.json(detail(req.params.caseId)); });
 router.get("/fund-flow/:caseId", (req, res) => res.json(detail(req.params.caseId).fundFlow));
 router.get("/wallets", (_req, res) => res.json(detail(cases[0].id).wallets));
