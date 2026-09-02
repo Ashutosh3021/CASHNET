@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from .base import ChainType, NormalizedTransaction
 
@@ -41,10 +41,10 @@ class BridgeEvent(BaseModel):
     
     # Destination chain
     destination_chain: ChainType
-    destination_tx_hash: Optional[str] = None
-    destination_block_number: Optional[int] = None
-    destination_timestamp: Optional[datetime] = None
-    destination_address: Optional[str] = None
+    destination_tx_hash: str | None = None
+    destination_block_number: int | None = None
+    destination_timestamp: datetime | None = None
+    destination_address: str | None = None
     
     # Transfer details
     token_address: str
@@ -134,7 +134,7 @@ class BridgeDetector:
     def detect_bridge_event(
         self,
         transaction: NormalizedTransaction,
-    ) -> Optional[BridgeEvent]:
+    ) -> BridgeEvent | None:
         """Detect if a transaction is a bridge event."""
         # Check if contract address is a known bridge
         if transaction.to_address.lower() in self.BRIDGE_CONTRACTS:
@@ -243,14 +243,14 @@ class BridgeDetector:
             return True
         return False
     
-    def get_event(self, event_id: str) -> Optional[BridgeEvent]:
+    def get_event(self, event_id: str) -> BridgeEvent | None:
         """Get a bridge event by ID."""
         return self._detected_events.get(event_id)
     
     def get_events_by_address(
         self,
         address: str,
-        chain: Optional[ChainType] = None,
+        chain: ChainType | None = None,
     ) -> list[BridgeEvent]:
         """Get all bridge events for an address."""
         events = []
@@ -337,25 +337,25 @@ def format_bridge_event(event: BridgeEvent) -> str:
         f"Bridge Event: {event.event_id}",
         f"Type: {event.bridge_type.value}",
         f"Status: {event.status}",
-        f"",
-        f"Source:",
+        "",
+        "Source:",
         f"  Chain: {event.source_chain.value}",
         f"  Tx: {event.source_tx_hash}",
         f"  Block: {event.source_block_number}",
         f"  Time: {event.source_timestamp.isoformat()}",
         f"  Address: {event.source_address}",
-        f"",
-        f"Destination:",
+        "",
+        "Destination:",
         f"  Chain: {event.destination_chain.value}",
         f"  Tx: {event.destination_tx_hash or 'Pending'}",
         f"  Block: {event.destination_block_number or 'Pending'}",
         f"  Time: {event.destination_timestamp.isoformat() if event.destination_timestamp else 'Pending'}",
         f"  Address: {event.destination_address or 'Pending'}",
-        f"",
-        f"Transfer:",
+        "",
+        "Transfer:",
         f"  Token: {event.token_symbol} ({event.token_address})",
         f"  Amount: {event.amount}",
-        f"",
+        "",
         f"Risk: {event.risk_score:.2f} ({'Suspicious' if event.is_suspicious else 'Normal'})",
     ]
     

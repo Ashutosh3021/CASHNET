@@ -13,16 +13,16 @@ edges this module upgrades the prototype to production attribution.
 from __future__ import annotations
 
 import random
-from typing import Dict, Iterable, List, Tuple
+from collections.abc import Iterable
 
 import numpy as np
 import scipy.sparse as sp
 from sklearn.decomposition import TruncatedSVD
 
 
-def build_adj(edge_lists: Iterable[Iterable[Tuple[str, str]]]) -> Dict[str, List[str]]:
+def build_adj(edge_lists: Iterable[Iterable[tuple[str, str]]]) -> dict[str, list[str]]:
     """Merge multiple edge iterables into an undirected adjacency dict."""
-    adj: Dict[str, List[str]] = {}
+    adj: dict[str, list[str]] = {}
     for edges in edge_lists:
         for a, b in edges:
             if a == b:
@@ -32,11 +32,11 @@ def build_adj(edge_lists: Iterable[Iterable[Tuple[str, str]]]) -> Dict[str, List
     return adj
 
 
-def random_walks(adj: Dict[str, List[str]], num_walks: int = 10, walk_len: int = 8,
-                 seed: int = 42) -> List[List[str]]:
+def random_walks(adj: dict[str, list[str]], num_walks: int = 10, walk_len: int = 8,
+                 seed: int = 42) -> list[list[str]]:
     rnd = random.Random(seed)
     nodes = [n for n in adj if adj[n]]
-    walks: List[List[str]] = []
+    walks: list[list[str]] = []
     if not nodes:
         return walks
     for _ in range(num_walks):
@@ -51,7 +51,7 @@ def random_walks(adj: Dict[str, List[str]], num_walks: int = 10, walk_len: int =
     return walks
 
 
-def embed(adj: Dict[str, List[str]], dim: int = 32, num_walks: int = 10,
+def embed(adj: dict[str, list[str]], dim: int = 32, num_walks: int = 10,
           walk_len: int = 8, window: int = 2, seed: int = 42):
     """Return (node->vector dict, fitted TruncatedSVD)."""
     nodes = list(adj.keys())
@@ -66,7 +66,7 @@ def embed(adj: Dict[str, List[str]], dim: int = 32, num_walks: int = 10,
             for j in range(lo, hi):
                 if j == i:
                     continue
-                rows.append(idx[w[i]])
+                rows.append(idx[center])
                 cols.append(idx[w[j]])
                 data.append(1.0)
     C = sp.csr_matrix((data, (rows, cols)), shape=(len(nodes), len(nodes)))
@@ -76,7 +76,7 @@ def embed(adj: Dict[str, List[str]], dim: int = 32, num_walks: int = 10,
     return {n: emb[i] for i, n in enumerate(nodes)}, svd
 
 
-def aggregate(node_vecs: Dict[str, np.ndarray], node_list: Iterable[str],
+def aggregate(node_vecs: dict[str, np.ndarray], node_list: Iterable[str],
               dim: int) -> np.ndarray:
     vecs = [node_vecs[n] for n in node_list if n in node_vecs]
     if vecs:

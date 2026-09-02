@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -61,7 +61,7 @@ class RuleCondition(BaseModel):
     field: str  # Which transaction field to check
     operator: str  # "eq", "neq", "gt", "lt", "gte", "lte", "in", "not_in", "contains", "regex"
     value: Any  # Expected value or threshold
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class TypologyRule(BaseModel):
@@ -106,14 +106,14 @@ class TypologyMatch(BaseModel):
     evidence: list[dict[str, Any]]  # Supporting evidence
     
     # Context
-    transaction_hash: Optional[str] = None
-    address: Optional[str] = None
-    chain: Optional[str] = None
-    case_id: Optional[str] = None
+    transaction_hash: str | None = None
+    address: str | None = None
+    chain: str | None = None
+    case_id: str | None = None
     
     # Metadata
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    model_version: Optional[str] = None
+    model_version: str | None = None
     metadata: dict[str, Any] = {}
 
 
@@ -326,7 +326,7 @@ class TypologyEngine:
         
         return rule
     
-    def get_rule(self, rule_id: str) -> Optional[TypologyRule]:
+    def get_rule(self, rule_id: str) -> TypologyRule | None:
         """Get a rule by ID."""
         return self._rules.get(rule_id)
     
@@ -353,8 +353,8 @@ class TypologyEngine:
     def evaluate_transaction(
         self,
         transaction: dict[str, Any],
-        known_addresses: Optional[dict[str, set[str]]] = None,
-        context: Optional[dict[str, Any]] = None,
+        known_addresses: dict[str, set[str]] | None = None,
+        context: dict[str, Any] | None = None,
     ) -> list[TypologyMatch]:
         """Evaluate a transaction against all active rules."""
         matches: list[TypologyMatch] = []
@@ -372,8 +372,8 @@ class TypologyEngine:
         self,
         address: str,
         chain: str,
-        address_data: Optional[dict[str, Any]] = None,
-        known_addresses: Optional[dict[str, set[str]]] = None,
+        address_data: dict[str, Any] | None = None,
+        known_addresses: dict[str, set[str]] | None = None,
     ) -> list[TypologyMatch]:
         """Evaluate an address against all active rules."""
         matches: list[TypologyMatch] = []
@@ -389,9 +389,9 @@ class TypologyEngine:
     
     def get_matches(
         self,
-        category: Optional[TypologyCategory] = None,
-        severity: Optional[MatchSeverity] = None,
-        case_id: Optional[str] = None,
+        category: TypologyCategory | None = None,
+        severity: MatchSeverity | None = None,
+        case_id: str | None = None,
         limit: int = 100,
     ) -> list[TypologyMatch]:
         """Get detection matches with optional filters."""
@@ -449,9 +449,9 @@ class TypologyEngine:
         self,
         rule: TypologyRule,
         transaction: dict[str, Any],
-        known_addresses: Optional[dict[str, set[str]]],
+        known_addresses: dict[str, set[str]] | None,
         context: dict[str, Any],
-    ) -> Optional[TypologyMatch]:
+    ) -> TypologyMatch | None:
         """Evaluate a single rule against a transaction."""
         matched_conditions: list[str] = []
         evidence: list[dict[str, Any]] = []
@@ -502,8 +502,8 @@ class TypologyEngine:
         address: str,
         chain: str,
         address_data: dict[str, Any],
-        known_addresses: Optional[dict[str, set[str]]],
-    ) -> Optional[TypologyMatch]:
+        known_addresses: dict[str, set[str]] | None,
+    ) -> TypologyMatch | None:
         """Evaluate a single rule against an address."""
         matched_conditions: list[str] = []
         evidence: list[dict[str, Any]] = []
@@ -551,7 +551,7 @@ class TypologyEngine:
         self,
         condition: RuleCondition,
         data: dict[str, Any],
-        known_addresses: Optional[dict[str, set[str]]],
+        known_addresses: dict[str, set[str]] | None,
         context: dict[str, Any],
     ) -> bool:
         """Evaluate a single condition."""
@@ -644,8 +644,8 @@ def format_typology_match(match: TypologyMatch) -> str:
         f"Category: {match.category.value}",
         f"Severity: {match.severity.value}",
         f"Confidence: {match.confidence:.1%}",
-        f"",
-        f"Matched Conditions:",
+        "",
+        "Matched Conditions:",
     ]
     
     for condition in match.matched_conditions:

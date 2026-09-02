@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Generate BANK.json-compatible synthetic transactions from the complaint registry."""
 from __future__ import annotations
-import argparse, json, random
-from datetime import datetime, timezone
+
+import argparse
+import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]

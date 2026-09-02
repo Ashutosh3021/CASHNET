@@ -7,13 +7,13 @@ full subset-selectable pipeline elsewhere.
 from __future__ import annotations
 
 import traceback
-from typing import Any, Dict, List
+from typing import Any
 
 import lib.io_utils as io
-import lib.schema as schema
+from lib import schema
 
 
-def load_input(mid: int) -> List[Dict[str, Any]]:
+def load_input(mid: int) -> list[dict[str, Any]]:
     if mid == 182:
         return io.load_182_cases()["cross_border_cases"][:20]
     if mid == 183:
@@ -26,12 +26,12 @@ def load_input(mid: int) -> List[Dict[str, Any]]:
 
 
 class PipelineBundle:
-    def __init__(self, cfg: Dict[str, Any], models: Dict[int, Any]):
+    def __init__(self, cfg: dict[str, Any], models: dict[int, Any]):
         self.cfg = cfg
         self.models = models  # {mid: model_obj}
 
-    def run(self) -> Dict[str, Any]:
-        summary: Dict[str, Any] = {
+    def run(self) -> dict[str, Any]:
+        summary: dict[str, Any] = {
             "active": list(self.models.keys()),
             "per_model": {},
             "errors": [],

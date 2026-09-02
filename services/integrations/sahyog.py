@@ -6,13 +6,12 @@ Online Grievances) for case hand-off and status tracking.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
 from .base import (
     IntegrationAdapter,
-    IntegrationRequest,
     IntegrationResponse,
     IntegrationStatus,
     IntegrationType,
@@ -34,7 +33,7 @@ class SAHYOGConnector(IntegrationAdapter):
         self.retry_attempts = config.get("retry_attempts", 3)
         
         # HTTP client
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         
         # Case mapping (CashNet case_id -> SAHYOG case_id)
         self._case_mapping: dict[str, str] = {}
@@ -277,7 +276,7 @@ class SAHYOGConnector(IntegrationAdapter):
             "external_reference": sahyog_data.get("reference_number"),
         }
     
-    def _map_fraud_type(self, fraud_type: Optional[str]) -> str:
+    def _map_fraud_type(self, fraud_type: str | None) -> str:
         """Map CashNet fraud type to SAHYOG format."""
         mapping = {
             "CRYPTO": "DIGITAL_FRAUD",
@@ -288,7 +287,7 @@ class SAHYOGConnector(IntegrationAdapter):
         }
         return mapping.get(fraud_type or "", "OTHER")
     
-    def _reverse_map_fraud_type(self, sahyog_type: Optional[str]) -> str:
+    def _reverse_map_fraud_type(self, sahyog_type: str | None) -> str:
         """Map SAHYOG fraud type to CashNet format."""
         mapping = {
             "DIGITAL_FRAUD": "CRYPTO",
@@ -298,7 +297,7 @@ class SAHYOGConnector(IntegrationAdapter):
         }
         return mapping.get(sahyog_type or "", "OTHER")
     
-    def _map_priority(self, priority: Optional[str]) -> str:
+    def _map_priority(self, priority: str | None) -> str:
         """Map CashNet priority to SAHYOG format."""
         mapping = {
             "CRITICAL": "URGENT",
@@ -308,7 +307,7 @@ class SAHYOGConnector(IntegrationAdapter):
         }
         return mapping.get(priority or "", "MEDIUM")
     
-    def _map_sahyog_status(self, sahyog_status: Optional[str]) -> IntegrationStatus:
+    def _map_sahyog_status(self, sahyog_status: str | None) -> IntegrationStatus:
         """Map SAHYOG status to IntegrationStatus."""
         mapping = {
             "SUBMITTED": IntegrationStatus.PENDING,

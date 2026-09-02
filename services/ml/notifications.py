@@ -5,10 +5,10 @@ via email, SMS, and webhook delivery channels.
 """
 from __future__ import annotations
 
+import json as json_module
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
-import json as json_module
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -53,8 +53,8 @@ class Recipient(BaseModel):
     """A notification recipient."""
     recipient_id: str
     name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
+    email: str | None = None
+    phone: str | None = None
     channel: MessageChannel = MessageChannel.EMAIL
     timezone: str = "UTC"
     active: bool = True
@@ -70,15 +70,15 @@ class AlertRule(BaseModel):
     enabled: bool = True
 
     # Thresholds
-    min_risk_score: Optional[float] = None
-    min_amount: Optional[float] = None
-    chains: Optional[list[str]] = None
+    min_risk_score: float | None = None
+    min_amount: float | None = None
+    chains: list[str] | None = None
 
     # Rate limiting
     cooldown_minutes: int = 60
 
     # Last trigger
-    last_triggered: Optional[datetime] = None
+    last_triggered: datetime | None = None
     trigger_count: int = 0
 
 
@@ -91,10 +91,10 @@ class DeliveryProvider(BaseModel):
 
     # For email: SMTP server, API key, etc.
     # For SMS: Twilio, AWS SNS, etc.
-    api_key: Optional[str] = None
-    sender_email: Optional[str] = None
-    sender_phone: Optional[str] = None
-    base_url: Optional[str] = None
+    api_key: str | None = None
+    sender_email: str | None = None
+    sender_phone: str | None = None
+    base_url: str | None = None
 
     active: bool = True
     healthy: bool = True
@@ -109,7 +109,7 @@ class RealtimeNotification(BaseModel):
 
     # Recipient
     recipient: str
-    recipient_id: Optional[str] = None
+    recipient_id: str | None = None
 
     # Content
     subject: str
@@ -118,19 +118,19 @@ class RealtimeNotification(BaseModel):
 
     # Status
     status: DeliveryStatus = DeliveryStatus.PENDING
-    provider: Optional[str] = None
-    external_id: Optional[str] = None
-    error_message: Optional[str] = None
+    provider: str | None = None
+    external_id: str | None = None
+    error_message: str | None = None
 
     # Related entities
-    case_id: Optional[str] = None
-    address: Optional[str] = None
-    chain: Optional[str] = None
+    case_id: str | None = None
+    address: str | None = None
+    chain: str | None = None
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    sent_at: Optional[datetime] = None
-    delivered_at: Optional[datetime] = None
+    sent_at: datetime | None = None
+    delivered_at: datetime | None = None
     retry_count: int = 0
 
     # Metadata
@@ -154,7 +154,7 @@ class RealtimeNotificationService:
         self._recipients[recipient.recipient_id] = recipient
         return recipient
 
-    def get_recipient(self, recipient_id: str) -> Optional[Recipient]:
+    def get_recipient(self, recipient_id: str) -> Recipient | None:
         return self._recipients.get(recipient_id)
 
     def add_provider(self, provider: DeliveryProvider) -> DeliveryProvider:
@@ -172,8 +172,8 @@ class RealtimeNotificationService:
         provider_id: str,
         smtp_host: str,
         smtp_port: int = 587,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
+        username: str | None = None,
+        password: str | None = None,
         use_tls: bool = True,
         sender_email: str = "",
     ) -> DeliveryProvider:
@@ -215,12 +215,12 @@ class RealtimeNotificationService:
         alert_type: AlertType,
         subject: str,
         body: str,
-        case_id: Optional[str] = None,
-        address: Optional[str] = None,
-        chain: Optional[str] = None,
-        risk_score: Optional[float] = None,
-        amount: Optional[float] = None,
-        data: Optional[dict[str, Any]] = None,
+        case_id: str | None = None,
+        address: str | None = None,
+        chain: str | None = None,
+        risk_score: float | None = None,
+        amount: float | None = None,
+        data: dict[str, Any] | None = None,
         priority: str = "HIGH",
     ) -> list[RealtimeNotification]:
         rules = self._get_matching_rules(
@@ -281,9 +281,9 @@ class RealtimeNotificationService:
     def _get_matching_rules(
         self,
         alert_type: AlertType,
-        risk_score: Optional[float],
-        amount: Optional[float],
-        chain: Optional[str],
+        risk_score: float | None,
+        amount: float | None,
+        chain: str | None,
     ) -> list[AlertRule]:
         matching = []
         for rule in self._alert_rules.values():
@@ -328,8 +328,8 @@ class RealtimeNotificationService:
     def _send_email(self, notification: RealtimeNotification, provider: DeliveryProvider) -> None:
         try:
             import smtplib
-            from email.mime.text import MIMEText
             from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
 
             config = provider.config
             msg = MIMEMultipart("alternative")
@@ -423,9 +423,9 @@ class RealtimeNotificationService:
         subject: str,
         body: str,
         channel: MessageChannel = MessageChannel.EMAIL,
-        data: Optional[dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
         priority: str = "HIGH",
-    ) -> Optional[RealtimeNotification]:
+    ) -> RealtimeNotification | None:
         recipient = self._recipients.get(recipient_id)
         if not recipient or not recipient.active:
             return None
@@ -447,7 +447,7 @@ class RealtimeNotificationService:
         self._send_via_provider(notification, channel)
         return notification
 
-    def get_notification(self, notification_id: str) -> Optional[RealtimeNotification]:
+    def get_notification(self, notification_id: str) -> RealtimeNotification | None:
         return self._notifications.get(notification_id)
 
     def get_notifications_for_case(self, case_id: str) -> list[RealtimeNotification]:
@@ -461,7 +461,7 @@ class RealtimeNotificationService:
             and n.retry_count < 3
         ]
 
-    def retry_notification(self, notification_id: str) -> Optional[RealtimeNotification]:
+    def retry_notification(self, notification_id: str) -> RealtimeNotification | None:
         notification = self._notifications.get(notification_id)
         if not notification:
             return None
@@ -482,9 +482,9 @@ class RealtimeNotificationService:
         self,
         notification_id: str,
         status: DeliveryStatus,
-        external_id: Optional[str] = None,
+        external_id: str | None = None,
         delivered: bool = False,
-    ) -> Optional[RealtimeNotification]:
+    ) -> RealtimeNotification | None:
         notification = self._notifications.get(notification_id)
         if not notification:
             return None
@@ -528,7 +528,6 @@ class RealtimeNotificationService:
         }
 
     def _seed_default_rules(self) -> None:
-        from ..blockchain.base import ChainType
 
         self._alert_rules = {
             "high_risk_transactions": AlertRule(

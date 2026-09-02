@@ -7,13 +7,11 @@ have not been downloaded yet.
 """
 from __future__ import annotations
 
-import gzip
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 # ---------------------------------------------------------------------------
@@ -36,7 +34,7 @@ def ensure_dirs() -> None:
 # ---------------------------------------------------------------------------
 # Generic JSON batch loading
 # ---------------------------------------------------------------------------
-def load_json_batches(folder: str | os.PathLike) -> List[Any]:
+def load_json_batches(folder: str | os.PathLike) -> list[Any]:
     """Load every *.json file in *folder* and concatenate list contents.
 
     Supports both a single JSON list per file and a list of files each
@@ -45,12 +43,12 @@ def load_json_batches(folder: str | os.PathLike) -> List[Any]:
     folder = Path(folder)
     if not folder.exists():
         return []
-    records: List[Any] = []
+    records: list[Any] = []
     for fp in sorted(folder.glob("*.json")):
         try:
             with open(fp, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             continue
         if isinstance(data, list):
             records.extend(data)
@@ -81,9 +79,9 @@ _182_FAMILIES = [
 ]
 
 
-def load_182_cases() -> Dict[str, List[Any]]:
+def load_182_cases() -> dict[str, list[Any]]:
     """Return {family_name: [records...]} for all 7 source families."""
-    out: Dict[str, List[Any]] = {}
+    out: dict[str, list[Any]] = {}
     base = ROOT / "182" / "DATA"
     for fam in _182_FAMILIES:
         out[fam] = load_json_batches(base / fam)
@@ -92,7 +90,7 @@ def load_182_cases() -> Dict[str, List[Any]]:
 
 def load_snap_trust() -> pd.DataFrame:
     """Directed trust edges (source, target, rating, time) from SNAP corpora."""
-    edges: List[dict] = []
+    edges: list[dict] = []
     candidates = [
         ROOT / "182/DATA/external/bitcoin_alpha_trust/soc-sign-bitcoinalpha.csv",
         ROOT / "182/DATA/external/bitcoin_otc_trust/soc-sign-bitcoinotc.csv",
@@ -105,14 +103,14 @@ def load_snap_trust() -> pd.DataFrame:
                              names=["source", "target", "rating", "time"])
             df["source_graph"] = path.stem
             edges.append(df)
-        except Exception:
+        except (pd.errors.ParserError, FileNotFoundError, OSError):
             continue
     if edges:
         return pd.concat(edges, ignore_index=True)
     return pd.DataFrame(columns=["source", "target", "rating", "time"])
 
 
-def load_elliptic(labeled_only: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_elliptic(labeled_only: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load Elliptic AML data.
 
     Returns (features_df, classes_df, edgelist_df).
@@ -134,7 +132,7 @@ def load_elliptic(labeled_only: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame
     features = pd.DataFrame()
     if feat_path.exists():
         labeled_ids = set(classes["txId"].astype(str)) if labeled_only else None
-        parts: List[pd.DataFrame] = []
+        parts: list[pd.DataFrame] = []
         for chunk in pd.read_csv(feat_path, header=None, chunksize=20000,
                                  dtype={0: str}, low_memory=False):
             chunk = chunk.rename(columns={0: "txId"})
@@ -151,8 +149,8 @@ def load_elliptic(labeled_only: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame
 # ---------------------------------------------------------------------------
 # 183 — Complaints / Support / Transactions
 # ---------------------------------------------------------------------------
-def load_183_complaints() -> List[Any]:
-    recs: List[Any] = []
+def load_183_complaints() -> list[Any]:
+    recs: list[Any] = []
     base = ROOT / "183/DATA"
     for fam in ["Complaint datasets", "Support  reference datasets", "Transaction datasets"]:
         recs.extend(load_json_batches(base / fam))
@@ -162,15 +160,15 @@ def load_183_complaints() -> List[Any]:
             with open(fp, "r", encoding="utf-8") as fh:
                 d = json.load(fh)
             recs.extend(d if isinstance(d, list) else [d])
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             continue
     return recs
 
 
-def load_banking77() -> Tuple[List[str], List[str]]:
+def load_banking77() -> tuple[list[str], list[str]]:
     base = ROOT / "183/DATA/external"
-    texts: List[str] = []
-    labels: List[str] = []
+    texts: list[str] = []
+    labels: list[str] = []
     for split in ["banking77_train.csv", "banking77_test.csv"]:
         fp = base / split
         if not fp.exists():
@@ -181,7 +179,7 @@ def load_banking77() -> Tuple[List[str], List[str]]:
     return texts, labels
 
 
-def load_creditcard() -> Tuple[pd.DataFrame, pd.Series]:
+def load_creditcard() -> tuple[pd.DataFrame, pd.Series]:
     fp = ROOT / "183/DATA/external/creditcard_fraud/creditcard.csv"
     if not fp.exists():
         return pd.DataFrame(), pd.Series(dtype=int)
@@ -205,7 +203,7 @@ def load_cfpb_sample(n: int = 100_000) -> pd.DataFrame:
     try:
         df = pd.read_csv(fp, nrows=n, usecols=lambda c: c in cols,
                          low_memory=False)
-    except Exception:
+    except (pd.errors.ParserError, FileNotFoundError, OSError):
         return pd.DataFrame()
     df = df.dropna(subset=["Product"])
     return df.reset_index(drop=True)
@@ -214,9 +212,9 @@ def load_cfpb_sample(n: int = 100_000) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # 184 — Banking / ATM / Geospatial
 # ---------------------------------------------------------------------------
-def load_184_synthetic() -> Dict[str, Any]:
+def load_184_synthetic() -> dict[str, Any]:
     base = ROOT / "184/data/synthetic"
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     bank = _read_json(base / "bank/bank_transactions.json") or {}
     out["bank_transactions"] = bank
     out["atm_withdrawal_links"] = _read_json(base / "bank/atm_withdrawal_links.json") or {}
@@ -227,13 +225,13 @@ def load_184_synthetic() -> Dict[str, Any]:
     return out
 
 
-def load_184_reference() -> Dict[str, Any]:
+def load_184_reference() -> dict[str, Any]:
     base = ROOT / "184/data/reference"
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     out["banks"] = _read_json(base / "banks.json") or {}
     out["cities"] = _read_json(base / "cities.json") or {}
     out["fraud_types"] = _read_json(base / "fraud_types.json") or {}
-    osm: Dict[str, Any] = {}
+    osm: dict[str, Any] = {}
     osm_dir = base / "osm-atms"
     if osm_dir.exists():
         for fp in sorted(osm_dir.glob("*.json")):
@@ -242,9 +240,9 @@ def load_184_reference() -> Dict[str, Any]:
     return out
 
 
-def load_184_external_osm() -> Dict[str, Any]:
+def load_184_external_osm() -> dict[str, Any]:
     """Live OSM ATM extracts (one json per city) under 184/data/external/."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     ext = ROOT / "184/data/external"
     if not ext.exists():
         return out
@@ -260,7 +258,7 @@ def load_184_cfpb(n: int = 50_000) -> pd.DataFrame:
     try:
         df = pd.read_csv(fp, nrows=n, usecols=["Product", "Consumer complaint narrative"],
                          low_memory=False)
-    except Exception:
+    except (pd.errors.ParserError, FileNotFoundError, OSError):
         return pd.DataFrame()
     return df.dropna(subset=["Product"]).reset_index(drop=True)
 
@@ -272,8 +270,8 @@ def _out_folder(model_id: int | str) -> Path:
     return ROOT / str(model_id) / "OUT"
 
 
-def write_out(model_id: int | str, payload: Dict[str, Any], slug: str,
-              case_id: Optional[str] = None, version: int = 1) -> Path:
+def write_out(model_id: int | str, payload: dict[str, Any], slug: str,
+              case_id: str | None = None, version: int = 1) -> Path:
     """Validate *payload* against the canonical contract and write atomically.
 
     Filename: <slug>_<case_id>_<timestamp>_v<version>.json

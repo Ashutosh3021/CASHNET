@@ -5,7 +5,7 @@ Provides integration with Tron blockchain via Trongrid API.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -32,7 +32,7 @@ class TronAdapter(ChainAdapter):
         self.timeout = config.get("timeout", 30)
         
         # HTTP client
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         
         # Known contract addresses
         self._known_contracts: dict[str, str] = {
@@ -124,7 +124,7 @@ class TronAdapter(ChainAdapter):
                 error_message=str(e),
             )
     
-    async def get_transaction(self, tx_hash: str) -> Optional[NormalizedTransaction]:
+    async def get_transaction(self, tx_hash: str) -> NormalizedTransaction | None:
         """Get a single transaction by hash."""
         try:
             if not self._client:
@@ -402,8 +402,8 @@ class TronAdapter(ChainAdapter):
     async def get_token_transfers(
         self,
         token_address: str,
-        from_address: Optional[str] = None,
-        to_address: Optional[str] = None,
+        from_address: str | None = None,
+        to_address: str | None = None,
         start_block: int = 0,
         limit: int = 100,
     ) -> list[NormalizedTransaction]:

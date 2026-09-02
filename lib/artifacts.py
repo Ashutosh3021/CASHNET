@@ -13,7 +13,7 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
 
 HEADER_MAGIC = b"CASHNET1"
 
@@ -21,7 +21,7 @@ HEADER_MAGIC = b"CASHNET1"
 def _sha256(obj: Any) -> str:
     try:
         blob = pickle.dumps(obj)
-    except Exception:
+    except (pickle.PicklingError, TypeError):
         blob = repr(obj).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()[:16]
 
@@ -53,7 +53,7 @@ def save_model(obj: Any, path: str | Path, provenance: dict | None = None) -> Pa
     return path
 
 
-def load_model(path: str | Path) -> Tuple[Any, dict]:
+def load_model(path: str | Path) -> tuple[Any, dict]:
     path = Path(path)
     with open(path, "rb") as fh:
         magic = fh.read(len(HEADER_MAGIC))

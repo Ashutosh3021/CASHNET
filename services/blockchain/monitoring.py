@@ -5,9 +5,10 @@ Provides monitoring, alerting, and metrics for blockchain integrations.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -51,7 +52,7 @@ class ChainMetrics(BaseModel):
     
     # Error metrics
     error_rate: float = 0.0
-    last_error: Optional[str] = None
+    last_error: str | None = None
 
 
 class ChainMonitor:
@@ -114,7 +115,7 @@ class ChainMonitor:
             alert = ChainAlert(
                 chain=chain,
                 severity=AlertSeverity.CRITICAL,
-                message=f"Health check failed: {str(e)}",
+                message=f"Health check failed: {e!s}",
                 details={"error": str(e)},
             )
             self._trigger_alert(alert)
@@ -203,8 +204,8 @@ class ChainMonitor:
     
     def get_recent_alerts(
         self,
-        chain: Optional[ChainType] = None,
-        severity: Optional[AlertSeverity] = None,
+        chain: ChainType | None = None,
+        severity: AlertSeverity | None = None,
         limit: int = 50,
     ) -> list[ChainAlert]:
         """Get recent alerts with optional filters."""

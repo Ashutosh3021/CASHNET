@@ -4,9 +4,8 @@ Provides integration with Ethereum blockchain via Web3.py and public APIs.
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from web3 import Web3
 
@@ -39,7 +38,7 @@ class EthereumAdapter(ChainAdapter):
         self.timeout = config.get("timeout", 30)
         
         # Web3 instance
-        self.w3: Optional[Web3] = None
+        self.w3: Web3 | None = None
         
         # Known contract addresses (for address classification)
         self._known_contracts: dict[str, str] = {}
@@ -123,7 +122,7 @@ class EthereumAdapter(ChainAdapter):
                 error_message=str(e),
             )
     
-    async def get_transaction(self, tx_hash: str) -> Optional[NormalizedTransaction]:
+    async def get_transaction(self, tx_hash: str) -> NormalizedTransaction | None:
         """Get a single transaction by hash."""
         try:
             if not self.w3:
@@ -324,8 +323,8 @@ class EthereumAdapter(ChainAdapter):
     async def get_token_transfers(
         self,
         token_address: str,
-        from_address: Optional[str] = None,
-        to_address: Optional[str] = None,
+        from_address: str | None = None,
+        to_address: str | None = None,
         start_block: int = 0,
         limit: int = 100,
     ) -> list[NormalizedTransaction]:
@@ -349,7 +348,7 @@ class EthereumAdapter(ChainAdapter):
             
             if from_address:
                 filter_args["topics"].append(
-                    Web3.keccak(text=f"Transfer(address,address,uint256)")
+                    Web3.keccak(text="Transfer(address,address,uint256)")
                 )
                 # Pad address to 32 bytes
                 padded_from = "0x" + from_address.lower()[2:].zfill(64)

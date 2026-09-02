@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-import httpx
 from pydantic import BaseModel, Field
 
 
@@ -61,18 +60,18 @@ class NotificationRecord(BaseModel):
     # Recipient
     institution_id: str
     institution_name: str
-    recipient_email: Optional[str] = None
-    recipient_phone: Optional[str] = None
+    recipient_email: str | None = None
+    recipient_phone: str | None = None
     
     # Content
     subject: str
     body: str
-    template_id: Optional[str] = None
+    template_id: str | None = None
     template_data: dict[str, Any] = {}
     
     # Related entities
-    case_id: Optional[str] = None
-    action_request_id: Optional[str] = None
+    case_id: str | None = None
+    action_request_id: str | None = None
     
     # Delivery
     channel: NotificationChannel = NotificationChannel.EMAIL
@@ -80,14 +79,14 @@ class NotificationRecord(BaseModel):
     
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    sent_at: Optional[datetime] = None
-    delivered_at: Optional[datetime] = None
+    sent_at: datetime | None = None
+    delivered_at: datetime | None = None
     
     # Tracking
-    external_id: Optional[str] = None  # ID from external provider
+    external_id: str | None = None  # ID from external provider
     retry_count: int = 0
     max_retries: int = 3
-    error_message: Optional[str] = None
+    error_message: str | None = None
     
     # Metadata
     metadata: dict[str, Any] = {}
@@ -99,10 +98,10 @@ class FinancialInstitution(BaseModel):
     name: str
     institution_type: str  # "bank", "nbfi", "exchange", "vasp"
     jurisdiction: str
-    contact_email: Optional[str] = None
-    contact_phone: Optional[str] = None
-    api_endpoint: Optional[str] = None
-    api_key: Optional[str] = None
+    contact_email: str | None = None
+    contact_phone: str | None = None
+    api_endpoint: str | None = None
+    api_key: str | None = None
     notification_preferences: dict[str, Any] = {}
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -126,7 +125,7 @@ class NotificationService:
         self._institutions[institution.institution_id] = institution
         return institution
     
-    def get_institution(self, institution_id: str) -> Optional[FinancialInstitution]:
+    def get_institution(self, institution_id: str) -> FinancialInstitution | None:
         """Get institution details."""
         return self._institutions.get(institution_id)
     
@@ -179,9 +178,9 @@ class NotificationService:
         case_id: str,
         action_request_id: str,
         account_number: str,
-        amount: Optional[float] = None,
+        amount: float | None = None,
         reason: str = "",
-        legal_reference: Optional[str] = None,
+        legal_reference: str | None = None,
         priority: NotificationPriority = NotificationPriority.CRITICAL,
     ) -> NotificationRecord:
         """Send freeze request to a financial institution."""
@@ -257,7 +256,7 @@ class NotificationService:
         case_id: str,
         evidence_type: str,
         description: str,
-        deadline: Optional[datetime] = None,
+        deadline: datetime | None = None,
         priority: NotificationPriority = NotificationPriority.HIGH,
     ) -> NotificationRecord:
         """Send evidence request to a financial institution."""
@@ -289,7 +288,7 @@ class NotificationService:
             },
         )
     
-    def get_notification(self, notification_id: str) -> Optional[NotificationRecord]:
+    def get_notification(self, notification_id: str) -> NotificationRecord | None:
         """Get a notification record."""
         return self._notifications.get(notification_id)
     
@@ -317,7 +316,7 @@ class NotificationService:
             if n.status == NotificationStatus.FAILED
         ]
     
-    def retry_notification(self, notification_id: str) -> Optional[NotificationRecord]:
+    def retry_notification(self, notification_id: str) -> NotificationRecord | None:
         """Retry a failed notification."""
         notification = self._notifications.get(notification_id)
         if not notification:
@@ -339,9 +338,9 @@ class NotificationService:
         self,
         notification_id: str,
         status: NotificationStatus,
-        error_message: Optional[str] = None,
-        external_id: Optional[str] = None,
-    ) -> Optional[NotificationRecord]:
+        error_message: str | None = None,
+        external_id: str | None = None,
+    ) -> NotificationRecord | None:
         """Update notification status."""
         notification = self._notifications.get(notification_id)
         if not notification:
@@ -422,9 +421,9 @@ class NotificationService:
         institution: FinancialInstitution,
         subject: str,
         body: str,
-        case_id: Optional[str] = None,
-        action_request_id: Optional[str] = None,
-        template_data: Optional[dict[str, Any]] = None,
+        case_id: str | None = None,
+        action_request_id: str | None = None,
+        template_data: dict[str, Any] | None = None,
     ) -> NotificationRecord:
         """Create and store a notification."""
         import uuid
@@ -534,9 +533,9 @@ CashNet Investigation Team"""
         institution: FinancialInstitution,
         case_id: str,
         account_number: str,
-        amount: Optional[float],
+        amount: float | None,
         reason: str,
-        legal_reference: Optional[str],
+        legal_reference: str | None,
     ) -> str:
         """Render freeze request email body."""
         amount_str = f"{amount:,.2f} INR" if amount else "All funds"
@@ -609,7 +608,7 @@ CashNet Investigation Team"""
         case_id: str,
         evidence_type: str,
         description: str,
-        deadline: Optional[datetime],
+        deadline: datetime | None,
     ) -> str:
         """Render evidence request email body."""
         deadline_str = deadline.strftime("%Y-%m-%d %H:%M UTC") if deadline else "Not specified"

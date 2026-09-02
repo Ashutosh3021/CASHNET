@@ -7,7 +7,6 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -98,12 +97,12 @@ class User(BaseModel):
     role: UserRole = UserRole.VIEWER
     is_active: bool = True
     is_mfa_enabled: bool = False
-    mfa_secret: Optional[str] = None
-    department: Optional[str] = None
-    badge_number: Optional[str] = None
+    mfa_secret: str | None = None
+    department: str | None = None
+    badge_number: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    last_login: Optional[datetime] = None
+    last_login: datetime | None = None
 
 
 class UserCreate(BaseModel):
@@ -112,16 +111,16 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
     full_name: str
     role: UserRole = UserRole.VIEWER
-    department: Optional[str] = None
-    badge_number: Optional[str] = None
+    department: str | None = None
+    badge_number: str | None = None
 
 
 class UserUpdate(BaseModel):
     """User update request."""
-    full_name: Optional[str] = None
-    role: Optional[UserRole] = None
-    department: Optional[str] = None
-    is_active: Optional[bool] = None
+    full_name: str | None = None
+    role: UserRole | None = None
+    department: str | None = None
+    is_active: bool | None = None
 
 
 class Token(BaseModel):
@@ -154,7 +153,7 @@ class MFASetup(BaseModel):
 class MFAMVerify(BaseModel):
     """MFA verification request."""
     code: str = Field(min_length=6, max_length=6)
-    backup_code: Optional[str] = None
+    backup_code: str | None = None
 
 
 class Session(BaseModel):
@@ -173,7 +172,7 @@ class LoginRequest(BaseModel):
     """Login request."""
     email: EmailStr
     password: str
-    mfa_code: Optional[str] = None
+    mfa_code: str | None = None
 
 
 class PasswordChange(BaseModel):

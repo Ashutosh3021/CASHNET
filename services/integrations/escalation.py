@@ -4,11 +4,11 @@ Manages escalation rules, SLA tracking, and deadline monitoring.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class SLAStatus(str, Enum):
@@ -94,12 +94,12 @@ class SLATracking(BaseModel):
     
     # Status
     status: SLAStatus = SLAStatus.ON_TRACK
-    response_met: Optional[bool] = None
-    resolution_met: Optional[bool] = None
+    response_met: bool | None = None
+    resolution_met: bool | None = None
     
     # Actual times
-    first_response_at: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
+    first_response_at: datetime | None = None
+    resolved_at: datetime | None = None
     
     # Metadata
     metadata: dict[str, Any] = {}
@@ -265,9 +265,7 @@ class EscalationManager:
         # Update status
         if tracking.resolved_at:
             tracking.status = SLAStatus.COMPLETED
-        elif now > tracking.resolution_deadline:
-            tracking.status = SLAStatus.BREACHED
-        elif now > tracking.response_deadline and not tracking.first_response_at:
+        elif now > tracking.resolution_deadline or now > tracking.response_deadline and not tracking.first_response_at:
             tracking.status = SLAStatus.BREACHED
         elif now > tracking.response_deadline - timedelta(hours=24):
             tracking.status = SLAStatus.AT_RISK
@@ -278,7 +276,7 @@ class EscalationManager:
     
     def check_escalations(
         self,
-        case_id: Optional[str] = None,
+        case_id: str | None = None,
     ) -> list[dict[str, Any]]:
         """Check for items that need escalation."""
         escalations_needed = []
@@ -404,7 +402,7 @@ class EscalationManager:
         self,
         action_type: str,
         priority: str,
-    ) -> Optional[SLADefinition]:
+    ) -> SLADefinition | None:
         """Find the most specific applicable SLA."""
         best_sla = None
         best_score = 0

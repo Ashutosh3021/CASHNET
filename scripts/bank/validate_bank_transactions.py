@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Validate BANK.json records and their complaint/registry joins."""
-import json, re
+import json
 from pathlib import Path
+
 ROOT=Path(__file__).resolve().parents[2]
 REG=ROOT/'data/synthetic/complaints/complaint_account_registry.json'; COMPLAINTS=ROOT/'data/synthetic/complaints/complaint.json'
 SCHEMA=('transaction_id','source_account','destination_account','transaction_amount','currency','timestamp','transaction_type','status')

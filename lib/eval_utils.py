@@ -6,11 +6,14 @@ top-k accuracy for ranking heads) so reported numbers reflect generalization.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Sequence
+from collections.abc import Sequence
 
 import numpy as np
-from sklearn.metrics import (accuracy_score, f1_score, precision_recall_fscore_support,
-                             top_k_accuracy_score)
+from sklearn.metrics import (
+    accuracy_score,
+    precision_recall_fscore_support,
+    top_k_accuracy_score,
+)
 from sklearn.model_selection import train_test_split
 
 
@@ -28,7 +31,7 @@ def split_idx(y: Sequence, test_size: float = 0.2, random_state: int = 42,
                             random_state=random_state, stratify=strat)
 
 
-def clf_metrics(y_true, y_pred, average: str = "macro") -> Dict[str, float]:
+def clf_metrics(y_true, y_pred, average: str = "macro") -> dict[str, float]:
     p, r, f, _ = precision_recall_fscore_support(y_true, y_pred, average=average,
                                                  zero_division=0)
     return {
@@ -36,7 +39,7 @@ def clf_metrics(y_true, y_pred, average: str = "macro") -> Dict[str, float]:
         "recall": float(r),
         "f1": float(f),
         "accuracy": float(accuracy_score(y_true, y_pred)),
-        "n": int(len(y_true)),
+        "n": len(y_true),
     }
 
 
@@ -50,11 +53,11 @@ def topk_metric(y_true, y_proba: np.ndarray, k: int = 3, classes=None) -> float:
     try:
         return float(top_k_accuracy_score(y_true, y_proba, k=k,
                                           labels=np.arange(y_proba.shape[1])))
-    except Exception:
+    except (ValueError, IndexError):
         return float(accuracy_score(y_true, np.argmax(y_proba, axis=1)))
 
 
-def collapse_rare(y: Sequence, min_count: int = 8, other: str = "OTHER") -> List[str]:
+def collapse_rare(y: Sequence, min_count: int = 8, other: str = "OTHER") -> list[str]:
     """Map classes with fewer than *min_count* members to *other* so rare
     categories do not destabilise stratified splits / metrics."""
     from collections import Counter
@@ -63,16 +66,17 @@ def collapse_rare(y: Sequence, min_count: int = 8, other: str = "OTHER") -> List
     return [x if x in keep else other for x in y]
 
 
-def binary_metrics(y_true, y_pred, y_proba=None) -> Dict[str, float]:
+def binary_metrics(y_true, y_pred, y_proba=None) -> dict[str, float]:
     p, r, f, _ = precision_recall_fscore_support(y_true, y_pred, average="binary",
                                                  zero_division=0)
     out = {"precision": float(p), "recall": float(r), "f1": float(f),
-           "accuracy": float(accuracy_score(y_true, y_pred)), "n": int(len(y_true))}
+           "accuracy": float(accuracy_score(y_true, y_pred)), "n": len(y_true)}
     if y_proba is not None:
         try:
             from sklearn.metrics import roc_auc_score
             out["auc"] = float(roc_auc_score(y_true, np.asarray(y_proba)[:, 1]
                                              if np.asarray(y_proba).ndim == 2 else y_proba))
-        except Exception:
+        except (ValueError, IndexError):
+            # AUC computation failed, skip it
             pass
     return out

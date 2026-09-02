@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -106,8 +106,8 @@ class BridgePattern(BaseModel):
     
     # Protocol
     protocol: BridgeProtocol
-    protocol_address: Optional[str] = None
-    protocol_name: Optional[str] = None
+    protocol_address: str | None = None
+    protocol_name: str | None = None
     
     # Chains
     source_chain: str
@@ -115,24 +115,24 @@ class BridgePattern(BaseModel):
     
     # Transaction details
     source_tx_hash: str
-    destination_tx_hash: Optional[str] = None
-    source_block: Optional[int] = None
-    destination_block: Optional[int] = None
+    destination_tx_hash: str | None = None
+    source_block: int | None = None
+    destination_block: int | None = None
     
     # Value
     token_address: str = ""
     token_symbol: str = ""
     amount: float = 0.0
-    amount_usd: Optional[float] = None
+    amount_usd: float | None = None
     
     # Addresses
     sender: str = ""
-    receiver: Optional[str] = None
+    receiver: str | None = None
     
     # Timing
-    source_timestamp: Optional[datetime] = None
-    destination_timestamp: Optional[datetime] = None
-    bridge_duration_seconds: Optional[float] = None
+    source_timestamp: datetime | None = None
+    destination_timestamp: datetime | None = None
+    bridge_duration_seconds: float | None = None
     
     # Risk
     risk_score: float = 0.0
@@ -153,15 +153,15 @@ class SwapPattern(BaseModel):
     
     # Protocol
     protocol: SwapProtocol
-    protocol_address: Optional[str] = None
-    protocol_name: Optional[str] = None
+    protocol_address: str | None = None
+    protocol_name: str | None = None
     
     # Chain
     chain: str
     
     # Transaction
     tx_hash: str
-    block_number: Optional[int] = None
+    block_number: int | None = None
     
     # Token details
     token_in_address: str = ""
@@ -173,14 +173,14 @@ class SwapPattern(BaseModel):
     token_out_amount: float = 0.0
     
     # Price impact
-    price_impact_pct: Optional[float] = None
+    price_impact_pct: float | None = None
     
     # Addresses
     sender: str = ""
-    recipient: Optional[str] = None
+    recipient: str | None = None
     
     # Timing
-    timestamp: Optional[datetime] = None
+    timestamp: datetime | None = None
     
     # Risk
     risk_score: float = 0.0
@@ -316,13 +316,13 @@ class EnhancedBridgeDetector:
         chain: str,
         to_address: str,
         value: float,
-        token_address: Optional[str] = None,
-        token_symbol: Optional[str] = None,
+        token_address: str | None = None,
+        token_symbol: str | None = None,
         sender: str = "",
-        block_number: Optional[int] = None,
-        timestamp: Optional[datetime] = None,
-        case_id: Optional[str] = None,
-    ) -> Optional[BridgePattern]:
+        block_number: int | None = None,
+        timestamp: datetime | None = None,
+        case_id: str | None = None,
+    ) -> BridgePattern | None:
         """Detect if a transaction is a bridge."""
         to_lower = to_address.lower()
         
@@ -392,10 +392,10 @@ class EnhancedBridgeDetector:
         token_out_address: str = "",
         token_out_symbol: str = "",
         token_out_amount: float = 0.0,
-        block_number: Optional[int] = None,
-        timestamp: Optional[datetime] = None,
-        case_id: Optional[str] = None,
-    ) -> Optional[SwapPattern]:
+        block_number: int | None = None,
+        timestamp: datetime | None = None,
+        case_id: str | None = None,
+    ) -> SwapPattern | None:
         """Detect if a transaction is a swap."""
         to_lower = to_address.lower()
         
@@ -458,9 +458,9 @@ class EnhancedBridgeDetector:
     
     def get_bridge_patterns(
         self,
-        chain: Optional[str] = None,
-        protocol: Optional[BridgeProtocol] = None,
-        min_value: Optional[float] = None,
+        chain: str | None = None,
+        protocol: BridgeProtocol | None = None,
+        min_value: float | None = None,
         limit: int = 100,
     ) -> list[BridgePattern]:
         """Get bridge patterns with filters."""
@@ -477,9 +477,9 @@ class EnhancedBridgeDetector:
     
     def get_swap_patterns(
         self,
-        chain: Optional[str] = None,
-        protocol: Optional[SwapProtocol] = None,
-        min_value: Optional[float] = None,
+        chain: str | None = None,
+        protocol: SwapProtocol | None = None,
+        min_value: float | None = None,
         limit: int = 100,
     ) -> list[SwapPattern]:
         """Get swap patterns with filters."""

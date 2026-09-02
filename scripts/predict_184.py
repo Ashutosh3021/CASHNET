@@ -1,6 +1,5 @@
-import sys
-import os
 import json
+import sys
 from pathlib import Path
 
 # Add project root to sys.path
@@ -8,8 +7,9 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import lib.io_utils as io
 import lib.artifacts as art
+import lib.io_utils as io
+
 
 def main():
     try:
@@ -35,7 +35,7 @@ def main():
         # Output the result as JSON to stdout
         print(json.dumps(payload))
         
-    except Exception as e:
+    except (json.JSONDecodeError, KeyError, FileNotFoundError, OSError) as e:
         import traceback
         print(json.dumps({"error": str(e), "traceback": traceback.format_exc()}))
 

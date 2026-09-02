@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -52,17 +52,17 @@ class TrackingRecord(BaseModel):
     
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    sent_at: Optional[datetime] = None
-    acknowledged_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    sent_at: datetime | None = None
+    acknowledged_at: datetime | None = None
+    completed_at: datetime | None = None
     
     # SLA
-    sla_deadline: Optional[datetime] = None
+    sla_deadline: datetime | None = None
     sla_breached: bool = False
     
     # Response
     response_data: dict[str, Any] = {}
-    error_message: Optional[str] = None
+    error_message: str | None = None
     retry_count: int = 0
     max_retries: int = 3
     
@@ -85,7 +85,7 @@ class PartnerTracker:
         case_id: str,
         request_type: str,
         request_id: str,
-        sla_hours: Optional[int] = None,
+        sla_hours: int | None = None,
         **kwargs,
     ) -> TrackingRecord:
         """Create a new tracking record."""
@@ -134,8 +134,8 @@ class PartnerTracker:
         self,
         tracking_id: str,
         status: TrackingStatus,
-        response_data: Optional[dict[str, Any]] = None,
-        error_message: Optional[str] = None,
+        response_data: dict[str, Any] | None = None,
+        error_message: str | None = None,
     ) -> TrackingRecord:
         """Update tracking status."""
         record = self._records.get(tracking_id)
@@ -173,7 +173,7 @@ class PartnerTracker:
         
         return record
     
-    def get_record(self, tracking_id: str) -> Optional[TrackingRecord]:
+    def get_record(self, tracking_id: str) -> TrackingRecord | None:
         """Get a tracking record by ID."""
         return self._records.get(tracking_id)
     

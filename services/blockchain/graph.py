@@ -4,10 +4,9 @@ Provides Neo4j integration for storing and querying transaction graphs.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
-from neo4j import AsyncDriver, AsyncGraphDatabase, AsyncSession
+from neo4j import AsyncDriver, AsyncGraphDatabase
 
 from .base import AddressType, ChainType, NormalizedTransaction, TransactionType
 
@@ -19,7 +18,7 @@ class GraphService:
         self.uri = uri
         self.user = user
         self.password = password
-        self.driver: Optional[AsyncDriver] = None
+        self.driver: AsyncDriver | None = None
     
     async def connect(self) -> bool:
         """Connect to Neo4j database."""

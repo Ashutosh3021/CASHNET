@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -48,9 +48,9 @@ class TrainingConfig(BaseModel):
     model_params: dict[str, Any] = {}
     
     # Training parameters
-    epochs: Optional[int] = None
-    batch_size: Optional[int] = None
-    learning_rate: Optional[float] = None
+    epochs: int | None = None
+    batch_size: int | None = None
+    learning_rate: float | None = None
     
     # Data parameters
     feature_columns: list[str] = []
@@ -79,9 +79,9 @@ class TrainingConfig(BaseModel):
     random_seed: int = 42
     
     # Metadata
-    experiment_name: Optional[str] = None
+    experiment_name: str | None = None
     tags: list[str] = []
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class DatasetInfo(BaseModel):
@@ -123,12 +123,12 @@ class TrainingMetrics(BaseModel):
     val_metrics: list[dict[str, float]] = []
     
     # Best epoch
-    best_epoch: Optional[int] = None
-    best_val_score: Optional[float] = None
+    best_epoch: int | None = None
+    best_val_score: float | None = None
     
     # Final metrics
-    final_train_score: Optional[float] = None
-    final_val_score: Optional[float] = None
+    final_train_score: float | None = None
+    final_val_score: float | None = None
     
     # Timing
     epoch_times: list[float] = []
@@ -141,21 +141,21 @@ class EvaluationResults(BaseModel):
     test_metrics: dict[str, float] = {}
     
     # Confusion matrix
-    confusion_matrix: Optional[list[list[int]]] = None
+    confusion_matrix: list[list[int]] | None = None
     class_labels: list[str] = []
     
     # Per-class metrics
     per_class_metrics: dict[str, dict[str, float]] = {}
     
     # ROC/PR curves data
-    roc_auc: Optional[float] = None
-    pr_auc: Optional[float] = None
+    roc_auc: float | None = None
+    pr_auc: float | None = None
     
     # Feature importance
     feature_importance: dict[str, float] = {}
     
     # Threshold analysis
-    optimal_threshold: Optional[float] = None
+    optimal_threshold: float | None = None
     threshold_analysis: dict[str, dict[str, float]] = {}
 
 
@@ -171,22 +171,22 @@ class TrainingRun(BaseModel):
     status: TrainingStatus = TrainingStatus.PENDING
     
     # Data
-    dataset_info: Optional[DatasetInfo] = None
+    dataset_info: DatasetInfo | None = None
     
     # Metrics
-    training_metrics: Optional[TrainingMetrics] = None
-    evaluation_results: Optional[EvaluationResults] = None
+    training_metrics: TrainingMetrics | None = None
+    evaluation_results: EvaluationResults | None = None
     
     # Model output
-    model_path: Optional[str] = None
-    model_hash: Optional[str] = None
+    model_path: str | None = None
+    model_hash: str | None = None
     
     # Timing
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     
     # Error
-    error_message: Optional[str] = None
+    error_message: str | None = None
     
     # Metadata
     created_by: str = ""
@@ -243,8 +243,8 @@ class TrainingPipeline:
         target_column: str,
     ) -> DatasetInfo:
         """Prepare data for training."""
-        import uuid
         import hashlib
+        import uuid
         
         run = self._runs.get(run_id)
         if not run:
@@ -378,7 +378,7 @@ class TrainingPipeline:
         
         return results
     
-    def get_run(self, run_id: str) -> Optional[TrainingRun]:
+    def get_run(self, run_id: str) -> TrainingRun | None:
         """Get a training run."""
         return self._runs.get(run_id)
     
@@ -396,7 +396,7 @@ class TrainingPipeline:
         self,
         model_name: str,
         metric: str = "f1_score",
-    ) -> Optional[TrainingRun]:
+    ) -> TrainingRun | None:
         """Get the best training run for a model based on a metric."""
         runs = self.get_runs_for_model(model_name)
         completed = [r for r in runs if r.status == TrainingStatus.COMPLETED]

@@ -1,5 +1,9 @@
-import nbformat, sys, traceback
+import sys
+import traceback
 from pathlib import Path
+
+import nbformat
+
 p = Path(sys.argv[1])
 nb = nbformat.read(p, as_version=4)
 ns = {'__name__': '__main__', '__file__': str(p)}

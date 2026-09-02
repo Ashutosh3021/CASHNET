@@ -4,22 +4,16 @@ Provides JWT token management, MFA, password hashing, and session handling.
 """
 from __future__ import annotations
 
-import hashlib
 import secrets
 import uuid
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime, timedelta, timezone
 
 import jwt
 import pyotp
 from passlib.context import CryptContext
-from pydantic import EmailStr
 
 from .models import (
     MFASetup,
-    MFAMVerify,
-    PasswordChange,
-    PasswordReset,
     Token,
     TokenPayload,
     User,
@@ -68,7 +62,7 @@ class AuthService:
     def create_access_token(
         self,
         user: User,
-        expires_delta: Optional[timedelta] = None,
+        expires_delta: timedelta | None = None,
     ) -> str:
         """Create an access token for a user."""
         from .models import ROLE_PERMISSIONS
@@ -76,7 +70,7 @@ class AuthService:
         if expires_delta is None:
             expires_delta = timedelta(minutes=self.access_token_expire_minutes)
         
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
         permissions = [p.value for p in ROLE_PERMISSIONS.get(user.role, [])]
         
         payload = {
@@ -85,7 +79,7 @@ class AuthService:
             "role": user.role.value,
             "permissions": permissions,
             "exp": expire,
-            "iat": datetime.utcnow(),
+            "iat": datetime.now(timezone.utc),
             "jti": str(uuid.uuid4()),
         }
         
@@ -93,14 +87,14 @@ class AuthService:
     
     def create_refresh_token(self, user: User) -> str:
         """Create a refresh token for a user."""
-        expire = datetime.utcnow() + timedelta(days=self.refresh_token_expire_days)
+        expire = datetime.now(timezone.utc) + timedelta(days=self.refresh_token_expire_days)
         
         payload = {
             "sub": str(user.id),
             "email": user.email,
             "type": "refresh",
             "exp": expire,
-            "iat": datetime.utcnow(),
+            "iat": datetime.now(timezone.utc),
             "jti": str(uuid.uuid4()),
         }
         
@@ -137,8 +131,8 @@ class AuthService:
                 email=payload["email"],
                 role=UserRole(payload["role"]),
                 permissions=payload.get("permissions", []),
-                exp=datetime.fromtimestamp(payload["exp"]),
-                iat=datetime.fromtimestamp(payload["iat"]),
+                exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+                iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
                 jti=jti or str(uuid.uuid4()),
             )
         except jwt.ExpiredSignatureError:
@@ -202,8 +196,8 @@ class AuthService:
         self,
         email: str,
         password: str,
-        mfa_code: Optional[str] = None,
-    ) -> Optional[User]:
+        mfa_code: str | None = None,
+    ) -> User | None:
         """Authenticate a user with email/password and optional MFA."""
         # In production, this would query the database
         user = self._users.get(email)
@@ -223,7 +217,7 @@ class AuthService:
                 return None
         
         # Update last login
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now(timezone.utc)
         
         return user
     
@@ -231,7 +225,7 @@ class AuthService:
         self,
         email: str,
         password: str,
-        mfa_code: Optional[str] = None,
+        mfa_code: str | None = None,
         ip_address: str = "unknown",
         user_agent: str = "unknown",
     ) -> Token:
@@ -249,8 +243,8 @@ class AuthService:
             "token_jti": token.access_token.split(".")[-1],  # Simplified
             "ip_address": ip_address,
             "user_agent": user_agent,
-            "created_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes),
+            "created_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=self.access_token_expire_minutes),
         }
         
         return token
@@ -290,18 +284,18 @@ class AuthService:
         self._users[user.email] = user
         return user
     
-    def get_user(self, user_id: str) -> Optional[User]:
+    def get_user(self, user_id: str) -> User | None:
         """Get a user by ID."""
         for user in self._users.values():
             if str(user.id) == user_id:
                 return user
         return None
     
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str) -> User | None:
         """Get a user by email."""
         return self._users.get(email)
     
-    def update_user(self, user_id: str, updates: dict) -> Optional[User]:
+    def update_user(self, user_id: str, updates: dict) -> User | None:
         """Update a user."""
         user = self.get_user(user_id)
         if not user:
@@ -311,7 +305,7 @@ class AuthService:
             if hasattr(user, key) and value is not None:
                 setattr(user, key, value)
         
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         return user
     
     def enable_mfa(self, user_id: str, secret: str) -> bool:
@@ -322,7 +316,7 @@ class AuthService:
         
         user.is_mfa_enabled = True
         user.mfa_secret = secret
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         return True
     
     def disable_mfa(self, user_id: str) -> bool:
@@ -333,12 +327,12 @@ class AuthService:
         
         user.is_mfa_enabled = False
         user.mfa_secret = None
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         return True
 
 
 # Singleton instance
-_auth_service: Optional[AuthService] = None
+_auth_service: AuthService | None = None
 
 
 def get_auth_service() -> AuthService:

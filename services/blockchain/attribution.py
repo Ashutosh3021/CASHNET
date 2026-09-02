@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -45,13 +45,13 @@ class KnownAddress(BaseModel):
     chain: ChainType
     entity_name: str
     entity_type: str  # "exchange", "mixer", "defi", "bridge", "other"
-    jurisdiction: Optional[str] = None
+    jurisdiction: str | None = None
     risk_category: EntityRiskCategory = EntityRiskCategory.UNKNOWN
     confidence: float = 1.0  # How confident we are in this attribution
     source: str = "manual"  # "manual", "verified", "community", "ml"
     tags: list[str] = []
     first_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_verified: Optional[datetime] = None
+    last_verified: datetime | None = None
     version: int = 1
     is_active: bool = True
     metadata: dict[str, Any] = {}
@@ -63,8 +63,8 @@ class AddressCluster(BaseModel):
     name: str
     addresses: list[str]
     chain: ChainType
-    entity_name: Optional[str] = None
-    entity_type: Optional[str] = None
+    entity_name: str | None = None
+    entity_type: str | None = None
     risk_score: float = 0.0
     confidence: float = 0.0
     creation_method: str = "manual"  # "manual", "graph_analysis", "behavioral"
@@ -98,7 +98,7 @@ class AdjudicationRecord(BaseModel):
     decision: AttributionStatus
     decided_by: str  # user_id or "system"
     reason: str
-    confidence_override: Optional[float] = None
+    confidence_override: float | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, Any] = {}
 
@@ -143,8 +143,8 @@ class VersionedRegistry:
         self,
         address: str,
         chain: ChainType,
-        version: Optional[int] = None,
-    ) -> Optional[KnownAddress]:
+        version: int | None = None,
+    ) -> KnownAddress | None:
         """Get a known address entry."""
         key = f"{chain.value}:{address.lower()}"
         versions = self._addresses.get(key)
@@ -198,7 +198,7 @@ class VersionedRegistry:
         
         return cluster
     
-    def get_cluster(self, cluster_id: str, version: Optional[int] = None) -> Optional[AddressCluster]:
+    def get_cluster(self, cluster_id: str, version: int | None = None) -> AddressCluster | None:
         """Get a cluster."""
         versions = self._clusters.get(cluster_id)
         
@@ -211,7 +211,7 @@ class VersionedRegistry:
         latest_version = max(versions.keys())
         return versions[latest_version]
     
-    def get_cluster_for_address(self, address: str) -> Optional[AddressCluster]:
+    def get_cluster_for_address(self, address: str) -> AddressCluster | None:
         """Get the cluster containing an address."""
         cluster_id = self._address_index.get(address.lower())
         if cluster_id:
@@ -234,7 +234,7 @@ class VersionedRegistry:
         
         return results
     
-    def get_all_active(self, chain: Optional[ChainType] = None) -> list[KnownAddress]:
+    def get_all_active(self, chain: ChainType | None = None) -> list[KnownAddress]:
         """Get all active known addresses."""
         results = []
         
@@ -427,7 +427,7 @@ class AdjudicationEngine:
         decision: AttributionStatus,
         decided_by: str,
         reason: str,
-        confidence_override: Optional[float] = None,
+        confidence_override: float | None = None,
     ) -> AdjudicationRecord:
         """Record an adjudication decision."""
         import uuid
@@ -476,7 +476,7 @@ class AdjudicationEngine:
         
         return record
     
-    def get_adjudication(self, adjudication_id: str) -> Optional[AdjudicationRecord]:
+    def get_adjudication(self, adjudication_id: str) -> AdjudicationRecord | None:
         """Get an adjudication record."""
         return self._records.get(adjudication_id)
     
@@ -605,7 +605,7 @@ class VASPAttributionService:
         decision: AttributionStatus,
         decided_by: str,
         reason: str,
-        confidence_override: Optional[float] = None,
+        confidence_override: float | None = None,
     ) -> AdjudicationRecord:
         """Adjudicate an attribution candidate."""
         candidate = self._candidates.get(candidate_id)

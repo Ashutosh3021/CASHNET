@@ -13,16 +13,15 @@ predict() normalises a bank-transaction record to the canonical contract.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import precision_recall_fscore_support
 from sklearn.tree import DecisionTreeClassifier
 
-import lib.io_utils as io
 import lib.eval_utils as ev
+import lib.io_utils as io
 from lib.schema import empty_contract
 
 CITY_MAP = {
@@ -31,13 +30,13 @@ CITY_MAP = {
 }
 
 
-def _atm_city(atm_id: str) -> Optional[str]:
+def _atm_city(atm_id: str) -> str | None:
     if not atm_id or "-" not in atm_id:
         return None
     return CITY_MAP.get(atm_id.split("-")[1])
 
 
-def _tx_features(tx: Dict[str, Any]) -> Dict[str, Any]:
+def _tx_features(tx: dict[str, Any]) -> dict[str, Any]:
     b = tx.get("bank_transaction_data", {}) or {}
     amt = b.get("transaction_amount", 0) or 0
     src = (b.get("source_account", {}) or {}).get("city", "")
@@ -50,7 +49,7 @@ def _tx_features(tx: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _vectorize(rows: List[Dict[str, Any]], cols: Optional[List[str]] = None,
+def _vectorize(rows: list[dict[str, Any]], cols: list[str] | None = None,
                le_city=None) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     cat = ["transaction_type", "src_city", "dst_city"]
@@ -75,15 +74,15 @@ class Model184:
         self.city_clf = RandomForestClassifier(n_estimators=300, max_depth=12,
                                                class_weight="balanced",
                                                random_state=random_state, n_jobs=-1)
-        self._risk_cols: List[str] = []
-        self._city_cols: List[str] = []
-        self._city_classes: List[str] = []
-        self.metrics: Dict[str, Any] = {}
-        self.train_metrics: Dict[str, Any] = {}
+        self._risk_cols: list[str] = []
+        self._city_cols: list[str] = []
+        self._city_classes: list[str] = []
+        self.metrics: dict[str, Any] = {}
+        self.train_metrics: dict[str, Any] = {}
         self.trained = False
-        self.atm_counts: Dict[str, int] = {}
+        self.atm_counts: dict[str, int] = {}
 
-    def fit(self) -> "Model184":
+    def fit(self) -> Model184:
         syn = io.load_184_synthetic()
         txns = (syn.get("bank_transactions") or {}).get("transactions", [])
         links = (syn.get("atm_withdrawal_links") or {}).get("links", [])
@@ -113,7 +112,7 @@ class Model184:
                                                           self.risk_clf.predict(X.values[tr]))
 
         # geospatial destination-city head (weak proxy for cash-out city)
-        scen2city: Dict[str, str] = {}
+        scen2city: dict[str, str] = {}
         for link in links:
             c = _atm_city(link.get("atm_id", ""))
             if c:
@@ -148,7 +147,7 @@ class Model184:
         self.trained = True
         return self
 
-    def predict(self, record: Dict[str, Any], threshold: float = 0.7) -> Dict[str, Any]:
+    def predict(self, record: dict[str, Any], threshold: float = 0.7) -> dict[str, Any]:
         f = _tx_features(record)
         Xr = _vectorize([f], self._risk_cols if self._risk_cols else None)
         Xc = _vectorize([f], self._city_cols if self._city_cols else None)

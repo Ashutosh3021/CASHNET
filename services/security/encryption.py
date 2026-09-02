@@ -7,7 +7,6 @@ from __future__ import annotations
 import base64
 import hashlib
 import os
-from typing import Optional
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -17,7 +16,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 class EncryptionService:
     """Service for encrypting and decrypting data."""
     
-    def __init__(self, encryption_key: Optional[str] = None):
+    def __init__(self, encryption_key: str | None = None):
         """Initialize encryption service.
         
         Args:
@@ -140,13 +139,13 @@ class FieldEncryption:
     def __init__(self, encryption_service: EncryptionService):
         self.encryption_service = encryption_service
     
-    def encrypt_field(self, value: Optional[str]) -> Optional[str]:
+    def encrypt_field(self, value: str | None) -> str | None:
         """Encrypt a field value."""
         if value is None:
             return None
         return self.encryption_service.encrypt(value)
     
-    def decrypt_field(self, encrypted_value: Optional[str]) -> Optional[str]:
+    def decrypt_field(self, encrypted_value: str | None) -> str | None:
         """Decrypt a field value."""
         if encrypted_value is None:
             return None
@@ -170,7 +169,7 @@ class FieldEncryption:
 
 
 # Singleton instance
-_encryption_service: Optional[EncryptionService] = None
+_encryption_service: EncryptionService | None = None
 
 
 def get_encryption_service() -> EncryptionService:

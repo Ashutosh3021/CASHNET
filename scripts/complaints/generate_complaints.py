@@ -5,7 +5,11 @@ The output records have exactly the fields in the legacy complaint schema.
 Ground truth, provenance, account mapping and graph links are sidecar files.
 """
 from __future__ import annotations
-import argparse, importlib.util, json, sys
+
+import argparse
+import importlib.util
+import json
+import sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]; OUT=ROOT/"data"/"synthetic"/"complaints"

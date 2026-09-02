@@ -6,13 +6,12 @@ for case intake and status tracking.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
 from .base import (
     IntegrationAdapter,
-    IntegrationRequest,
     IntegrationResponse,
     IntegrationStatus,
     IntegrationType,
@@ -33,7 +32,7 @@ class NCRPConnector(IntegrationAdapter):
         self.timeout = config.get("timeout", 30)
         
         # HTTP client
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         
         # Case mapping
         self._case_mapping: dict[str, str] = {}
@@ -296,7 +295,7 @@ class NCRPConnector(IntegrationAdapter):
             "station_code": ncrp_data.get("station_code"),
         }
     
-    def _map_complaint_type(self, fraud_type: Optional[str]) -> str:
+    def _map_complaint_type(self, fraud_type: str | None) -> str:
         """Map CashNet fraud type to NCRP complaint type."""
         mapping = {
             "CRYPTO": "ONLINE_FRAUD",
@@ -307,7 +306,7 @@ class NCRPConnector(IntegrationAdapter):
         }
         return mapping.get(fraud_type or "", "OTHER")
     
-    def _reverse_map_complaint_type(self, ncrp_type: Optional[str]) -> str:
+    def _reverse_map_complaint_type(self, ncrp_type: str | None) -> str:
         """Map NCRP complaint type to CashNet fraud type."""
         mapping = {
             "ONLINE_FRAUD": "CRYPTO",
@@ -318,7 +317,7 @@ class NCRPConnector(IntegrationAdapter):
         }
         return mapping.get(ncrp_type or "", "OTHER")
     
-    def _map_ncrp_status(self, ncrp_status: Optional[str]) -> IntegrationStatus:
+    def _map_ncrp_status(self, ncrp_status: str | None) -> IntegrationStatus:
         """Map NCRP status to IntegrationStatus."""
         mapping = {
             "REGISTERED": IntegrationStatus.PENDING,

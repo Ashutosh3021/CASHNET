@@ -3,18 +3,15 @@ Comprehensive Data Visualization Suite for CASHNET Analysis
 Generates heatmaps, correlation matrices, and KDE plots with high-resolution output
 """
 
-import os
 import json
+import logging
 import warnings
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy import stats
-from scipy.spatial.distance import pdist, squareform
-from pathlib import Path
-from datetime import datetime
-import logging
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -58,7 +55,7 @@ def load_json_batch_files(batch_dir):
                     all_data.extend(data)
                 else:
                     all_data.append(data)
-        except Exception as e:
+        except (json.JSONDecodeError, OSError) as e:
             logger.warning(f"Error loading {batch_file}: {e}")
     
     return all_data
@@ -115,11 +112,6 @@ def create_numeric_feature_matrix(df):
     
     # Encode categorical variables
     priority_map = {'CRITICAL': 5, 'HIGH': 4, 'MEDIUM': 3, 'LOW': 2, 'INFO': 1}
-    wallet_priority_map = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
-    status_map = {
-        'open': 5, 'awaiting_vasp_response': 4, 'pending_attribution': 3,
-        'resolved': 2, 'closed': 1, 'overdue': 4
-    }
     
     numeric_features['case_priority_encoded'] = df['case_priority'].map(
         lambda x: priority_map.get(x, 0)
@@ -146,7 +138,7 @@ def generate_correlation_heatmap(numeric_df, title, filename):
     """
     logger.info(f"Generating correlation heatmap: {filename}")
     
-    fig, ax = plt.subplots(figsize=(12, 10), dpi=DPI)
+    _, ax = plt.subplots(figsize=(12, 10), dpi=DPI)
     
     # Calculate correlation matrix
     corr_matrix = numeric_df.corr()
@@ -185,7 +177,7 @@ def generate_feature_heatmap(data_matrix, features, title, filename, cmap='YlOrR
     """
     logger.info(f"Generating feature heatmap: {filename}")
     
-    fig, ax = plt.subplots(figsize=(14, 8), dpi=DPI)
+    _, ax = plt.subplots(figsize=(14, 8), dpi=DPI)
     
     sns.heatmap(
         data_matrix,
@@ -227,14 +219,14 @@ def generate_kde_plot(data, title, xlabel, filename, color='steelblue'):
     # Check if data has sufficient variance
     if data_clean.std() == 0:
         logger.warning(f"Data has no variance for KDE plot: {filename}. Creating histogram only.")
-        fig, ax = plt.subplots(figsize=(12, 7), dpi=DPI)
+        _, ax = plt.subplots(figsize=(12, 7), dpi=DPI)
         ax.hist(data_clean, bins=10, alpha=0.6, color=color, edgecolor='black')
         ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
         ax.set_xlabel(xlabel, fontsize=12)
         ax.set_ylabel('Count', fontsize=12)
         ax.grid(True, alpha=0.3)
     else:
-        fig, ax = plt.subplots(figsize=(12, 7), dpi=DPI)
+        _, ax = plt.subplots(figsize=(12, 7), dpi=DPI)
         
         try:
             # Create KDE plot
@@ -249,7 +241,7 @@ def generate_kde_plot(data, title, xlabel, filename, color='steelblue'):
             
             # Add histogram overlay
             ax.hist(data_clean, bins=30, alpha=0.3, color=color, density=True, edgecolor='black')
-        except Exception as e:
+        except (ValueError, RuntimeError) as e:
             logger.warning(f"KDE calculation failed for {filename}: {e}. Using histogram only.")
             ax.hist(data_clean, bins=30, alpha=0.6, color=color, edgecolor='black', density=True)
         
@@ -261,7 +253,7 @@ def generate_kde_plot(data, title, xlabel, filename, color='steelblue'):
     # Add statistics box
     stats_text = f"Mean: {data_clean.mean():.2f}\nStd: {data_clean.std():.2f}\nMin: {data_clean.min():.2f}\nMax: {data_clean.max():.2f}"
     ax.text(0.75, 0.97, stats_text, transform=ax.transAxes, fontsize=10,
-            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+            verticalalignment='top', bbox={'boxstyle': 'round', 'facecolor': 'wheat', 'alpha': 0.5})
     
     plt.tight_layout()
     
@@ -297,7 +289,7 @@ def generate_multivariate_kde(df, features, title, filename):
     if x.std() == 0 or y.std() == 0:
         logger.warning(f"Insufficient variance in one or both dimensions for 2D KDE: {filename}")
         # Fall back to scatter plot
-        fig, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
+        _, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
         ax.scatter(x, y, alpha=0.5, s=30, color='steelblue', edgecolors='darkblue')
         ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
         ax.set_xlabel(features[0], fontsize=12)
@@ -310,7 +302,7 @@ def generate_multivariate_kde(df, features, title, filename):
         plt.close()
         return
     
-    fig, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
+    _, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
     
     try:
         sns.kdeplot(
@@ -336,9 +328,9 @@ def generate_multivariate_kde(df, features, title, filename):
         plt.savefig(output_path, dpi=DPI, bbox_inches='tight', format=FIGURE_FORMAT)
         logger.info(f"Saved: {output_path}")
         plt.close()
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         logger.warning(f"KDE computation failed for {filename}: {e}. Using scatter plot.")
-        fig, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
+        _, ax = plt.subplots(figsize=(12, 9), dpi=DPI)
         ax.scatter(x, y, alpha=0.5, s=30, color='steelblue', edgecolors='darkblue')
         ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
         ax.set_xlabel(features[0], fontsize=12)
@@ -357,7 +349,7 @@ def generate_distribution_comparison(data_dict, title, ylabel, filename):
     """
     logger.info(f"Generating distribution comparison: {filename}")
     
-    fig, ax = plt.subplots(figsize=(13, 8), dpi=DPI)
+    _, ax = plt.subplots(figsize=(13, 8), dpi=DPI)
     
     colors = sns.color_palette("husl", len(data_dict))
     
@@ -375,7 +367,7 @@ def generate_distribution_comparison(data_dict, title, ylabel, filename):
                 kde = gaussian_kde(data_clean, bw_method='scott')
                 x_range = np.linspace(data_clean.min(), data_clean.max(), 100)
                 ax.plot(x_range, kde(x_range), linewidth=2.5, color=color)
-            except Exception as e:
+            except (ValueError, RuntimeError) as e:
                 logger.warning(f"Could not generate KDE for {label}: {e}. Using histogram only.")
                 ax.hist(data_clean, bins=20, alpha=0.3, label=label, color=color, density=True)
         elif len(data_clean) > 1:
@@ -412,7 +404,7 @@ def generate_case_priority_heatmap(df):
         logger.warning("No data for case priority heatmap")
         return
     
-    fig, ax = plt.subplots(figsize=(12, 8), dpi=DPI)
+    _, ax = plt.subplots(figsize=(12, 8), dpi=DPI)
     
     sns.heatmap(
         priority_case,
@@ -448,7 +440,7 @@ def generate_case_status_distribution(df):
         logger.warning("No case status data")
         return
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6), dpi=DPI)
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6), dpi=DPI)
     
     # Bar plot
     status_counts.plot(kind='barh', ax=ax1, color='steelblue')
@@ -640,7 +632,7 @@ def main():
     summary_stats = numeric_df[['num_target_wallets', 'num_legal_requests', 'case_complexity']].describe()
     summary_stats = summary_stats.iloc[:5]  # Count, mean, std, min, max
     
-    fig, ax = plt.subplots(figsize=(10, 6), dpi=DPI)
+    _, ax = plt.subplots(figsize=(10, 6), dpi=DPI)
     sns.heatmap(
         summary_stats,
         annot=True,
@@ -662,7 +654,7 @@ def main():
     logger.info("=" * 80)
     logger.info("VISUALIZATION GENERATION COMPLETE")
     logger.info("=" * 80)
-    logger.info(f"Total images generated: 14")
+    logger.info("Total images generated: 14")
     logger.info(f"Output directory: {IMAGES_DIR}")
     logger.info(f"Total records analyzed: {len(combined_df)}")
     logger.info(f"Image format: {FIGURE_FORMAT.upper()} @ {DPI} DPI")

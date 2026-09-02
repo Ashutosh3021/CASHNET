@@ -5,7 +5,7 @@ Provides integration with Polygon PoS via Web3.py.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from web3 import Web3
 
@@ -32,7 +32,7 @@ class PolygonAdapter(ChainAdapter):
         self.timeout = config.get("timeout", 30)
         
         # Web3 instance
-        self.w3: Optional[Web3] = None
+        self.w3: Web3 | None = None
         
         # Known contract addresses (Polygon)
         self._known_contracts: dict[str, str] = {
@@ -112,7 +112,7 @@ class PolygonAdapter(ChainAdapter):
                 error_message=str(e),
             )
     
-    async def get_transaction(self, tx_hash: str) -> Optional[NormalizedTransaction]:
+    async def get_transaction(self, tx_hash: str) -> NormalizedTransaction | None:
         """Get a single transaction by hash."""
         try:
             if not self.w3:
@@ -293,8 +293,8 @@ class PolygonAdapter(ChainAdapter):
     async def get_token_transfers(
         self,
         token_address: str,
-        from_address: Optional[str] = None,
-        to_address: Optional[str] = None,
+        from_address: str | None = None,
+        to_address: str | None = None,
         start_block: int = 0,
         limit: int = 100,
     ) -> list[NormalizedTransaction]:

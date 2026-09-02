@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -59,30 +59,30 @@ class NormalizedTransaction(BaseModel):
     # Value
     value: float
     currency: str
-    value_usd: Optional[float] = None
+    value_usd: float | None = None
     
     # Gas/Fees
-    gas_price: Optional[float] = None
-    gas_used: Optional[int] = None
-    fee: Optional[float] = None
+    gas_price: float | None = None
+    gas_used: int | None = None
+    fee: float | None = None
     
     # Transaction metadata
     transaction_type: TransactionType = TransactionType.TRANSFER
     is_success: bool = True
-    error_message: Optional[str] = None
+    error_message: str | None = None
     
     # Token transfers (if applicable)
-    token_address: Optional[str] = None
-    token_symbol: Optional[str] = None
-    token_decimals: Optional[int] = None
+    token_address: str | None = None
+    token_symbol: str | None = None
+    token_decimals: int | None = None
     
     # Additional metadata
-    method_id: Optional[str] = None  # Contract method called
-    input_data: Optional[str] = None
+    method_id: str | None = None  # Contract method called
+    input_data: str | None = None
     
     # Risk indicators
     is_suspicious: bool = False
-    risk_score: Optional[float] = None
+    risk_score: float | None = None
     
     class Config:
         use_enum_values = True
@@ -97,7 +97,7 @@ class ChainHealth(BaseModel):
     sync_status: str  # "synced", "syncing", "stale"
     lag_seconds: int  # Seconds behind latest block
     last_updated: datetime = Field(default_factory=datetime.utcnow)
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class ChainAdapter(ABC):
@@ -115,22 +115,18 @@ class ChainAdapter(ABC):
     @abstractmethod
     async def connect(self) -> bool:
         """Connect to the blockchain node/API."""
-        pass
     
     @abstractmethod
     async def disconnect(self) -> None:
         """Disconnect from the blockchain."""
-        pass
     
     @abstractmethod
     async def get_chain_health(self) -> ChainHealth:
         """Get current chain health status."""
-        pass
     
     @abstractmethod
-    async def get_transaction(self, tx_hash: str) -> Optional[NormalizedTransaction]:
+    async def get_transaction(self, tx_hash: str) -> NormalizedTransaction | None:
         """Get a single transaction by hash."""
-        pass
     
     @abstractmethod
     async def get_transactions_by_address(
@@ -141,7 +137,6 @@ class ChainAdapter(ABC):
         limit: int = 100,
     ) -> list[NormalizedTransaction]:
         """Get transactions for a specific address."""
-        pass
     
     @abstractmethod
     async def get_transactions_by_block(
@@ -149,39 +144,33 @@ class ChainAdapter(ABC):
         block_number: int,
     ) -> list[NormalizedTransaction]:
         """Get all transactions in a block."""
-        pass
     
     @abstractmethod
     async def get_address_info(self, address: str) -> dict[str, Any]:
         """Get information about an address (balance, type, etc.)."""
-        pass
     
     @abstractmethod
     async def get_token_transfers(
         self,
         token_address: str,
-        from_address: Optional[str] = None,
-        to_address: Optional[str] = None,
+        from_address: str | None = None,
+        to_address: str | None = None,
         start_block: int = 0,
         limit: int = 100,
     ) -> list[NormalizedTransaction]:
         """Get token transfers for a specific token."""
-        pass
     
     @abstractmethod
     async def trace_transaction(self, tx_hash: str) -> list[dict[str, Any]]:
         """Trace internal transactions (for debugging/analysis)."""
-        pass
     
     @abstractmethod
     async def get_block_number(self) -> int:
         """Get the latest block number."""
-        pass
     
     @abstractmethod
     async def get_block_by_number(self, block_number: int) -> dict[str, Any]:
         """Get block details by number."""
-        pass
     
     async def normalize_address(self, address: str) -> str:
         """Normalize address format (e.g., checksum for Ethereum)."""

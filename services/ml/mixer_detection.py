@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -62,12 +62,12 @@ class MixerSignal(BaseModel):
     indicators: list[str] = []
     
     # Known references
-    known_mixer_address: Optional[str] = None
-    mixer_contract: Optional[str] = None
+    known_mixer_address: str | None = None
+    mixer_contract: str | None = None
     
     # Context
-    transaction_hash: Optional[str] = None
-    case_id: Optional[str] = None
+    transaction_hash: str | None = None
+    case_id: str | None = None
     
     # Metadata
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -85,8 +85,8 @@ class KnownMixer(BaseModel):
     # Details
     total_volume: float = 0.0
     transaction_count: int = 0
-    first_seen: Optional[datetime] = None
-    last_seen: Optional[datetime] = None
+    first_seen: datetime | None = None
+    last_seen: datetime | None = None
     
     # Metadata
     source: str = "manual"  # "manual", "verified", "community"
@@ -171,8 +171,8 @@ class MixerDetector:
         self,
         address: str,
         chain: str,
-        transaction_data: Optional[dict[str, Any]] = None,
-        case_id: Optional[str] = None,
+        transaction_data: dict[str, Any] | None = None,
+        case_id: str | None = None,
     ) -> list[MixerSignal]:
         """Check an address for mixer indicators."""
         signals: list[MixerSignal] = []
@@ -213,9 +213,9 @@ class MixerDetector:
     
     def get_all_signals(
         self,
-        chain: Optional[str] = None,
-        mixer_type: Optional[MixerType] = None,
-        risk_level: Optional[MixerRiskLevel] = None,
+        chain: str | None = None,
+        mixer_type: MixerType | None = None,
+        risk_level: MixerRiskLevel | None = None,
         limit: int = 100,
     ) -> list[MixerSignal]:
         """Get all mixer signals with optional filters."""
@@ -232,8 +232,8 @@ class MixerDetector:
     
     def get_known_mixers(
         self,
-        chain: Optional[str] = None,
-        mixer_type: Optional[MixerType] = None,
+        chain: str | None = None,
+        mixer_type: MixerType | None = None,
     ) -> list[KnownMixer]:
         """Get all known mixers."""
         results = list(self._known_mixers.values())
@@ -288,8 +288,8 @@ class MixerDetector:
         self,
         address: str,
         chain: str,
-        case_id: Optional[str],
-    ) -> Optional[MixerSignal]:
+        case_id: str | None,
+    ) -> MixerSignal | None:
         """Check if address is a known mixer."""
         key = f"{chain}:{address.lower()}"
         known = self._known_mixers.get(key)
@@ -321,7 +321,7 @@ class MixerDetector:
         address: str,
         chain: str,
         transaction_data: dict[str, Any],
-        case_id: Optional[str],
+        case_id: str | None,
     ) -> list[MixerSignal]:
         """Check for mixer transaction patterns."""
         signals = []
@@ -361,8 +361,8 @@ class MixerDetector:
         address: str,
         chain: str,
         transaction_data: dict[str, Any],
-        case_id: Optional[str],
-    ) -> Optional[MixerSignal]:
+        case_id: str | None,
+    ) -> MixerSignal | None:
         """Check for suspicious amount patterns."""
         # Check for amounts that are powers of 2 (common in mixers)
         amounts = transaction_data.get("amounts", [])
@@ -386,8 +386,8 @@ class MixerDetector:
         address: str,
         chain: str,
         transaction_data: dict[str, Any],
-        case_id: Optional[str],
-    ) -> Optional[MixerSignal]:
+        case_id: str | None,
+    ) -> MixerSignal | None:
         """Check for suspicious timing patterns."""
         # Check for uniform time intervals (automated mixing)
         timestamps = transaction_data.get("timestamps", [])
@@ -427,7 +427,7 @@ class MixerDetector:
         confidence: float,
         risk_level: MixerRiskLevel,
         indicators: list[str],
-        case_id: Optional[str],
+        case_id: str | None,
     ) -> MixerSignal:
         """Create a mixer signal."""
         import uuid
@@ -448,15 +448,15 @@ class MixerDetector:
 def format_mixer_signal(signal: MixerSignal) -> str:
     """Format a mixer signal for display."""
     lines = [
-        f"Mixer Detection Signal",
+        "Mixer Detection Signal",
         f"Address: {signal.address}",
         f"Chain: {signal.chain}",
         f"Type: {signal.mixer_type.value}",
         f"Detection: {signal.detection_method.value}",
         f"Confidence: {signal.confidence:.1%}",
         f"Risk: {signal.risk_level.value}",
-        f"",
-        f"Indicators:",
+        "",
+        "Indicators:",
     ]
     
     for indicator in signal.indicators:

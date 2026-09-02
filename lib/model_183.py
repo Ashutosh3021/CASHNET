@@ -11,25 +11,21 @@ predict() normalises a complaint record to the canonical contract.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 import lib.eval_utils as ev
-
 import lib.io_utils as io
 from lib.schema import empty_contract
 
 
-def _complaint_text(rec: Dict[str, Any]) -> str:
-    parts: List[str] = []
+def _complaint_text(rec: dict[str, Any]) -> str:
+    parts: list[str] = []
     if isinstance(rec, dict):
         fd = rec.get("fraud_details") or {}
         parts.append(str(fd.get("type", "")))
@@ -51,12 +47,12 @@ class Model183:
                                  ("clf", LogisticRegression(max_iter=1000))])
         self.risk_clf = Pipeline([("scale", StandardScaler()),
                                   ("clf", LogisticRegression(max_iter=1000))])
-        self.risk_cols: List[str] = []
-        self.metrics: Dict[str, Any] = {}
-        self.train_metrics: Dict[str, Any] = {}
+        self.risk_cols: list[str] = []
+        self.metrics: dict[str, Any] = {}
+        self.train_metrics: dict[str, Any] = {}
         self.trained = False
 
-    def fit(self) -> "Model183":
+    def fit(self) -> Model183:
         rs = 42
         # intent head — Banking77 (held-out split)
         texts, labels = io.load_banking77()
@@ -65,7 +61,7 @@ class Model183:
             self.intent.fit([texts[i] for i in tr], [labels[i] for i in tr])
             pred = self.intent.predict([texts[i] for i in te])
             self.metrics["intent"] = {**ev.clf_metrics([labels[i] for i in te], pred, "macro"),
-                                      "classes": int(len(set(labels)))}
+                                      "classes": len(set(labels))}
             self.train_metrics["intent"] = ev.clf_metrics([labels[i] for i in tr],
                                                          self.intent.predict([texts[i] for i in tr]), "macro")
 
@@ -96,7 +92,7 @@ class Model183:
         self.trained = True
         return self
 
-    def predict(self, record: Dict[str, Any], threshold: float = 0.7) -> Dict[str, Any]:
+    def predict(self, record: dict[str, Any], threshold: float = 0.7) -> dict[str, Any]:
         text = _complaint_text(record)
         intent = str(self.intent.predict([text])[0]) if self.metrics.get("intent") else "unknown"
         intent_conf = float(np.max(self.intent.predict_proba([text])[0])) if self.metrics.get("intent") else 0.5

@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from .base import ChainType, NormalizedTransaction
 
@@ -34,23 +34,23 @@ class TimelineEvent(BaseModel):
     timestamp: datetime
     
     # Related entities
-    case_id: Optional[str] = None
-    tx_hash: Optional[str] = None
-    address: Optional[str] = None
-    chain: Optional[ChainType] = None
+    case_id: str | None = None
+    tx_hash: str | None = None
+    address: str | None = None
+    chain: ChainType | None = None
     
     # Event details
     title: str
-    description: Optional[str] = None
-    value: Optional[float] = None
-    currency: Optional[str] = None
+    description: str | None = None
+    value: float | None = None
+    currency: str | None = None
     
     # Source
     source: str = "system"  # "system", "investigator", "integration"
-    source_id: Optional[str] = None  # Reference to source object
+    source_id: str | None = None  # Reference to source object
     
     # Risk
-    risk_score: Optional[float] = None
+    risk_score: float | None = None
     is_suspicious: bool = False
     
     # Metadata
@@ -59,13 +59,13 @@ class TimelineEvent(BaseModel):
 
 class TimelineFilter(BaseModel):
     """Filter criteria for timeline."""
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    event_types: Optional[list[TimelineEventType]] = None
-    chains: Optional[ChainType] = None
-    addresses: Optional[list[str]] = None
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    event_types: list[TimelineEventType] | None = None
+    chains: ChainType | None = None
+    addresses: list[str] | None = None
+    min_value: float | None = None
+    max_value: float | None = None
     include_suspicious_only: bool = False
 
 
@@ -73,8 +73,8 @@ class TimelineSummary(BaseModel):
     """Summary statistics for a timeline."""
     total_events: int = 0
     time_span_hours: float = 0.0
-    first_event: Optional[datetime] = None
-    last_event: Optional[datetime] = None
+    first_event: datetime | None = None
+    last_event: datetime | None = None
     
     # By type
     events_by_type: dict[str, int] = {}
@@ -108,7 +108,7 @@ class TimelineService:
     def add_transaction_event(
         self,
         transaction: NormalizedTransaction,
-        case_id: Optional[str] = None,
+        case_id: str | None = None,
         source: str = "system",
     ) -> TimelineEvent:
         """Add a transaction to the timeline."""
@@ -145,7 +145,7 @@ class TimelineService:
         source_tx: NormalizedTransaction,
         destination_chain: ChainType,
         bridge_type: str,
-        case_id: Optional[str] = None,
+        case_id: str | None = None,
     ) -> TimelineEvent:
         """Add a bridge event to the timeline."""
         import uuid
@@ -179,8 +179,8 @@ class TimelineService:
         address: str,
         chain: ChainType,
         discovery_method: str,
-        case_id: Optional[str] = None,
-        timestamp: Optional[datetime] = None,
+        case_id: str | None = None,
+        timestamp: datetime | None = None,
     ) -> TimelineEvent:
         """Add an address discovery event."""
         import uuid
@@ -208,7 +208,7 @@ class TimelineService:
         chain: ChainType,
         entity_name: str,
         confidence: float,
-        case_id: Optional[str] = None,
+        case_id: str | None = None,
     ) -> TimelineEvent:
         """Add a VASP attribution event."""
         import uuid
@@ -237,7 +237,7 @@ class TimelineService:
         finding_type: str,
         case_id: str,
         description: str,
-        risk_score: Optional[float] = None,
+        risk_score: float | None = None,
     ) -> TimelineEvent:
         """Add a finding event."""
         import uuid
@@ -289,7 +289,7 @@ class TimelineService:
     def get_timeline(
         self,
         case_id: str,
-        filter: Optional[TimelineFilter] = None,
+        filter: TimelineFilter | None = None,
     ) -> list[TimelineEvent]:
         """Get timeline for a case, optionally filtered."""
         event_ids = self._case_index.get(case_id, [])
@@ -307,7 +307,7 @@ class TimelineService:
     def get_address_timeline(
         self,
         address: str,
-        chain: Optional[ChainType] = None,
+        chain: ChainType | None = None,
     ) -> list[TimelineEvent]:
         """Get timeline for an address."""
         event_ids = self._address_index.get(address.lower(), [])

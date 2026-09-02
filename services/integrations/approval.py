@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -37,15 +37,15 @@ class ApprovalRequest(BaseModel):
     requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Request details
-    target_entity: Optional[str] = None
-    target_address: Optional[str] = None
-    target_jurisdiction: Optional[str] = None
-    amount: Optional[float] = None
+    target_entity: str | None = None
+    target_address: str | None = None
+    target_jurisdiction: str | None = None
+    amount: float | None = None
     reason: str = ""
     
     # Policy context
-    risk_score: Optional[float] = None
-    classification: Optional[str] = None
+    risk_score: float | None = None
+    classification: str | None = None
     priority: str = "MEDIUM"
     
     # Status
@@ -67,7 +67,7 @@ class ApprovalDecision(BaseModel):
     approver_role: str
     decision: ApprovalStatus
     level: ApprovalLevel
-    comments: Optional[str] = None
+    comments: str | None = None
     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -79,10 +79,10 @@ class PolicyRule(BaseModel):
     
     # Conditions
     action_types: list[str] = []
-    risk_score_threshold: Optional[float] = None
-    amount_threshold: Optional[float] = None
-    jurisdiction: Optional[str] = None
-    classification: Optional[str] = None
+    risk_score_threshold: float | None = None
+    amount_threshold: float | None = None
+    jurisdiction: str | None = None
+    classification: str | None = None
     
     # Requirements
     required_level: ApprovalLevel = ApprovalLevel.L1
@@ -200,7 +200,7 @@ class ApprovalWorkflow:
         request_id: str,
         approver_id: str,
         approver_role: str,
-        comments: Optional[str] = None,
+        comments: str | None = None,
     ) -> ApprovalDecision:
         """Approve a request."""
         request = self._requests.get(request_id)
@@ -281,13 +281,13 @@ class ApprovalWorkflow:
         
         return request
     
-    def get_request(self, request_id: str) -> Optional[ApprovalRequest]:
+    def get_request(self, request_id: str) -> ApprovalRequest | None:
         """Get a request by ID."""
         return self._requests.get(request_id)
     
     def get_pending_requests(
         self,
-        level: Optional[ApprovalLevel] = None,
+        level: ApprovalLevel | None = None,
     ) -> list[ApprovalRequest]:
         """Get all pending requests."""
         results = []
@@ -323,7 +323,7 @@ class ApprovalWorkflow:
     def _find_applicable_policy(
         self,
         request: ApprovalRequest,
-    ) -> Optional[PolicyRule]:
+    ) -> PolicyRule | None:
         """Find the most specific applicable policy."""
         best_policy = None
         best_score = 0
@@ -408,7 +408,7 @@ class ApprovalWorkflow:
         
         return len(approvals) >= policy.required_approvers
     
-    def _get_next_level(self, current_level: ApprovalLevel) -> Optional[ApprovalLevel]:
+    def _get_next_level(self, current_level: ApprovalLevel) -> ApprovalLevel | None:
         """Get the next approval level."""
         levels = [
             ApprovalLevel.L1,
@@ -432,7 +432,7 @@ class ApprovalWorkflow:
         approver_role: str,
         decision: ApprovalStatus,
         level: ApprovalLevel,
-        comments: Optional[str] = None,
+        comments: str | None = None,
     ) -> ApprovalDecision:
         """Add a decision to the request."""
         import uuid

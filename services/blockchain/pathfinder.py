@@ -5,10 +5,10 @@ Implements bounded BFS/DFS for finding transaction paths between addresses.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from .base import ChainType, NormalizedTransaction
 
@@ -26,10 +26,10 @@ class PathConstraints:
     max_hops: int = 8
     min_value: float = 0
     max_value: float = float("inf")
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    chains: Optional[list[ChainType]] = None
-    exclude_addresses: Optional[set[str]] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    chains: list[ChainType] | None = None
+    exclude_addresses: set[str] | None = None
     include_suspicious_only: bool = False
 
 
@@ -154,7 +154,7 @@ class PathFinder:
         self,
         source: str,
         destination: str,
-        constraints: Optional[PathConstraints] = None,
+        constraints: PathConstraints | None = None,
         strategy: PathFindingStrategy = PathFindingStrategy.BFS,
         max_paths: int = 10,
     ) -> list[Path]:
@@ -276,7 +276,7 @@ class PathFinder:
         source: str,
         destination: str,
         edges: list[TransactionEdge],
-    ) -> Optional[Path]:
+    ) -> Path | None:
         """Create a Path object from edges."""
         if not edges:
             return None
@@ -343,8 +343,8 @@ class PathFinder:
         self,
         source: str,
         destination: str,
-        constraints: Optional[PathConstraints] = None,
-    ) -> Optional[Path]:
+        constraints: PathConstraints | None = None,
+    ) -> Path | None:
         """Find the shortest path between two addresses."""
         paths = self.find_paths(
             source,
@@ -359,7 +359,7 @@ class PathFinder:
         self,
         source: str,
         destination: str,
-        constraints: Optional[PathConstraints] = None,
+        constraints: PathConstraints | None = None,
         max_paths: int = 100,
     ) -> list[Path]:
         """Find all paths between two addresses."""
@@ -376,7 +376,7 @@ class PathFinder:
         source: str,
         destination: str,
         risk_threshold: float = 0.5,
-        constraints: Optional[PathConstraints] = None,
+        constraints: PathConstraints | None = None,
     ) -> list[Path]:
         """Find paths with high risk scores."""
         paths = self.find_paths(

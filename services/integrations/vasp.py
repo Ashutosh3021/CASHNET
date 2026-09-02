@@ -7,13 +7,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
 from .base import (
     IntegrationAdapter,
-    IntegrationRequest,
     IntegrationResponse,
     IntegrationStatus,
     IntegrationType,
@@ -56,7 +55,7 @@ class VASPConnector(IntegrationAdapter):
         self.default_expiry_days = config.get("default_expiry_days", 7)
         
         # HTTP client
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         
         # VASP registry (name -> config)
         self._vasp_registry: dict[str, dict[str, Any]] = {}
@@ -204,7 +203,7 @@ class VASPConnector(IntegrationAdapter):
         wallet_address: str,
         chain: str,
         reason: str,
-        evidence_package_id: Optional[str] = None,
+        evidence_package_id: str | None = None,
     ) -> IntegrationResponse:
         """Create a freeze request for a wallet."""
         request_data = {
@@ -245,9 +244,9 @@ class VASPConnector(IntegrationAdapter):
     
     async def get_request_history(
         self,
-        case_id: Optional[str] = None,
-        vasp_name: Optional[str] = None,
-        status: Optional[VASPRequestStatus] = None,
+        case_id: str | None = None,
+        vasp_name: str | None = None,
+        status: VASPRequestStatus | None = None,
     ) -> list[dict[str, Any]]:
         """Get request history with filters."""
         results = []
@@ -267,7 +266,7 @@ class VASPConnector(IntegrationAdapter):
         self,
         request_id: str,
         approver_id: str,
-        comments: Optional[str] = None,
+        comments: str | None = None,
     ) -> IntegrationResponse:
         """Approve a VASP request."""
         try:
@@ -387,7 +386,7 @@ class VASPConnector(IntegrationAdapter):
             
             # Send request
             response = await self._client.post(
-                f"/requests",
+                "/requests",
                 json=vasp_payload,
             )
             
@@ -443,7 +442,7 @@ class VASPConnector(IntegrationAdapter):
         expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
         return expiry.isoformat()
     
-    def _map_vasp_status(self, status: Optional[str]) -> IntegrationStatus:
+    def _map_vasp_status(self, status: str | None) -> IntegrationStatus:
         """Map VASP status to IntegrationStatus."""
         mapping = {
             VASPRequestStatus.DRAFT.value: IntegrationStatus.PENDING,

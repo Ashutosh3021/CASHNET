@@ -5,9 +5,9 @@ for case management, blockchain operations, ML/intelligence, and integrations.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
 import uuid
+from datetime import datetime, timezone
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -26,22 +26,22 @@ class CaseInput(BaseModel):
     fraud_type: str
     reported_amount: float
     currency: str = "INR"
-    description: Optional[str] = None
+    description: str | None = None
     priority: str = "MEDIUM"
-    jurisdiction: Optional[str] = None
+    jurisdiction: str | None = None
     created_by: str
 
 
 class CaseAssign(BaseModel):
     assigned_to: str
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class AddressInput(BaseModel):
     address: str
     chain: str
     address_type: str = "WALLET"
-    label: Optional[str] = None
+    label: str | None = None
     case_id: str
 
 
@@ -54,7 +54,7 @@ class AnalysisRequest(BaseModel):
 class AdjudicationInput(BaseModel):
     finding_id: str
     decision: str  # "ACCEPTED", "REJECTED", "INCONCLUSIVE"
-    comments: Optional[str] = None
+    comments: str | None = None
     decided_by: str
 
 
@@ -62,7 +62,7 @@ class EvidencePackageInput(BaseModel):
     case_id: str
     package_type: str
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     created_by: str
     items: list[dict[str, Any]] = []
 
@@ -70,9 +70,9 @@ class EvidencePackageInput(BaseModel):
 class ActionRequestInput(BaseModel):
     case_id: str
     action_type: str
-    target_entity_id: Optional[str] = None
-    target_address: Optional[str] = None
-    target_jurisdiction: Optional[str] = None
+    target_entity_id: str | None = None
+    target_address: str | None = None
+    target_jurisdiction: str | None = None
     priority: str = "MEDIUM"
     reason: str
     created_by: str
@@ -81,18 +81,18 @@ class ActionRequestInput(BaseModel):
 class ActionApproveInput(BaseModel):
     approver_id: str
     approver_role: str
-    comments: Optional[str] = None
+    comments: str | None = None
 
 
 class TagInput(BaseModel):
     name: str
     category: str
-    color: Optional[str] = None
+    color: str | None = None
 
 
 class ClusterInput(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     cluster_type: str = "OWNED"
     address_ids: list[str]
 
@@ -100,14 +100,14 @@ class ClusterInput(BaseModel):
 class AlertAcknowledge(BaseModel):
     alert_id: str
     acknowledged_by: str
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class WebhookPayload(BaseModel):
     event_type: str
     source: str
     data: dict[str, Any]
-    timestamp: Optional[datetime] = None
+    timestamp: datetime | None = None
 
 
 # ==================== Health ====================
@@ -223,8 +223,8 @@ async def create_case(case: CaseInput) -> dict[str, Any]:
 
 @cases_router.get("")
 async def list_cases(
-    status: Optional[str] = None,
-    priority: Optional[str] = None,
+    status: str | None = None,
+    priority: str | None = None,
     limit: int = Query(50, le=500),
     offset: int = 0,
 ) -> dict[str, Any]:
@@ -299,8 +299,8 @@ findings_router = APIRouter(prefix="/findings", tags=["findings"])
 
 @findings_router.get("")
 async def list_findings(
-    case_id: Optional[str] = None,
-    finding_type: Optional[str] = None,
+    case_id: str | None = None,
+    finding_type: str | None = None,
     limit: int = Query(50, le=500),
 ) -> dict[str, Any]:
     return {
@@ -618,7 +618,7 @@ ml_router = APIRouter(prefix="/ml", tags=["ml"])
 
 @ml_router.post("/typology/detect")
 async def detect_typologies(
-    case_id: Optional[str] = None,
+    case_id: str | None = None,
     transaction: dict[str, Any] = {},
     known_addresses: dict[str, list[str]] = {},
 ) -> dict[str, Any]:
@@ -652,7 +652,7 @@ async def detect_typologies(
 async def check_mixer(
     address: str,
     chain: str,
-    transaction_data: Optional[dict[str, Any]] = None,
+    transaction_data: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     detector = ServiceRegistry.get("mixer")
     signals = detector.check_address(address, chain, transaction_data)
@@ -720,7 +720,7 @@ async def register_model(
     version: str,
     model_type: str,
     created_by: str,
-    description: Optional[str] = None,
+    description: str | None = None,
 ) -> dict[str, Any]:
     from services.ml.model_registry import ModelType
     registry = ServiceRegistry.get("model_registry")
@@ -738,7 +738,7 @@ async def register_model(
 async def validate_model(
     model_id: str,
     metrics: dict[str, float],
-    baseline_metrics: Optional[dict[str, float]] = None,
+    baseline_metrics: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     pipeline = ServiceRegistry.get("model_validation")
     report = pipeline.validate_model(
@@ -868,7 +868,7 @@ async def share_intelligence(
     classification: str,
     recipients: list[str],
     created_by: str,
-    description: Optional[str] = None,
+    description: str | None = None,
     policy_id: str = "default_internal",
 ) -> dict[str, Any]:
     from services.ml.intelligence_sharing import ClassificationLevel
@@ -899,7 +899,7 @@ async def share_intelligence(
 async def approve_intelligence_package(
     package_id: str,
     approver_id: str,
-    comments: Optional[str] = None,
+    comments: str | None = None,
 ) -> dict[str, Any]:
     service = ServiceRegistry.get("intel_sharing")
     try:

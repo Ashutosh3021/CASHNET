@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -62,7 +62,7 @@ class ModelArtifact(BaseModel):
     artifact_id: str
     artifact_type: ArtifactType
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     
     # Storage
     storage_path: str  # S3/local path
@@ -70,7 +70,7 @@ class ModelArtifact(BaseModel):
     size_bytes: int = 0
     
     # Metadata
-    mime_type: Optional[str] = None
+    mime_type: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, Any] = {}
 
@@ -81,7 +81,7 @@ class ApprovalRecord(BaseModel):
     reviewer_id: str
     reviewer_role: str
     decision: str  # "approved", "rejected", "changes_requested"
-    comments: Optional[str] = None
+    comments: str | None = None
     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     checklist: dict[str, bool] = {}  # Review checklist items
 
@@ -94,7 +94,7 @@ class ModelVersion(BaseModel):
     
     # Model details
     model_type: ModelType
-    description: Optional[str] = None
+    description: str | None = None
     use_case: str = ""  # What this model does
     
     # Status
@@ -104,8 +104,8 @@ class ModelVersion(BaseModel):
     artifacts: list[ModelArtifact] = []
     
     # Training info
-    training_run_id: Optional[str] = None
-    training_data_hash: Optional[str] = None
+    training_run_id: str | None = None
+    training_data_hash: str | None = None
     
     # Performance metrics
     metrics: dict[str, float] = {}  # accuracy, precision, recall, f1, etc.
@@ -113,13 +113,13 @@ class ModelVersion(BaseModel):
     
     # Approval
     approval_records: list[ApprovalRecord] = []
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
     
     # Deployment
-    deployment_stage: Optional[DeploymentStage] = None
-    deployed_at: Optional[datetime] = None
-    endpoint_url: Optional[str] = None
+    deployment_stage: DeploymentStage | None = None
+    deployed_at: datetime | None = None
+    endpoint_url: str | None = None
     
     # Governance
     risk_level: str = "medium"  # "low", "medium", "high", "critical"
@@ -132,7 +132,7 @@ class ModelVersion(BaseModel):
     created_by: str = ""
     
     # Dependencies
-    parent_model_id: Optional[str] = None
+    parent_model_id: str | None = None
     tags: list[str] = []
     metadata: dict[str, Any] = {}
 
@@ -152,12 +152,11 @@ class ModelRegistry:
         version: str,
         model_type: ModelType,
         created_by: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         use_case: str = "",
         **kwargs,
     ) -> ModelVersion:
         """Register a new model version."""
-        import uuid
         
         model_id = f"{model_name}:{version}"
         
@@ -196,7 +195,7 @@ class ModelRegistry:
         
         return model
     
-    def get_model(self, model_id: str) -> Optional[ModelVersion]:
+    def get_model(self, model_id: str) -> ModelVersion | None:
         """Get a model by ID."""
         return self._models.get(model_id)
     
@@ -205,7 +204,7 @@ class ModelRegistry:
         model_ids = self._name_index.get(model_name, [])
         return [self._models[mid] for mid in model_ids if mid in self._models]
     
-    def get_latest_version(self, model_name: str) -> Optional[ModelVersion]:
+    def get_latest_version(self, model_name: str) -> ModelVersion | None:
         """Get the latest version of a model."""
         versions = self.get_model_versions(model_name)
         if not versions:
@@ -215,7 +214,7 @@ class ModelRegistry:
         versions.sort(key=lambda m: m.version, reverse=True)
         return versions[0]
     
-    def get_deployed_version(self, model_name: str) -> Optional[ModelVersion]:
+    def get_deployed_version(self, model_name: str) -> ModelVersion | None:
         """Get the currently deployed version of a model."""
         versions = self.get_model_versions(model_name)
         deployed = [v for v in versions if v.status == ModelStatus.DEPLOYED]
@@ -247,8 +246,8 @@ class ModelRegistry:
         reviewer_id: str,
         reviewer_role: str,
         decision: str,
-        comments: Optional[str] = None,
-        checklist: Optional[dict[str, bool]] = None,
+        comments: str | None = None,
+        checklist: dict[str, bool] | None = None,
     ) -> ModelVersion:
         """Approve or reject a model."""
         model = self._models.get(model_id)
@@ -298,7 +297,7 @@ class ModelRegistry:
         model_id: str,
         stage: DeploymentStage,
         deployed_by: str,
-        endpoint_url: Optional[str] = None,
+        endpoint_url: str | None = None,
     ) -> ModelVersion:
         """Deploy a model to a stage."""
         model = self._models.get(model_id)
@@ -349,7 +348,7 @@ class ModelRegistry:
         storage_path: str,
         checksum: str,
         size_bytes: int = 0,
-        description: Optional[str] = None,
+        description: str | None = None,
     ) -> ModelArtifact:
         """Add an artifact to a model."""
         import uuid
@@ -377,7 +376,7 @@ class ModelRegistry:
         self,
         model_id: str,
         metrics: dict[str, float],
-        benchmark_results: Optional[dict[str, Any]] = None,
+        benchmark_results: dict[str, Any] | None = None,
     ) -> ModelVersion:
         """Update model performance metrics."""
         model = self._models.get(model_id)
@@ -394,10 +393,10 @@ class ModelRegistry:
     
     def search_models(
         self,
-        model_type: Optional[ModelType] = None,
-        status: Optional[ModelStatus] = None,
-        tag: Optional[str] = None,
-        use_case: Optional[str] = None,
+        model_type: ModelType | None = None,
+        status: ModelStatus | None = None,
+        tag: str | None = None,
+        use_case: str | None = None,
     ) -> list[ModelVersion]:
         """Search for models with filters."""
         results = list(self._models.values())

@@ -5,9 +5,9 @@ alerts for operations dashboard.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -40,8 +40,8 @@ class FreshnessMetric(BaseModel):
     
     # Timestamps
     last_updated: datetime
-    last_successful_sync: Optional[datetime] = None
-    next_expected_sync: Optional[datetime] = None
+    last_successful_sync: datetime | None = None
+    next_expected_sync: datetime | None = None
     
     # Status
     status: FreshnessStatus = FreshnessStatus.UNKNOWN
@@ -49,8 +49,8 @@ class FreshnessMetric(BaseModel):
     # Lag metrics
     lag_seconds: int = 0
     lag_blocks: int = 0
-    current_block: Optional[int] = None
-    synced_block: Optional[int] = None
+    current_block: int | None = None
+    synced_block: int | None = None
     
     # Thresholds (in seconds)
     fresh_threshold: int = 300      # 5 minutes
@@ -121,7 +121,7 @@ class FreshnessMonitor:
         source_id: str,
         source_type: DataSourceType,
         chain: ChainType,
-        custom_thresholds: Optional[dict[str, int]] = None,
+        custom_thresholds: dict[str, int] | None = None,
     ) -> FreshnessMetric:
         """Register a data source for monitoring."""
         thresholds = self._chain_thresholds.get(chain, {})
@@ -145,7 +145,7 @@ class FreshnessMonitor:
         self,
         source_id: str,
         current_block: int,
-        synced_block: Optional[int] = None,
+        synced_block: int | None = None,
     ) -> FreshnessMetric:
         """Update data source with latest block info."""
         metric = self._metrics.get(source_id)
@@ -215,7 +215,7 @@ class FreshnessMonitor:
         
         return metric
     
-    def get_source(self, source_id: str) -> Optional[FreshnessMetric]:
+    def get_source(self, source_id: str) -> FreshnessMetric | None:
         """Get freshness metric for a source."""
         return self._metrics.get(source_id)
     
@@ -296,8 +296,8 @@ class FreshnessMonitor:
     
     def get_alerts(
         self,
-        chain: Optional[ChainType] = None,
-        status: Optional[FreshnessStatus] = None,
+        chain: ChainType | None = None,
+        status: FreshnessStatus | None = None,
         unacknowledged_only: bool = False,
         limit: int = 50,
     ) -> list[FreshnessAlert]:

@@ -9,7 +9,7 @@ import json
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -88,27 +88,27 @@ class AuditLog(BaseModel):
     actor_id: str
     actor_email: str
     actor_role: str
-    actor_ip: Optional[str] = None
-    actor_user_agent: Optional[str] = None
+    actor_ip: str | None = None
+    actor_user_agent: str | None = None
     
     # Action details
     action: AuditAction
     resource_type: str
-    resource_id: Optional[str] = None
+    resource_id: str | None = None
     outcome: AuditOutcome = AuditOutcome.SUCCESS
     
     # Context
-    purpose: Optional[str] = None
+    purpose: str | None = None
     details: dict[str, Any] = {}
     
     # Integrity
-    previous_hash: Optional[str] = None
-    current_hash: Optional[str] = None
+    previous_hash: str | None = None
+    current_hash: str | None = None
     
     # Request context
-    request_method: Optional[str] = None
-    request_path: Optional[str] = None
-    request_id: Optional[str] = None
+    request_method: str | None = None
+    request_path: str | None = None
+    request_id: str | None = None
 
 
 class AuditLogger:
@@ -117,9 +117,9 @@ class AuditLogger:
     def __init__(self):
         self._logs: list[AuditLog] = []
         self._hash_chain: list[str] = []
-        self._previous_hash: Optional[str] = None
+        self._previous_hash: str | None = None
     
-    def _calculate_hash(self, log: AuditLog, previous_hash: Optional[str] = None) -> str:
+    def _calculate_hash(self, log: AuditLog, previous_hash: str | None = None) -> str:
         """Calculate SHA-256 hash for a log entry."""
         # Create a deterministic representation
         hash_data = {
@@ -145,16 +145,16 @@ class AuditLogger:
         actor_role: str,
         action: AuditAction,
         resource_type: str,
-        resource_id: Optional[str] = None,
+        resource_id: str | None = None,
         outcome: AuditOutcome = AuditOutcome.SUCCESS,
-        purpose: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        actor_ip: Optional[str] = None,
-        actor_user_agent: Optional[str] = None,
-        request_method: Optional[str] = None,
-        request_path: Optional[str] = None,
-        request_id: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        purpose: str | None = None,
+        details: dict[str, Any] | None = None,
+        actor_ip: str | None = None,
+        actor_user_agent: str | None = None,
+        request_method: str | None = None,
+        request_path: str | None = None,
+        request_id: str | None = None,
+        correlation_id: str | None = None,
     ) -> AuditLog:
         """Create and store an audit log entry."""
         log = AuditLog(
@@ -220,13 +220,13 @@ class AuditLogger:
     
     def get_logs(
         self,
-        actor_id: Optional[str] = None,
-        action: Optional[AuditAction] = None,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        correlation_id: Optional[str] = None,
+        actor_id: str | None = None,
+        action: AuditAction | None = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        correlation_id: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[AuditLog]:
@@ -325,7 +325,7 @@ def get_audit_logger() -> AuditLogger:
 def audit_log(
     action: AuditAction,
     resource_type: str,
-    get_resource_id: Optional[str] = None,
+    get_resource_id: str | None = None,
 ):
     """Decorator to automatically log audit events."""
     def decorator(func):

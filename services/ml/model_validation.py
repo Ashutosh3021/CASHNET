@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -52,17 +52,17 @@ class ValidationMetric(BaseModel):
     value: float
     
     # Thresholds
-    threshold_min: Optional[float] = None
-    threshold_max: Optional[float] = None
+    threshold_min: float | None = None
+    threshold_max: float | None = None
     is_required: bool = True
     
     # Status
     passed: bool = True
-    deviation: Optional[float] = None  # How far from threshold
+    deviation: float | None = None  # How far from threshold
     
     # Context
-    dataset_name: Optional[str] = None
-    split: Optional[str] = None  # "train", "validation", "test"
+    dataset_name: str | None = None
+    split: str | None = None  # "train", "validation", "test"
     metadata: dict[str, Any] = {}
 
 
@@ -77,8 +77,8 @@ class ValidationCheck(BaseModel):
     config: dict[str, Any] = {}
     
     # Thresholds
-    warning_threshold: Optional[float] = None
-    failure_threshold: Optional[float] = None
+    warning_threshold: float | None = None
+    failure_threshold: float | None = None
     
     is_enabled: bool = True
 
@@ -106,7 +106,7 @@ class ValidationReport(BaseModel):
     recommendation: str = ""  # "approve", "reject", "review"
     
     # Comparison with baseline
-    baseline_model_id: Optional[str] = None
+    baseline_model_id: str | None = None
     comparison_metrics: dict[str, dict[str, float]] = {}  # metric -> {current, baseline, change}
     
     # Drift detection
@@ -114,13 +114,13 @@ class ValidationReport(BaseModel):
     drift_details: dict[str, Any] = {}
     
     # Timestamps
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Metadata
     created_by: str = "system"
-    notes: Optional[str] = None
+    notes: str | None = None
     metadata: dict[str, Any] = {}
 
 
@@ -247,8 +247,8 @@ class ModelValidationPipeline:
         model_id: str,
         model_version: str,
         metrics: dict[str, float],
-        baseline_model_id: Optional[str] = None,
-        baseline_metrics: Optional[dict[str, float]] = None,
+        baseline_model_id: str | None = None,
+        baseline_metrics: dict[str, float] | None = None,
         created_by: str = "system",
     ) -> ValidationReport:
         """Run validation on a model."""
@@ -339,7 +339,7 @@ class ModelValidationPipeline:
         
         return report
     
-    def get_report(self, report_id: str) -> Optional[ValidationReport]:
+    def get_report(self, report_id: str) -> ValidationReport | None:
         """Get a validation report."""
         return self._reports.get(report_id)
     
@@ -348,7 +348,7 @@ class ModelValidationPipeline:
         report_ids = self._model_index.get(model_id, [])
         return [self._reports[rid] for rid in report_ids if rid in self._reports]
     
-    def get_latest_report(self, model_id: str) -> Optional[ValidationReport]:
+    def get_latest_report(self, model_id: str) -> ValidationReport | None:
         """Get the latest validation report for a model."""
         reports = self.get_reports_for_model(model_id)
         if not reports:

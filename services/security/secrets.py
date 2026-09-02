@@ -10,12 +10,11 @@ import hashlib
 import json
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
 
-from cryptography.fernet import InvalidToken, Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from pydantic import BaseModel, ValidationError
 
 
@@ -32,7 +31,7 @@ class SecretMetadata(BaseModel):
     version: int = 1
     created_at: datetime = datetime.utcnow()
     updated_at: datetime = datetime.utcnow()
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     rotation_enabled: bool = False
     rotation_interval_days: int = 90
 
@@ -41,35 +40,30 @@ class SecretsBackend(ABC):
     """Abstract base class for secrets backends."""
     
     @abstractmethod
-    def get_secret(self, name: str) -> Optional[str]:
+    def get_secret(self, name: str) -> str | None:
         """Get a secret by name."""
-        pass
     
     @abstractmethod
-    def set_secret(self, name: str, value: str, metadata: Optional[SecretMetadata] = None) -> bool:
+    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
         """Set a secret value."""
-        pass
     
     @abstractmethod
     def delete_secret(self, name: str) -> bool:
         """Delete a secret."""
-        pass
     
     @abstractmethod
     def list_secrets(self) -> list[str]:
         """List all secret names."""
-        pass
     
     @abstractmethod
     def rotate_secret(self, name: str, new_value: str) -> bool:
         """Rotate a secret to a new value."""
-        pass
 
 
 class LocalSecretsBackend(SecretsBackend):
     """Local file-based secrets backend for development."""
     
-    def __init__(self, secrets_dir: str = ".secrets", encryption_key: Optional[str] = None):
+    def __init__(self, secrets_dir: str = ".secrets", encryption_key: str | None = None):
         self.secrets_dir = Path(secrets_dir)
         self.secrets_dir.mkdir(parents=True, exist_ok=True)
         
@@ -91,7 +85,7 @@ class LocalSecretsBackend(SecretsBackend):
         safe_name = name.replace("/", "_").replace("\\", "_")
         return self.secrets_dir / f"{safe_name}.meta.json"
     
-    def get_secret(self, name: str) -> Optional[str]:
+    def get_secret(self, name: str) -> str | None:
         """Get a secret by name."""
         secret_path = self._get_secret_path(name)
         if not secret_path.exists():
@@ -104,7 +98,7 @@ class LocalSecretsBackend(SecretsBackend):
         except (InvalidToken, OSError, ValueError):
             return None
     
-    def set_secret(self, name: str, value: str, metadata: Optional[SecretMetadata] = None) -> bool:
+    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
         """Set a secret value."""
         try:
             # Encrypt and save
@@ -158,7 +152,7 @@ class LocalSecretsBackend(SecretsBackend):
         
         return self.set_secret(name, new_value, metadata)
     
-    def get_metadata(self, name: str) -> Optional[SecretMetadata]:
+    def get_metadata(self, name: str) -> SecretMetadata | None:
         """Get metadata for a secret."""
         metadata_path = self._get_metadata_path(name)
         if not metadata_path.exists():
@@ -182,7 +176,7 @@ class VaultSecretsBackend(SecretsBackend):
         # import hvac
         # self.client = hvac.Client(url=vault_url, token=token)
     
-    def get_secret(self, name: str) -> Optional[str]:
+    def get_secret(self, name: str) -> str | None:
         """Get a secret from Vault."""
         # In production:
         # try:
@@ -197,7 +191,7 @@ class VaultSecretsBackend(SecretsBackend):
         # Placeholder for development
         return os.getenv(name)
     
-    def set_secret(self, name: str, value: str, metadata: Optional[SecretMetadata] = None) -> bool:
+    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
         """Set a secret in Vault."""
         # In production:
         # try:
@@ -260,7 +254,7 @@ class AWSSecretsManagerBackend(SecretsBackend):
         # import boto3
         # self.client = boto3.client('secretsmanager', region_name=region_name)
     
-    def get_secret(self, name: str) -> Optional[str]:
+    def get_secret(self, name: str) -> str | None:
         """Get a secret from AWS Secrets Manager."""
         # In production:
         # try:
@@ -272,7 +266,7 @@ class AWSSecretsManagerBackend(SecretsBackend):
         # Placeholder for development
         return os.getenv(name)
     
-    def set_secret(self, name: str, value: str, metadata: Optional[SecretMetadata] = None) -> bool:
+    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
         """Set a secret in AWS Secrets Manager."""
         # In production:
         # try:
@@ -337,7 +331,7 @@ class AWSSecretsManagerBackend(SecretsBackend):
 class SecretsManager:
     """Main secrets manager interface."""
     
-    def __init__(self, backend: Optional[SecretsBackend] = None):
+    def __init__(self, backend: SecretsBackend | None = None):
         if backend is None:
             # Auto-detect backend based on environment
             backend_type = os.getenv("SECRETS_BACKEND", "local")
@@ -359,7 +353,7 @@ class SecretsManager:
         
         self.backend = backend
     
-    def get(self, name: str, default: Optional[str] = None) -> Optional[str]:
+    def get(self, name: str, default: str | None = None) -> str | None:
         """Get a secret value."""
         value = self.backend.get_secret(name)
         return value if value is not None else default
@@ -389,7 +383,7 @@ class SecretsManager:
 
 
 # Singleton instance
-_secrets_manager: Optional[SecretsManager] = None
+_secrets_manager: SecretsManager | None = None
 
 
 def get_secrets_manager() -> SecretsManager:

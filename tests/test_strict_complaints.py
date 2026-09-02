@@ -1,5 +1,7 @@
-import importlib.util, unittest
+import importlib.util
+import unittest
 from pathlib import Path
+
 MODULE=Path(__file__).parents[1]/"scripts"/"complaints"/"generate_complaints.py"; spec=importlib.util.spec_from_file_location("strict",MODULE); strict=importlib.util.module_from_spec(spec); spec.loader.exec_module(strict)
 class StrictComplaintTests(unittest.TestCase):
  def test_exact_schema_and_cross_dataset_accounts(self):

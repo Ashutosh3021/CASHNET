@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -45,8 +45,8 @@ class IntegrationResponse(BaseModel):
     request_id: str
     status: IntegrationStatus
     response_data: dict[str, Any] = {}
-    error_message: Optional[str] = None
-    processed_at: Optional[datetime] = None
+    error_message: str | None = None
+    processed_at: datetime | None = None
 
 
 class IntegrationAdapter(ABC):
@@ -64,32 +64,26 @@ class IntegrationAdapter(ABC):
     @abstractmethod
     async def connect(self) -> bool:
         """Connect to the external service."""
-        pass
     
     @abstractmethod
     async def disconnect(self) -> None:
         """Disconnect from the service."""
-        pass
     
     @abstractmethod
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a case to the external system."""
-        pass
     
     @abstractmethod
     async def get_case_status(self, external_id: str) -> IntegrationResponse:
         """Get case status from the external system."""
-        pass
     
     @abstractmethod
     async def receive_case(self, external_data: dict[str, Any]) -> dict[str, Any]:
         """Receive a case from the external system."""
-        pass
     
     @abstractmethod
     async def health_check(self) -> bool:
         """Check if the integration is healthy."""
-        pass
     
     async def retry_request(
         self,
@@ -107,7 +101,7 @@ class IntegrationAdapter(ABC):
                     return IntegrationResponse(
                         request_id=request.request_id,
                         status=IntegrationStatus.FAILED,
-                        error_message=f"Max retries exceeded: {str(e)}",
+                        error_message=f"Max retries exceeded: {e!s}",
                     )
         
         return IntegrationResponse(

@@ -4,14 +4,14 @@ Provides role-based and attribute-based access control for all resources.
 """
 from __future__ import annotations
 
-import uuid
+from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
-from .models import Permission, UserRole, ROLE_PERMISSIONS
+from .models import ROLE_PERMISSIONS, Permission, UserRole
 
 
 class ResourceType(str, Enum):
@@ -43,10 +43,10 @@ class Action(str, Enum):
 class Resource(BaseModel):
     """Resource being accessed."""
     type: ResourceType
-    id: Optional[str] = None
-    owner_id: Optional[str] = None
-    jurisdiction: Optional[str] = None
-    classification: Optional[str] = None
+    id: str | None = None
+    owner_id: str | None = None
+    jurisdiction: str | None = None
+    classification: str | None = None
     metadata: dict[str, Any] = {}
 
 
@@ -55,8 +55,8 @@ class AccessContext(BaseModel):
     user_id: str
     user_role: UserRole
     permissions: list[str]
-    department: Optional[str] = None
-    ip_address: Optional[str] = None
+    department: str | None = None
+    ip_address: str | None = None
     timestamp: datetime = datetime.utcnow()
 
 

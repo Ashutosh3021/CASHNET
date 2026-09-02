@@ -5,11 +5,11 @@ agencies, with redaction, audit trails, and compliance tracking.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
-from typing import Any, Optional
 import hashlib
 import json as json_module
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -91,7 +91,7 @@ class RedactionRule(BaseModel):
     """A redaction rule for sensitive data."""
     field_path: str
     action: RedactionAction
-    replacement: Optional[str] = None
+    replacement: str | None = None
     conditions: dict[str, Any] = {}
 
 
@@ -100,7 +100,7 @@ class IntelligencePackage(BaseModel):
     package_id: str
     case_id: str
     title: str
-    description: Optional[str] = None
+    description: str | None = None
 
     # Classification
     classification: ClassificationLevel = ClassificationLevel.CONFIDENTIAL
@@ -125,14 +125,14 @@ class IntelligencePackage(BaseModel):
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    shared_at: Optional[datetime] = None
-    acknowledged_at: Optional[datetime] = None
-    expires_at: Optional[datetime] = None
+    shared_at: datetime | None = None
+    acknowledged_at: datetime | None = None
+    expires_at: datetime | None = None
 
     # Approval
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
-    approval_comments: Optional[str] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+    approval_comments: str | None = None
 
     # Metadata
     version: int = 1
@@ -147,8 +147,8 @@ class Agency(BaseModel):
     agency_type: str  # "law_enforcement", "regulatory", "intelligence", "international"
 
     # Contact
-    contact_name: Optional[str] = None
-    contact_email: Optional[str] = None
+    contact_name: str | None = None
+    contact_email: str | None = None
 
     # Access
     classification_clearance: list[str] = []
@@ -156,13 +156,13 @@ class Agency(BaseModel):
     sharing_enabled: bool = True
 
     # Configuration
-    api_endpoint: Optional[str] = None
-    api_key: Optional[str] = None
-    encryption_key: Optional[str] = None
+    api_endpoint: str | None = None
+    api_key: str | None = None
+    encryption_key: str | None = None
 
     # Metadata
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_shared: Optional[datetime] = None
+    last_shared: datetime | None = None
 
 
 class AccessLogEntry(BaseModel):
@@ -173,8 +173,8 @@ class AccessLogEntry(BaseModel):
     action: str  # "view", "download", "acknowledge", "search"
     actor: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
+    ip_address: str | None = None
+    user_agent: str | None = None
     metadata: dict[str, Any] = {}
 
 
@@ -188,17 +188,17 @@ class IntelligenceRecord(BaseModel):
     classification: ClassificationLevel
 
     # Delivery
-    delivered_at: Optional[datetime] = None
-    acknowledged_at: Optional[str] = None
-    acknowledgment_deadline: Optional[datetime] = None
+    delivered_at: datetime | None = None
+    acknowledged_at: str | None = None
+    acknowledgment_deadline: datetime | None = None
 
     # Expiration
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
     # Revocation
     revoked: bool = False
-    revoked_at: Optional[datetime] = None
-    revocation_reason: Optional[str] = None
+    revoked_at: datetime | None = None
+    revocation_reason: str | None = None
 
     # Metadata
     metadata: dict[str, Any] = {}
@@ -223,14 +223,14 @@ class CrossAgencySharingService:
         self._agencies[agency.agency_id] = agency
         return agency
 
-    def get_agency(self, agency_id: str) -> Optional[Agency]:
+    def get_agency(self, agency_id: str) -> Agency | None:
         return self._agencies.get(agency_id)
 
     def add_policy(self, policy: SharingPolicy) -> SharingPolicy:
         self._policies[policy.policy_id] = policy
         return policy
 
-    def get_policy(self, policy_id: str) -> Optional[SharingPolicy]:
+    def get_policy(self, policy_id: str) -> SharingPolicy | None:
         return self._policies.get(policy_id)
 
     def share_intelligence(
@@ -242,7 +242,7 @@ class CrossAgencySharingService:
         transactions: list[dict[str, Any]],
         recipients: list[str],
         created_by: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         classification: ClassificationLevel = ClassificationLevel.CONFIDENTIAL,
         scope: SharingScope = SharingScope.AGENCY,
         policy_id: str = "default_internal",
@@ -318,7 +318,7 @@ class CrossAgencySharingService:
         self,
         package_id: str,
         approver_id: str,
-        comments: Optional[str] = None,
+        comments: str | None = None,
     ) -> IntelligencePackage:
         package = self._packages.get(package_id)
         if not package:
@@ -330,7 +330,7 @@ class CrossAgencySharingService:
         return self._approve_sharing(package, approver_id, comments)
 
     def _approve_sharing(
-        self, package: IntelligencePackage, approver_id: str, comments: Optional[str]
+        self, package: IntelligencePackage, approver_id: str, comments: str | None
     ) -> IntelligencePackage:
         policy = self._policies.get(package.policy_id)
 
@@ -447,7 +447,7 @@ class CrossAgencySharingService:
 
         return package
 
-    def get_package(self, package_id: str) -> Optional[IntelligencePackage]:
+    def get_package(self, package_id: str) -> IntelligencePackage | None:
         return self._packages.get(package_id)
 
     def get_shares_for_case(self, case_id: str) -> list[IntelligencePackage]:
@@ -503,7 +503,7 @@ class CrossAgencySharingService:
         self._access_logs = self._access_logs[-10000:]
         return entry
 
-    def get_audit_trail(self, package_id: Optional[str] = None) -> list[AccessLogEntry]:
+    def get_audit_trail(self, package_id: str | None = None) -> list[AccessLogEntry]:
         if package_id:
             return [log for log in self._access_logs if log.package_id == package_id]
         return self._access_logs
@@ -588,7 +588,7 @@ class CrossAgencySharingService:
         recipients: list[str],
         created_by: str,
         title: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         scope: SharingScope = SharingScope.AGENCY,
         policy_id: str = "default_internal",
         expires_in_days: int = 90,
@@ -612,9 +612,7 @@ class CrossAgencySharingService:
 
 class SharingPolicyError(Exception):
     """Exception for sharing policy violations."""
-    pass
 
 
 class ClassificationError(Exception):
     """Exception for classification level violations."""
-    pass

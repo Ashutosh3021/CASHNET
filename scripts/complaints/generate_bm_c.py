@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Create graph-compatible, entirely synthetic CASHNET BM_C complaints."""
 from __future__ import annotations
-import argparse, json, random, sys
+
+import argparse
+import json
+import random
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any

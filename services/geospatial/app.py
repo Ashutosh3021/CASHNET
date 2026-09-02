@@ -4,12 +4,11 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
-from typing import Literal
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from shapely.geometry import Point
 from sklearn.cluster import DBSCAN
 

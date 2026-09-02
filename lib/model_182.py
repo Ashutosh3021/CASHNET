@@ -14,29 +14,28 @@ All classification heads are now evaluated on a held-out test split
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
-import lib.io_utils as io
 import lib.eval_utils as ev
 import lib.graph_embed as ge
+import lib.io_utils as io
 from lib.schema import empty_contract
 
 
-def _build_wallet_graph(cases: Dict[str, list]):
+def _build_wallet_graph(cases: dict[str, list]):
     """Wallet co-occurrence graph from 182 cases: wallets in the same case are
     linked (clique) and wallets sharing an associated_complaint are linked
     across cases, creating genuine cross-case structure for embeddings."""
-    adj: Dict[str, List[str]] = {}
-    complaint_index: Dict[str, List[str]] = {}
+    adj: dict[str, list[str]] = {}
+    complaint_index: dict[str, list[str]] = {}
 
     def add_edge(a, b):
         adj.setdefault(a, []).append(b)
@@ -60,7 +59,7 @@ def _build_wallet_graph(cases: Dict[str, list]):
     return adj
 
 
-def _case_features(rec: Dict[str, Any]) -> Dict[str, float]:
+def _case_features(rec: dict[str, Any]) -> dict[str, float]:
     tw = rec.get("target_wallets") or []
     intl = rec.get("international_coordination") or {}
     countries = intl.get("countries_involved") or []
@@ -88,23 +87,23 @@ class Model182:
                                                class_weight="balanced",
                                                random_state=random_state, n_jobs=-1)
         self.routing_clf = DecisionTreeClassifier(max_depth=5, random_state=random_state)
-        self._vasp_classes: List[str] = []
-        self._chain_cols: List[str] = []
-        self._wallet_emb: Dict[str, np.ndarray] = {}
+        self._vasp_classes: list[str] = []
+        self._chain_cols: list[str] = []
+        self._wallet_emb: dict[str, np.ndarray] = {}
         self._graph_dim: int = 32
-        self._graph_cols: List[str] = [f"g{i}" for i in range(32)]
+        self._graph_cols: list[str] = [f"g{i}" for i in range(32)]
         self._le_case = LabelEncoder()
         self._le_chain = LabelEncoder()
-        self.feature_cols: List[str] = [
+        self.feature_cols: list[str] = [
             "num_wallets", "num_countries", "has_interpol", "mlar_submitted",
             "priority_critical", "priority_high", "num_blockchains",
         ]
-        self.metrics: Dict[str, Any] = {}
-        self.train_metrics: Dict[str, Any] = {}
+        self.metrics: dict[str, Any] = {}
+        self.train_metrics: dict[str, Any] = {}
         self.trained = False
 
     # -- training ----------------------------------------------------------
-    def fit(self) -> "Model182":
+    def fit(self) -> Model182:
         cases = io.load_182_cases()
 
         # 1) Illicit-wallet detection (Elliptic) — held-out
@@ -123,7 +122,7 @@ class Model182:
                 self.train_metrics["illicit"] = ev.binary_metrics(y[tr], self.illicit_clf.predict(X[tr]))
 
         # 2) VASP-attribution weak labels (vasp_responses + wallet_history)
-        vasp_map: Dict[str, str] = {}
+        vasp_map: dict[str, str] = {}
         for rec in cases.get("vasp_responses", []):
             vr = rec.get("vasp_responses", rec)
             cid = vr.get("sahyog_case_id")
@@ -165,7 +164,7 @@ class Model182:
             self.metrics["vasp_weak"] = {**ev.clf_metrics(y_arr, oof, "macro"),
                                          "top3": ev.topk_metric(y_arr, oof_p, k=3,
                                                                classes=self._vasp_classes),
-                                         "note": "5-fold CV OOF + Node2Vec graph features; weak n=%d" % len(y_arr)}
+                                         "note": f"5-fold CV OOF + Node2Vec graph features; weak n={len(y_arr)}"}
             self.train_metrics["vasp_weak"] = ev.clf_metrics(y_arr, self.vasp_clf.predict(X), "macro")
 
         # 3) Cross-border routing (rule-derived; reported on full set)
@@ -186,7 +185,7 @@ class Model182:
         return self
 
     # -- inference ----------------------------------------------------------
-    def _vasp_feature_row(self, rec: Dict[str, Any]) -> Dict[str, float]:
+    def _vasp_feature_row(self, rec: dict[str, Any]) -> dict[str, float]:
         f = _case_features(rec)
         wallets = [w.get("wallet_address") for w in (rec.get("target_wallets") or [])
                    if w.get("wallet_address")]
@@ -198,7 +197,7 @@ class Model182:
         row["blockchain"] = f["blockchain"]
         return row
 
-    def _vectorize_rows(self, rows: List[Dict[str, float]]):
+    def _vectorize_rows(self, rows: list[dict[str, float]]):
         df = pd.DataFrame(rows)
         chains = pd.get_dummies(df["blockchain"], prefix="chain")
         for c in self._chain_cols:
@@ -208,18 +207,18 @@ class Model182:
         Xnum = df[self.feature_cols + self._graph_cols].fillna(0.0).copy()
         try:
             Xnum["case_type"] = self._le_case.transform(df["case_type"].astype(str))
-        except Exception:
+        except (ValueError, AttributeError):
             Xnum["case_type"] = -1
         try:
             Xnum["blockchain"] = self._le_chain.transform(df["blockchain"].astype(str))
-        except Exception:
+        except (ValueError, AttributeError):
             Xnum["blockchain"] = -1
         return pd.concat([Xnum, chains], axis=1).values
 
     def _feat_row(self, rec):
         return self._vectorize_rows([self._vasp_feature_row(rec)])
 
-    def predict(self, record: Dict[str, Any], threshold: float = 0.7) -> Dict[str, Any]:
+    def predict(self, record: dict[str, Any], threshold: float = 0.7) -> dict[str, Any]:
         fvec = self._feat_row(record)[0]
         X = self._feat_row(record)
         attributed_vasp, vasp_conf = "UNKNOWN", 0.5

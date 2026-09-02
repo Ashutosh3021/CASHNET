@@ -8,7 +8,7 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -51,8 +51,8 @@ class EvidenceItem(BaseModel):
     item_type: ItemType
     content: dict[str, Any]
     content_hash: str  # SHA-256 of content
-    storage_key: Optional[str] = None  # S3/object storage path
-    description: Optional[str] = None
+    storage_key: str | None = None  # S3/object storage path
+    description: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, Any] = {}
 
@@ -69,16 +69,16 @@ class EvidencePackage(BaseModel):
     content_type: str = "application/json"
     
     # Finding reference
-    finding_id: Optional[str] = None
+    finding_id: str | None = None
     
     # Integrity
     is_sealed: bool = False  # Once sealed, cannot be modified
-    sealed_at: Optional[datetime] = None
+    sealed_at: datetime | None = None
     
     # Verification
     verification_status: VerificationStatus = VerificationStatus.UNVERIFIED
-    verified_at: Optional[datetime] = None
-    verified_by: Optional[str] = None
+    verified_at: datetime | None = None
+    verified_by: str | None = None
     
     # Chain of custody
     created_by: str = ""
@@ -86,8 +86,8 @@ class EvidencePackage(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Metadata
-    title: Optional[str] = None
-    description: Optional[str] = None
+    title: str | None = None
+    description: str | None = None
     tags: list[str] = []
     metadata: dict[str, Any] = {}
 
@@ -114,9 +114,9 @@ class EvidenceService:
         case_id: str,
         package_type: PackageType,
         created_by: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        finding_id: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
+        finding_id: str | None = None,
     ) -> EvidencePackage:
         """Create a new evidence package."""
         import uuid
@@ -151,9 +151,9 @@ class EvidenceService:
         package_id: str,
         item_type: ItemType,
         content: dict[str, Any],
-        description: Optional[str] = None,
-        storage_key: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        description: str | None = None,
+        storage_key: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> EvidenceItem:
         """Add an item to a package."""
         import uuid
@@ -191,7 +191,7 @@ class EvidenceService:
         self,
         package_id: str,
         transaction: NormalizedTransaction,
-        description: Optional[str] = None,
+        description: str | None = None,
     ) -> EvidenceItem:
         """Add a transaction as evidence."""
         content = {
@@ -221,7 +221,7 @@ class EvidenceService:
         package_id: str,
         block_data: dict[str, Any],
         chain: ChainType,
-        description: Optional[str] = None,
+        description: str | None = None,
     ) -> EvidenceItem:
         """Add block data as evidence."""
         content = {
@@ -308,7 +308,7 @@ class EvidenceService:
         
         return verification_result
     
-    def get_package(self, package_id: str) -> Optional[EvidencePackage]:
+    def get_package(self, package_id: str) -> EvidencePackage | None:
         """Get a package by ID."""
         return self._packages.get(package_id)
     
