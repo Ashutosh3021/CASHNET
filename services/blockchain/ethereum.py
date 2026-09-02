@@ -181,9 +181,9 @@ class EthereumAdapter(ChainAdapter):
                 fee=fee_eth,
                 transaction_type=tx_type,
                 is_success=receipt.get("status", 1) == 1,
-                error_message=None
-                if receipt.get("status", 1) == 1
-                else "Transaction reverted",
+                error_message=(
+                    None if receipt.get("status", 1) == 1 else "Transaction reverted"
+                ),
                 method_id=method_id,
                 input_data=input_data if input_data != "0x" else None,
             )

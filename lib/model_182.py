@@ -75,12 +75,12 @@ def _case_features(rec: dict[str, Any]) -> dict[str, float]:
         "num_wallets": float(len(tw)),
         "num_countries": float(len(countries)),
         "has_interpol": 1.0 if intl.get("interpol_case_id") else 0.0,
-        "mlar_submitted": 1.0
-        if intl.get("mutual_legal_assistance_request") == "submitted"
-        else 0.0,
-        "priority_critical": 1.0
-        if any(w.get("priority") == "CRITICAL" for w in tw)
-        else 0.0,
+        "mlar_submitted": (
+            1.0 if intl.get("mutual_legal_assistance_request") == "submitted" else 0.0
+        ),
+        "priority_critical": (
+            1.0 if any(w.get("priority") == "CRITICAL" for w in tw) else 0.0
+        ),
         "priority_high": 1.0 if any(w.get("priority") == "HIGH" for w in tw) else 0.0,
         "num_blockchains": float(len(set(chains))),
         "case_type": str(rec.get("case_type", "unknown")),
@@ -214,9 +214,11 @@ class Model182:
             action = (
                 "INTERPOL"
                 if intl.get("interpol_case_id")
-                else "MLAT"
-                if intl.get("mutual_legal_assistance_request") == "submitted"
-                else "DOMESTIC_FREEZE"
+                else (
+                    "MLAT"
+                    if intl.get("mutual_legal_assistance_request") == "submitted"
+                    else "DOMESTIC_FREEZE"
+                )
             )
             rrows.append(self._vasp_feature_row(rec))
             rtargets.append(action)
@@ -292,11 +294,11 @@ class Model182:
         payload = empty_contract(confidence=confidence, needs_review=needs_review)
         payload["risk_object"] = {
             "risk_score": risk_score,
-            "risk_label": "high"
-            if risk_score >= 0.7
-            else "medium"
-            if risk_score >= 0.4
-            else "low",
+            "risk_label": (
+                "high"
+                if risk_score >= 0.7
+                else "medium" if risk_score >= 0.4 else "low"
+            ),
             "entities": [
                 {
                     "type": "wallet",

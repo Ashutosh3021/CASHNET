@@ -203,18 +203,22 @@ class EvidenceService:
         """Add a transaction as evidence."""
         content = {
             "tx_hash": transaction.tx_hash,
-            "chain": transaction.chain.value
-            if isinstance(transaction.chain, ChainType)
-            else transaction.chain,
+            "chain": (
+                transaction.chain.value
+                if isinstance(transaction.chain, ChainType)
+                else transaction.chain
+            ),
             "block_number": transaction.block_number,
             "block_timestamp": transaction.block_timestamp.isoformat(),
             "from_address": transaction.from_address,
             "to_address": transaction.to_address,
             "value": transaction.value,
             "currency": transaction.currency,
-            "transaction_type": transaction.transaction_type.value
-            if hasattr(transaction.transaction_type, "value")
-            else transaction.transaction_type,
+            "transaction_type": (
+                transaction.transaction_type.value
+                if hasattr(transaction.transaction_type, "value")
+                else transaction.transaction_type
+            ),
             "is_success": transaction.is_success,
             "risk_score": transaction.risk_score,
             "is_suspicious": transaction.is_suspicious,

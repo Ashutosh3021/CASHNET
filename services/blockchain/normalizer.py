@@ -218,28 +218,36 @@ class TransactionNormalizer:
         """Convert transaction to database-compatible format."""
         return {
             "tx_hash": transaction.tx_hash,
-            "chain": transaction.chain.value
-            if isinstance(transaction.chain, ChainType)
-            else transaction.chain,
+            "chain": (
+                transaction.chain.value
+                if isinstance(transaction.chain, ChainType)
+                else transaction.chain
+            ),
             "block_number": transaction.block_number,
             "block_timestamp": transaction.block_timestamp.isoformat(),
             "from_address": transaction.from_address,
-            "from_address_type": transaction.from_address_type.value
-            if isinstance(transaction.from_address_type, AddressType)
-            else transaction.from_address_type,
+            "from_address_type": (
+                transaction.from_address_type.value
+                if isinstance(transaction.from_address_type, AddressType)
+                else transaction.from_address_type
+            ),
             "to_address": transaction.to_address,
-            "to_address_type": transaction.to_address_type.value
-            if isinstance(transaction.to_address_type, AddressType)
-            else transaction.to_address_type,
+            "to_address_type": (
+                transaction.to_address_type.value
+                if isinstance(transaction.to_address_type, AddressType)
+                else transaction.to_address_type
+            ),
             "value": transaction.value,
             "currency": transaction.currency,
             "value_usd": transaction.value_usd,
             "gas_price": transaction.gas_price,
             "gas_used": transaction.gas_used,
             "fee": transaction.fee,
-            "transaction_type": transaction.transaction_type.value
-            if isinstance(transaction.transaction_type, TransactionType)
-            else transaction.transaction_type,
+            "transaction_type": (
+                transaction.transaction_type.value
+                if isinstance(transaction.transaction_type, TransactionType)
+                else transaction.transaction_type
+            ),
             "is_success": transaction.is_success,
             "error_message": transaction.error_message,
             "token_address": transaction.token_address,

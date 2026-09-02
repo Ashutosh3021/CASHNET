@@ -121,9 +121,9 @@ class NotificationService:
         self._notifications: dict[str, NotificationRecord] = {}
         self._institutions: dict[str, FinancialInstitution] = {}
         self._case_index: dict[str, list[str]] = {}  # case_id -> [notification_ids]
-        self._institution_index: dict[
-            str, list[str]
-        ] = {}  # institution_id -> [notification_ids]
+        self._institution_index: dict[str, list[str]] = (
+            {}
+        )  # institution_id -> [notification_ids]
 
         # Email provider config (would be set in production)
         self._email_config: dict[str, Any] = {}

@@ -115,9 +115,9 @@ class ValidationReport(BaseModel):
 
     # Comparison with baseline
     baseline_model_id: str | None = None
-    comparison_metrics: dict[
-        str, dict[str, float]
-    ] = {}  # metric -> {current, baseline, change}
+    comparison_metrics: dict[str, dict[str, float]] = (
+        {}
+    )  # metric -> {current, baseline, change}
 
     # Drift detection
     drift_detected: bool = False
@@ -304,12 +304,12 @@ class ModelValidationPipeline:
                 metric_name=metric_name,
                 metric_type=self._infer_metric_type(metric_name),
                 value=actual_value,
-                threshold_min=check.warning_threshold
-                if operator in ["gte", "gt"]
-                else None,
-                threshold_max=check.failure_threshold
-                if operator in ["lt", "lte"]
-                else None,
+                threshold_min=(
+                    check.warning_threshold if operator in ["gte", "gt"] else None
+                ),
+                threshold_max=(
+                    check.failure_threshold if operator in ["lt", "lte"] else None
+                ),
                 is_required=True,
                 passed=metric_passed,
                 deviation=deviation,

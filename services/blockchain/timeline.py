@@ -138,9 +138,11 @@ class TimelineService:
                 "from_address": transaction.from_address,
                 "to_address": transaction.to_address,
                 "block_number": transaction.block_number,
-                "transaction_type": transaction.transaction_type.value
-                if hasattr(transaction.transaction_type, "value")
-                else transaction.transaction_type,
+                "transaction_type": (
+                    transaction.transaction_type.value
+                    if hasattr(transaction.transaction_type, "value")
+                    else transaction.transaction_type
+                ),
                 "is_success": transaction.is_success,
             },
         )

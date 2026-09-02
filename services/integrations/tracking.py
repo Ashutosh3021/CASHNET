@@ -353,9 +353,9 @@ class PartnerTracker:
                     "partner": r.partner_name,
                     "case_id": r.case_id,
                     "status": r.status.value,
-                    "sla_deadline": r.sla_deadline.isoformat()
-                    if r.sla_deadline
-                    else None,
+                    "sla_deadline": (
+                        r.sla_deadline.isoformat() if r.sla_deadline else None
+                    ),
                 }
                 for r in self.get_pending_requests()[:5]
             ],
@@ -364,9 +364,9 @@ class PartnerTracker:
                     "tracking_id": r.tracking_id,
                     "partner": r.partner_name,
                     "case_id": r.case_id,
-                    "sla_deadline": r.sla_deadline.isoformat()
-                    if r.sla_deadline
-                    else None,
+                    "sla_deadline": (
+                        r.sla_deadline.isoformat() if r.sla_deadline else None
+                    ),
                 }
                 for r in self.get_sla_breached_requests()[:5]
             ],

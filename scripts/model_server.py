@@ -45,13 +45,16 @@ io.ensure_dirs()
 @app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint."""
-    return jsonify(
-        {
-            "status": "healthy",
-            "service": "model-server",
-            "version": "1.0.0",
-        }
-    ), 200
+    return (
+        jsonify(
+            {
+                "status": "healthy",
+                "service": "model-server",
+                "version": "1.0.0",
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/models/status", methods=["GET"])
@@ -59,12 +62,15 @@ def models_status():
     """Get status of all models."""
     try:
         status = mm.get_model_status()
-        return jsonify(
-            {
-                "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
-                "models": status,
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
+                    "models": status,
+                }
+            ),
+            200,
+        )
     except (ValueError, KeyError) as e:
         logger.exception("Error getting model status")
         return jsonify({"error": str(e)}), 500
@@ -127,12 +133,15 @@ def reload_models():
     try:
         logger.info("Reloading all models...")
         status = mm.reload_models()
-        return jsonify(
-            {
-                "message": "Models reloaded successfully",
-                "status": status,
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "message": "Models reloaded successfully",
+                    "status": status,
+                }
+            ),
+            200,
+        )
     except (ValueError, RuntimeError) as e:
         logger.exception("Error reloading models")
         return jsonify({"error": str(e)}), 500
@@ -151,12 +160,15 @@ def train_model():
         logger.info(f"Training model {model_id}...")
         _, metadata = mm.load_or_train_model(model_id, force_retrain=True)
 
-        return jsonify(
-            {
-                "message": f"Model {model_id} trained successfully",
-                "metadata": metadata,
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "message": f"Model {model_id} trained successfully",
+                    "metadata": metadata,
+                }
+            ),
+            200,
+        )
     except (ValueError, RuntimeError) as e:
         logger.exception("Error training model")
         return jsonify({"error": str(e)}), 500
@@ -198,14 +210,17 @@ def batch_predict():
                 }
             )
 
-        return jsonify(
-            {
-                "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
-                "total_records": len(records),
-                "models_processed": len(model_ids),
-                "results": results,
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
+                    "total_records": len(records),
+                    "models_processed": len(model_ids),
+                    "results": results,
+                }
+            ),
+            200,
+        )
     except (ValueError, KeyError) as e:
         logger.exception("Error in batch prediction")
         return jsonify({"error": str(e)}), 500
@@ -214,35 +229,38 @@ def batch_predict():
 @app.route("/models/info", methods=["GET"])
 def models_info():
     """Get information about available models."""
-    return jsonify(
-        {
-            "models": [
-                {
-                    "id": 182,
-                    "name": "Crypto/VASP/Cross-Border Classifier",
-                    "type": "illicit_classifier",
-                    "description": "Detects illicit crypto transactions, VASP attribution, cross-border routing",
-                    "endpoint": "/models/predict/182",
-                },
-                {
-                    "id": 183,
-                    "name": "AML Detection",
-                    "type": "aml_classifier",
-                    "description": "Anti-Money Laundering transaction detection",
-                    "endpoint": "/models/predict/183",
-                },
-                {
-                    "id": 184,
-                    "name": "Complaint Typology Classifier",
-                    "type": "typology_classifier",
-                    "description": "Consumer complaint classification and typology detection",
-                    "endpoint": "/models/predict/184",
-                },
-            ],
-            "batch_endpoint": "/models/batch-predict",
-            "status_endpoint": "/models/status",
-        }
-    ), 200
+    return (
+        jsonify(
+            {
+                "models": [
+                    {
+                        "id": 182,
+                        "name": "Crypto/VASP/Cross-Border Classifier",
+                        "type": "illicit_classifier",
+                        "description": "Detects illicit crypto transactions, VASP attribution, cross-border routing",
+                        "endpoint": "/models/predict/182",
+                    },
+                    {
+                        "id": 183,
+                        "name": "AML Detection",
+                        "type": "aml_classifier",
+                        "description": "Anti-Money Laundering transaction detection",
+                        "endpoint": "/models/predict/183",
+                    },
+                    {
+                        "id": 184,
+                        "name": "Complaint Typology Classifier",
+                        "type": "typology_classifier",
+                        "description": "Consumer complaint classification and typology detection",
+                        "endpoint": "/models/predict/184",
+                    },
+                ],
+                "batch_endpoint": "/models/batch-predict",
+                "status_endpoint": "/models/status",
+            }
+        ),
+        200,
+    )
 
 
 @app.errorhandler(404)

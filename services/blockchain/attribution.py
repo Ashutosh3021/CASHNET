@@ -117,12 +117,12 @@ class VersionedRegistry:
     """Versioned known-address/cluster registry."""
 
     def __init__(self):
-        self._addresses: dict[
-            str, dict[int, KnownAddress]
-        ] = {}  # address -> {version: entry}
-        self._clusters: dict[
-            str, dict[int, AddressCluster]
-        ] = {}  # cluster_id -> {version: entry}
+        self._addresses: dict[str, dict[int, KnownAddress]] = (
+            {}
+        )  # address -> {version: entry}
+        self._clusters: dict[str, dict[int, AddressCluster]] = (
+            {}
+        )  # cluster_id -> {version: entry}
         self._address_index: dict[str, str] = {}  # address -> latest cluster_id
         self._chain_index: dict[ChainType, set[str]] = {}  # chain -> set of addresses
         self._entity_index: dict[str, set[str]] = {}  # entity_name -> set of addresses
@@ -435,9 +435,9 @@ class AdjudicationEngine:
 
     def __init__(self):
         self._records: dict[str, AdjudicationRecord] = {}
-        self._candidate_index: dict[
-            str, list[str]
-        ] = {}  # candidate_id -> [adjudication_ids]
+        self._candidate_index: dict[str, list[str]] = (
+            {}
+        )  # candidate_id -> [adjudication_ids]
         self._address_index: dict[str, list[str]] = {}  # address -> [adjudication_ids]
 
         # Learning weights (adjusted based on feedback)

@@ -96,9 +96,11 @@ def binary_metrics(y_true, y_pred, y_proba=None) -> dict[str, float]:
             out["auc"] = float(
                 roc_auc_score(
                     y_true,
-                    np.asarray(y_proba)[:, 1]
-                    if np.asarray(y_proba).ndim == 2
-                    else y_proba,
+                    (
+                        np.asarray(y_proba)[:, 1]
+                        if np.asarray(y_proba).ndim == 2
+                        else y_proba
+                    ),
                 )
             )
         except (ValueError, IndexError):

@@ -74,11 +74,7 @@ def risk_category(score: int) -> str:
     return (
         "CRITICAL"
         if score >= 88
-        else "HIGH"
-        if score >= 72
-        else "MEDIUM"
-        if score >= 52
-        else "LOW"
+        else "HIGH" if score >= 72 else "MEDIUM" if score >= 52 else "LOW"
     )
 
 
@@ -98,9 +94,11 @@ def build():
         transactions.append(
             {
                 "id": f"HST-{index + 1:05}",
-                "case_id": "CASE-CASHNET-001"
-                if index % 7 == 0
-                else f"CASE-SYN-{index % 36 + 1:03}",
+                "case_id": (
+                    "CASE-CASHNET-001"
+                    if index % 7 == 0
+                    else f"CASE-SYN-{index % 36 + 1:03}"
+                ),
                 "transaction_id": f"TXN-HIST-{index + 1:05}",
                 "transaction_type": RNG.choice(
                     ["ATM_WITHDRAWAL", "TRANSFER", "CARD_PAYMENT", "UPI_TRANSFER"]

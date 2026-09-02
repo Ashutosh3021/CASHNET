@@ -97,9 +97,11 @@ def generate(count, days, seed):
             {
                 "account_id": account_id,
                 "account_number": a["account_number"],
-                "upi_id": f"mule-{account_id.lower()}@cashnet.invalid"
-                if a.get("role") == "MULE"
-                else f"account-{account_id.lower()}@cashnet.invalid",
+                "upi_id": (
+                    f"mule-{account_id.lower()}@cashnet.invalid"
+                    if a.get("role") == "MULE"
+                    else f"account-{account_id.lower()}@cashnet.invalid"
+                ),
                 "bank_name": a["bank_name"],
                 "ifsc_code": a["ifsc_code"],
                 "city": a["city"],

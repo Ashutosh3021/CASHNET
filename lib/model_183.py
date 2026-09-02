@@ -148,17 +148,17 @@ class Model183:
         payload = empty_contract(confidence=confidence, needs_review=needs_review)
         payload["risk_object"] = {
             "risk_score": risk_score,
-            "risk_label": "high"
-            if risk_score >= 0.7
-            else "medium"
-            if risk_score >= 0.4
-            else "low",
+            "risk_label": (
+                "high"
+                if risk_score >= 0.7
+                else "medium" if risk_score >= 0.4 else "low"
+            ),
             "entities": [
                 {
                     "type": "complaint",
-                    "id": record.get("complaint_id")
-                    if isinstance(record, dict)
-                    else None,
+                    "id": (
+                        record.get("complaint_id") if isinstance(record, dict) else None
+                    ),
                 }
             ],
         }

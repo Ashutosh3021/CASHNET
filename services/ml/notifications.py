@@ -600,9 +600,11 @@ def format_notification_for_slack(notification: RealtimeNotification) -> str:
             "text": notification.subject,
             "attachments": [
                 {
-                    "color": "warning"
-                    if notification.priority in ["HIGH", "CRITICAL", "URGENT"]
-                    else "good",
+                    "color": (
+                        "warning"
+                        if notification.priority in ["HIGH", "CRITICAL", "URGENT"]
+                        else "good"
+                    ),
                     "fields": [
                         {
                             "title": "Alert Type",
@@ -626,9 +628,11 @@ def format_notification_for_slack(notification: RealtimeNotification) -> str:
                         },
                     ],
                     "text": notification.body[:500],
-                    "ts": int(notification.created_at.timestamp())
-                    if notification.created_at
-                    else None,
+                    "ts": (
+                        int(notification.created_at.timestamp())
+                        if notification.created_at
+                        else None
+                    ),
                 }
             ],
         },

@@ -192,11 +192,11 @@ class Model184:
         payload = empty_contract(confidence=confidence, needs_review=needs_review)
         payload["risk_object"] = {
             "risk_score": risk_score,
-            "risk_label": "high"
-            if risk_score >= 0.7
-            else "medium"
-            if risk_score >= 0.4
-            else "low",
+            "risk_label": (
+                "high"
+                if risk_score >= 0.7
+                else "medium" if risk_score >= 0.4 else "low"
+            ),
             "entities": [
                 {
                     "type": "account",

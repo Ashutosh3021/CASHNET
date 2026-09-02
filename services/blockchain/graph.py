@@ -82,15 +82,21 @@ class GraphService:
                     """,
                     from_address=transaction.from_address,
                     to_address=transaction.to_address,
-                    chain=transaction.chain.value
-                    if isinstance(transaction.chain, ChainType)
-                    else transaction.chain,
-                    from_type=transaction.from_address_type.value
-                    if isinstance(transaction.from_address_type, AddressType)
-                    else transaction.from_address_type,
-                    to_type=transaction.to_address_type.value
-                    if isinstance(transaction.to_address_type, AddressType)
-                    else transaction.to_address_type,
+                    chain=(
+                        transaction.chain.value
+                        if isinstance(transaction.chain, ChainType)
+                        else transaction.chain
+                    ),
+                    from_type=(
+                        transaction.from_address_type.value
+                        if isinstance(transaction.from_address_type, AddressType)
+                        else transaction.from_address_type
+                    ),
+                    to_type=(
+                        transaction.to_address_type.value
+                        if isinstance(transaction.to_address_type, AddressType)
+                        else transaction.to_address_type
+                    ),
                 )
 
                 # Create transaction and relationships
@@ -115,17 +121,21 @@ class GraphService:
                     """,
                     from_address=transaction.from_address,
                     to_address=transaction.to_address,
-                    chain=transaction.chain.value
-                    if isinstance(transaction.chain, ChainType)
-                    else transaction.chain,
+                    chain=(
+                        transaction.chain.value
+                        if isinstance(transaction.chain, ChainType)
+                        else transaction.chain
+                    ),
                     tx_hash=transaction.tx_hash,
                     block_number=transaction.block_number,
                     block_timestamp=transaction.block_timestamp.isoformat(),
                     value=transaction.value,
                     currency=transaction.currency,
-                    tx_type=transaction.transaction_type.value
-                    if isinstance(transaction.transaction_type, TransactionType)
-                    else transaction.transaction_type,
+                    tx_type=(
+                        transaction.transaction_type.value
+                        if isinstance(transaction.transaction_type, TransactionType)
+                        else transaction.transaction_type
+                    ),
                     is_success=transaction.is_success,
                     is_suspicious=transaction.is_suspicious,
                     risk_score=transaction.risk_score or 0.0,
@@ -243,9 +253,9 @@ class GraphService:
                     for node in record["nodes"]:
                         path_data.append(
                             {
-                                "type": "address"
-                                if "address" in node
-                                else "transaction",
+                                "type": (
+                                    "address" if "address" in node else "transaction"
+                                ),
                                 "data": dict(node),
                             }
                         )

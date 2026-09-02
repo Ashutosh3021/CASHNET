@@ -209,9 +209,9 @@ class EnhancedBridgeDetector:
     def __init__(self):
         self._bridge_patterns: dict[str, BridgePattern] = {}
         self._swap_patterns: dict[str, SwapPattern] = {}
-        self._address_index: dict[
-            str, dict[str, list[str]]
-        ] = {}  # address -> {type: [pattern_ids]}
+        self._address_index: dict[str, dict[str, list[str]]] = (
+            {}
+        )  # address -> {type: [pattern_ids]}
 
         # Known protocol addresses
         self._bridge_contracts: dict[str, dict[str, Any]] = (

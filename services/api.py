@@ -745,9 +745,9 @@ async def list_models() -> dict[str, Any]:
                 "model_name": m.model_name,
                 "version": m.version,
                 "status": m.status.value,
-                "deployment_stage": m.deployment_stage.value
-                if m.deployment_stage
-                else None,
+                "deployment_stage": (
+                    m.deployment_stage.value if m.deployment_stage else None
+                ),
             }
             for m in models
         ],
