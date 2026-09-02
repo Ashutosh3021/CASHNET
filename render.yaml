@@ -1,0 +1,64 @@
+# Render.com Deployment Configuration
+# Deploy CashNet on Render with separate services for API, Models, and Frontend
+
+services:
+  # Backend API Server
+  - type: web
+    name: cashnet-api
+    runtime: node
+    buildCommand: cd artifacts/api-server && npm install && npm run build
+    startCommand: cd artifacts/api-server && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: PYTHON_SERVICE_URL
+        sync: false
+        value: ${CASHNET_MODEL_SERVER_URL}
+      - key: ENABLE_PII_MASKING
+        value: "true"
+      - key: LOG_LEVEL
+        value: info
+    autoDeploy: true
+    preDeployCommand: cd artifacts/api-server && npm run lint
+
+  # Model Server (Python)
+  - type: web
+    name: cashnet-models
+    runtime: python
+    buildCommand: pip install -r requirements.txt && pip install flask flask-cors
+    startCommand: python scripts/model_server.py
+    pythonVersion: 3.11
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    autoDeploy: true
+    preDeployCommand: python scripts/train_and_package_models.py
+
+  # Frontend (React)
+  - type: static
+    name: cashnet-frontend
+    buildCommand: cd artifacts/cashnet && npm install && npm run build
+    staticPublishPath: artifacts/cashnet/dist
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false
+        value: ${CASHNET_API_URL}
+      - key: REACT_APP_MODELS_URL
+        sync: false
+        value: ${CASHNET_MODEL_SERVER_URL}
+    autoDeploy: true
+    routes:
+      - path: /
+        destination: /index.html
+      - path: /api/*
+        destination: ${CASHNET_API_URL}
+
+# Environment variables (set these in Render dashboard)
+# CASHNET_API_URL: https://cashnet-api.onrender.com
+# CASHNET_MODEL_SERVER_URL: https://cashnet-models.onrender.com

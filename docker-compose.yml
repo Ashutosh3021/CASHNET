@@ -1,0 +1,102 @@
+# Docker Compose for CashNet development and testing
+# Includes: API server, Model server, Frontend, Database (optional)
+
+version: '3.8'
+
+services:
+  # API Backend
+  api:
+    build:
+      context: ./artifacts/api-server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      PYTHON_SERVICE_URL: http://models:5000
+      ENABLE_PII_MASKING: "true"
+      LOG_MASKED_FIELDS: "false"
+    depends_on:
+      - models
+    networks:
+      - cashnet
+    restart: unless-stopped
+    volumes:
+      - ./artifacts/api-server/src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # ML Model Server
+  models:
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile.model-server
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: "1"
+      PORT: 5000
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./models:/app/models
+      - ./lib:/app/lib:ro
+      - ./scripts/model_server.py:/app/model_server.py:ro
+    networks:
+      - cashnet
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./artifacts/cashnet
+      dockerfile: Dockerfile
+    ports:
+      - "80:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3000/api
+      REACT_APP_MODELS_URL: http://localhost:5000
+    depends_on:
+      - api
+    networks:
+      - cashnet
+    restart: unless-stopped
+
+  # PostgreSQL Database (optional)
+  database:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: cashnet
+      POSTGRES_USER: cashnet_user
+      POSTGRES_PASSWORD: cashnet_password_dev
+    volumes:
+      - cashnet_db:/var/lib/postgresql/data
+    networks:
+      - cashnet
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cashnet_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  cashnet:
+    driver: bridge
+
+volumes:
+  cashnet_db:
+    driver: local

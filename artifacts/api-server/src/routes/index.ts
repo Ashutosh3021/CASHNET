@@ -6,6 +6,7 @@ import legalHoldRouter from "./legal-hold";
 import casesExtendedRouter from "./cases-extended";
 import evidencePackagesRouter from "./evidence-packages";
 import actionRequestsRouter from "./action-requests";
+import modelsRouter from "./models";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(legalHoldRouter);
 router.use(casesExtendedRouter);
 router.use(evidencePackagesRouter);
 router.use(actionRequestsRouter);
+router.use("/models", modelsRouter);
 
 export default router;
