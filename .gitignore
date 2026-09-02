@@ -55,3 +55,4 @@ generic
 docs
 data
 *.pyc
+.kiro
