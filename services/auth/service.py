@@ -2,6 +2,7 @@
 
 Provides JWT token management, MFA, password hashing, and session handling.
 """
+
 from __future__ import annotations
 
 import secrets
@@ -87,7 +88,9 @@ class AuthService:
 
     def create_refresh_token(self, user: User) -> str:
         """Create a refresh token for a user."""
-        expire = datetime.now(timezone.utc) + timedelta(days=self.refresh_token_expire_days)
+        expire = datetime.now(timezone.utc) + timedelta(
+            days=self.refresh_token_expire_days
+        )
 
         payload = {
             "sub": str(user.id),
@@ -136,9 +139,9 @@ class AuthService:
                 jti=jti or str(uuid.uuid4()),
             )
         except jwt.ExpiredSignatureError:
-            raise ValueError("Token has expired")
+            raise ValueError("Token has expired") from None
         except jwt.InvalidTokenError:
-            raise ValueError("Invalid token")
+            raise ValueError("Invalid token") from None
 
     def revoke_token(self, token_jti: str) -> None:
         """Revoke a token by its JTI."""
@@ -244,7 +247,8 @@ class AuthService:
             "ip_address": ip_address,
             "user_agent": user_agent,
             "created_at": datetime.now(timezone.utc),
-            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=self.access_token_expire_minutes),
+            "expires_at": datetime.now(timezone.utc)
+            + timedelta(minutes=self.access_token_expire_minutes),
         }
 
         return token
@@ -340,10 +344,15 @@ def get_auth_service() -> AuthService:
     global _auth_service
     if _auth_service is None:
         import os
+
         _auth_service = AuthService(
             secret_key=os.getenv("AUTH_SECRET_KEY", "default-secret-key"),
             algorithm=os.getenv("AUTH_ALGORITHM", "HS256"),
-            access_token_expire_minutes=int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES", "30")),
-            refresh_token_expire_days=int(os.getenv("AUTH_REFRESH_TOKEN_EXPIRE_DAYS", "7")),
+            access_token_expire_minutes=int(
+                os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+            ),
+            refresh_token_expire_days=int(
+                os.getenv("AUTH_REFRESH_TOKEN_EXPIRE_DAYS", "7")
+            ),
         )
     return _auth_service

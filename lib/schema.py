@@ -4,6 +4,7 @@ Every model's prediction is normalised to this shape before being written to
 its <model_id>/OUT folder, and the consolidated `pipeline.ipynb` merges the
 three payloads into a single dashboard/alert feed.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -22,7 +23,9 @@ CONTRACT_KEYS = (
 OPTIONAL_KEYS = ("metadata",)
 
 
-def empty_contract(confidence: float = 0.0, needs_review: bool = True) -> dict[str, Any]:
+def empty_contract(
+    confidence: float = 0.0, needs_review: bool = True
+) -> dict[str, Any]:
     return {
         "risk_object": {
             "risk_score": 0.0,
@@ -57,9 +60,10 @@ def validate(payload: dict[str, Any]) -> None:
 def is_valid(payload: dict[str, Any]) -> bool:
     try:
         validate(payload)
-        return True
     except (TypeError, ValueError):
         return False
+    else:
+        return True
 
 
 def example_payload() -> dict[str, Any]:

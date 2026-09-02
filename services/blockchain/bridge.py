@@ -2,11 +2,12 @@
 
 Detects and tracks bridge events for cross-chain transfers.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel
 
@@ -15,6 +16,7 @@ from .base import ChainType, NormalizedTransaction
 
 class BridgeType(str, Enum):
     """Supported bridge types."""
+
     WORMHOLE = "wormhole"
     CELER = "celer"
     MULTICHAIN = "multichain"
@@ -29,6 +31,7 @@ class BridgeType(str, Enum):
 
 class BridgeEvent(BaseModel):
     """Bridge event data."""
+
     event_id: str
     bridge_type: BridgeType
 
@@ -66,7 +69,7 @@ class BridgeDetector:
     """Detects bridge events across chains."""
 
     # Known bridge contract addresses
-    BRIDGE_CONTRACTS: dict[str, dict[str, Any]] = {
+    BRIDGE_CONTRACTS: ClassVar[dict[str, dict[str, Any]]] = {
         # Wormhole
         "0x3ee18b2214aff97000d974cf647e7c347e8fa585": {
             "name": "wormhole",
@@ -78,42 +81,36 @@ class BridgeDetector:
             "type": BridgeType.WORMHOLE,
             "chain": ChainType.BNB,
         },
-
         # Celer
-        "0x3ee18b2214aff97000d974cf647e7c347e8fa585": {
+        "0x5427fefa711eff984124bfbb1ab6fbf5e3da1820": {
             "name": "celer",
             "type": BridgeType.CELER,
             "chain": ChainType.ETHEREUM,
         },
-
         # Multichain
         "0x1515d9422931164d185d3d1785e19c6c4e4d9f3e": {
             "name": "multichain",
             "type": BridgeType.MULTICHAIN,
             "chain": ChainType.ETHEREUM,
         },
-
         # Stargate (LayerZero)
         "0x8731d54e9d02c286767d56ac03e8037c07e01e98": {
             "name": "stargate",
             "type": BridgeType.STARGATE,
             "chain": ChainType.ETHEREUM,
         },
-
         # Polygon PoS Bridge
         "0xa0c68c638235ee32657e8f720a23cec1bfc9c3ca": {
             "name": "polygon_pos",
             "type": BridgeType.POLYGON_POS,
             "chain": ChainType.ETHEREUM,
         },
-
         # Arbitrum Bridge
         "0x8315177ab297ba92a06054ce80a67ed4dbd7ed3a": {
             "name": "arbitrum",
             "type": BridgeType.ARBITRUM,
             "chain": ChainType.ETHEREUM,
         },
-
         # Optimism Bridge
         "0x99c9fc46f92e8a1c0dec1b2773d00db724076d3d": {
             "name": "optimism",
@@ -123,7 +120,7 @@ class BridgeDetector:
     }
 
     # Bridge event signatures
-    BRIDGE_EVENT_SIGNATURES = {
+    BRIDGE_EVENT_SIGNATURES: ClassVar[dict[str, str]] = {
         "0x5b071b590a59395fe40950651348571e68d08ab67b877f378b9562a0a97c8a2c": "Transfer",
         "0x67196e18f37379c9471ee27bab480d2e6fc2f39e0a11e6d7e9c912d0a3b2a1c2": "Deposit",
     }
@@ -271,22 +268,23 @@ class BridgeDetector:
     ) -> list[BridgeEvent]:
         """Get all events for a specific bridge type."""
         return [
-            event for event in self._detected_events.values()
+            event
+            for event in self._detected_events.values()
             if event.bridge_type == bridge_type
         ]
 
     def get_pending_events(self) -> list[BridgeEvent]:
         """Get all pending bridge events."""
         return [
-            event for event in self._detected_events.values()
+            event
+            for event in self._detected_events.values()
             if event.status == "pending"
         ]
 
     def get_suspicious_events(self) -> list[BridgeEvent]:
         """Get all suspicious bridge events."""
         return [
-            event for event in self._detected_events.values()
-            if event.is_suspicious
+            event for event in self._detected_events.values() if event.is_suspicious
         ]
 
     def get_statistics(self) -> dict[str, Any]:

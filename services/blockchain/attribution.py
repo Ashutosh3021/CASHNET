@@ -3,6 +3,7 @@
 Provides versioned known-address/cluster registry, ranked VASP candidates
 with confidence scoring, and adjudication feedback loop.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -16,6 +17,7 @@ from .base import ChainType
 
 class EntityRiskCategory(str, Enum):
     """Entity risk categories."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -25,6 +27,7 @@ class EntityRiskCategory(str, Enum):
 
 class AttributionStatus(str, Enum):
     """Attribution status."""
+
     PENDING = "pending"
     CONFIRMED = "confirmed"
     DISPUTED = "disputed"
@@ -33,7 +36,10 @@ class AttributionStatus(str, Enum):
 
 class ConfidenceFactor(BaseModel):
     """Individual confidence factor."""
-    factor_type: str  # "address_match", "cluster_proximity", "behavioral", "label_match"
+
+    factor_type: (
+        str  # "address_match", "cluster_proximity", "behavioral", "label_match"
+    )
     weight: float
     value: float  # 0.0 to 1.0
     description: str
@@ -41,6 +47,7 @@ class ConfidenceFactor(BaseModel):
 
 class KnownAddress(BaseModel):
     """Known address entry in the registry."""
+
     address: str
     chain: ChainType
     entity_name: str
@@ -59,6 +66,7 @@ class KnownAddress(BaseModel):
 
 class AddressCluster(BaseModel):
     """Cluster of related addresses."""
+
     cluster_id: str
     name: str
     addresses: list[str]
@@ -75,6 +83,7 @@ class AddressCluster(BaseModel):
 
 class VASPCandidate(BaseModel):
     """VASP attribution candidate."""
+
     candidate_id: str
     address: str
     chain: ChainType
@@ -91,6 +100,7 @@ class VASPCandidate(BaseModel):
 
 class AdjudicationRecord(BaseModel):
     """Adjudication feedback record."""
+
     adjudication_id: str
     candidate_id: str
     address: str
@@ -107,8 +117,12 @@ class VersionedRegistry:
     """Versioned known-address/cluster registry."""
 
     def __init__(self):
-        self._addresses: dict[str, dict[int, KnownAddress]] = {}  # address -> {version: entry}
-        self._clusters: dict[str, dict[int, AddressCluster]] = {}  # cluster_id -> {version: entry}
+        self._addresses: dict[
+            str, dict[int, KnownAddress]
+        ] = {}  # address -> {version: entry}
+        self._clusters: dict[
+            str, dict[int, AddressCluster]
+        ] = {}  # cluster_id -> {version: entry}
         self._address_index: dict[str, str] = {}  # address -> latest cluster_id
         self._chain_index: dict[ChainType, set[str]] = {}  # chain -> set of addresses
         self._entity_index: dict[str, set[str]] = {}  # entity_name -> set of addresses
@@ -198,7 +212,9 @@ class VersionedRegistry:
 
         return cluster
 
-    def get_cluster(self, cluster_id: str, version: int | None = None) -> AddressCluster | None:
+    def get_cluster(
+        self, cluster_id: str, version: int | None = None
+    ) -> AddressCluster | None:
         """Get a cluster."""
         versions = self._clusters.get(cluster_id)
 
@@ -238,7 +254,7 @@ class VersionedRegistry:
         """Get all active known addresses."""
         results = []
 
-        for key, versions in self._addresses.items():
+        for _key, versions in self._addresses.items():
             latest = max(versions.keys())
             entry = versions[latest]
 
@@ -256,7 +272,8 @@ class VersionedRegistry:
         """Get registry statistics."""
         total_addresses = len(self._addresses)
         active_addresses = sum(
-            1 for versions in self._addresses.values()
+            1
+            for versions in self._addresses.values()
             if versions[max(versions.keys())].is_active
         )
         total_clusters = len(self._clusters)
@@ -272,7 +289,9 @@ class VersionedRegistry:
             latest = max(versions.keys())
             entry = versions[latest]
             if entry.is_active:
-                by_entity_type[entry.entity_type] = by_entity_type.get(entry.entity_type, 0) + 1
+                by_entity_type[entry.entity_type] = (
+                    by_entity_type.get(entry.entity_type, 0) + 1
+                )
 
         return {
             "total_addresses": total_addresses,
@@ -289,11 +308,11 @@ class ConfidenceScorer:
     def __init__(self):
         # Default factor weights
         self._factor_weights: dict[str, float] = {
-            "address_match": 0.35,      # Direct address match in registry
+            "address_match": 0.35,  # Direct address match in registry
             "cluster_proximity": 0.25,  # Close to known entity in graph
-            "behavioral": 0.20,         # Transaction pattern matches entity
-            "label_match": 0.15,        # On-chain label matches
-            "temporal": 0.05,           # Timing patterns
+            "behavioral": 0.20,  # Transaction pattern matches entity
+            "label_match": 0.15,  # On-chain label matches
+            "temporal": 0.05,  # Timing patterns
         }
 
         # Confidence thresholds
@@ -319,51 +338,63 @@ class ConfidenceScorer:
         address_match_score = 0.0
         if known:
             address_match_score = known.confidence
-            factors.append(ConfidenceFactor(
-                factor_type="address_match",
-                weight=self._factor_weights["address_match"],
-                value=address_match_score,
-                description=f"Direct match in registry: {known.entity_name}",
-            ))
+            factors.append(
+                ConfidenceFactor(
+                    factor_type="address_match",
+                    weight=self._factor_weights["address_match"],
+                    value=address_match_score,
+                    description=f"Direct match in registry: {known.entity_name}",
+                )
+            )
         else:
-            factors.append(ConfidenceFactor(
-                factor_type="address_match",
-                weight=self._factor_weights["address_match"],
-                value=0.0,
-                description="No direct match in registry",
-            ))
+            factors.append(
+                ConfidenceFactor(
+                    factor_type="address_match",
+                    weight=self._factor_weights["address_match"],
+                    value=0.0,
+                    description="No direct match in registry",
+                )
+            )
 
         # Factor 2: Cluster proximity
-        factors.append(ConfidenceFactor(
-            factor_type="cluster_proximity",
-            weight=self._factor_weights["cluster_proximity"],
-            value=cluster_proximity,
-            description=f"Graph proximity score: {cluster_proximity:.2f}",
-        ))
+        factors.append(
+            ConfidenceFactor(
+                factor_type="cluster_proximity",
+                weight=self._factor_weights["cluster_proximity"],
+                value=cluster_proximity,
+                description=f"Graph proximity score: {cluster_proximity:.2f}",
+            )
+        )
 
         # Factor 3: Behavioral similarity
-        factors.append(ConfidenceFactor(
-            factor_type="behavioral",
-            weight=self._factor_weights["behavioral"],
-            value=behavioral_score,
-            description=f"Behavioral pattern score: {behavioral_score:.2f}",
-        ))
+        factors.append(
+            ConfidenceFactor(
+                factor_type="behavioral",
+                weight=self._factor_weights["behavioral"],
+                value=behavioral_score,
+                description=f"Behavioral pattern score: {behavioral_score:.2f}",
+            )
+        )
 
         # Factor 4: Label match
-        factors.append(ConfidenceFactor(
-            factor_type="label_match",
-            weight=self._factor_weights["label_match"],
-            value=label_score,
-            description=f"On-chain label score: {label_score:.2f}",
-        ))
+        factors.append(
+            ConfidenceFactor(
+                factor_type="label_match",
+                weight=self._factor_weights["label_match"],
+                value=label_score,
+                description=f"On-chain label score: {label_score:.2f}",
+            )
+        )
 
         # Factor 5: Temporal patterns
-        factors.append(ConfidenceFactor(
-            factor_type="temporal",
-            weight=self._factor_weights["temporal"],
-            value=temporal_score,
-            description=f"Temporal pattern score: {temporal_score:.2f}",
-        ))
+        factors.append(
+            ConfidenceFactor(
+                factor_type="temporal",
+                weight=self._factor_weights["temporal"],
+                value=temporal_score,
+                description=f"Temporal pattern score: {temporal_score:.2f}",
+            )
+        )
 
         # Calculate weighted confidence
         confidence = sum(f.weight * f.value for f in factors)
@@ -404,7 +435,9 @@ class AdjudicationEngine:
 
     def __init__(self):
         self._records: dict[str, AdjudicationRecord] = {}
-        self._candidate_index: dict[str, list[str]] = {}  # candidate_id -> [adjudication_ids]
+        self._candidate_index: dict[
+            str, list[str]
+        ] = {}  # candidate_id -> [adjudication_ids]
         self._address_index: dict[str, list[str]] = {}  # address -> [adjudication_ids]
 
         # Learning weights (adjusted based on feedback)
@@ -480,12 +513,16 @@ class AdjudicationEngine:
         """Get an adjudication record."""
         return self._records.get(adjudication_id)
 
-    def get_adjudications_for_candidate(self, candidate_id: str) -> list[AdjudicationRecord]:
+    def get_adjudications_for_candidate(
+        self, candidate_id: str
+    ) -> list[AdjudicationRecord]:
         """Get all adjudications for a candidate."""
         ids = self._candidate_index.get(candidate_id, [])
         return [self._records[cid] for cid in ids if cid in self._records]
 
-    def get_adjudications_for_address(self, address: str, chain: ChainType) -> list[AdjudicationRecord]:
+    def get_adjudications_for_address(
+        self, address: str, chain: ChainType
+    ) -> list[AdjudicationRecord]:
         """Get all adjudications for an address."""
         addr_key = f"{chain.value}:{address.lower()}"
         ids = self._address_index.get(addr_key, [])
@@ -549,8 +586,13 @@ class VASPAttributionService:
 
         # Calculate confidence
         confidence, factors = self.scorer.calculate_confidence(
-            address, chain, self.registry,
-            cluster_proximity, behavioral_score, label_score, temporal_score,
+            address,
+            chain,
+            self.registry,
+            cluster_proximity,
+            behavioral_score,
+            label_score,
+            temporal_score,
         )
 
         # Determine entity from registry
@@ -590,9 +632,7 @@ class VASPAttributionService:
         candidate_ids = self._address_candidates.get(addr_key, [])
 
         candidates = [
-            self._candidates[cid]
-            for cid in candidate_ids
-            if cid in self._candidates
+            self._candidates[cid] for cid in candidate_ids if cid in self._candidates
         ]
 
         # Rank and return top N
@@ -613,7 +653,11 @@ class VASPAttributionService:
             raise ValueError(f"Candidate not found: {candidate_id}")
 
         return self.adjudication.record_adjudication(
-            candidate, decision, decided_by, reason, confidence_override,
+            candidate,
+            decision,
+            decided_by,
+            reason,
+            confidence_override,
         )
 
     def get_statistics(self) -> dict[str, Any]:

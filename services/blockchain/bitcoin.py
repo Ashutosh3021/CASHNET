@@ -2,6 +2,7 @@
 
 Provides integration with Bitcoin blockchain via Blockstream API.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -149,7 +150,11 @@ class BitcoinAdapter(ChainAdapter):
             fee = total_input - total_output
 
             # Get sender and receiver addresses
-            from_address = inputs[0].get("prevout", {}).get("scriptpubkey_address", "") if inputs else ""
+            from_address = (
+                inputs[0].get("prevout", {}).get("scriptpubkey_address", "")
+                if inputs
+                else ""
+            )
             to_address = outputs[0].get("scriptpubkey_address", "") if outputs else ""
 
             # Convert satoshis to BTC
@@ -223,7 +228,9 @@ class BitcoinAdapter(ChainAdapter):
 
                 if block_height:
                     try:
-                        block_response = await self._client.get(f"/blocks/{block_height}")
+                        block_response = await self._client.get(
+                            f"/blocks/{block_height}"
+                        )
                         if block_response.status_code == 200:
                             block_data = block_response.json()
                             block_timestamp = datetime.fromtimestamp(
@@ -248,24 +255,42 @@ class BitcoinAdapter(ChainAdapter):
                     for inp in inputs
                 )
 
-                from_addr = address if is_sending else (inputs[0].get("prevout", {}).get("scriptpubkey_address", "") if inputs else "")
-                to_addr = address if not is_sending else (outputs[0].get("scriptpubkey_address", "") if outputs else "")
+                from_addr = (
+                    address
+                    if is_sending
+                    else (
+                        inputs[0].get("prevout", {}).get("scriptpubkey_address", "")
+                        if inputs
+                        else ""
+                    )
+                )
+                to_addr = (
+                    address
+                    if not is_sending
+                    else (outputs[0].get("scriptpubkey_address", "") if outputs else "")
+                )
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.BITCOIN,
-                    block_number=block_height or 0,
-                    block_timestamp=block_timestamp,
-                    from_address=from_addr,
-                    from_address_type=await self._classify_address(from_addr),
-                    to_address=to_addr,
-                    to_address_type=await self._classify_address(to_addr),
-                    value=value_btc,
-                    currency="BTC",
-                    fee=sum(inp.get("prevout", {}).get("value", 0) for inp in inputs) / 100_000_000 - sum(out.get("value", 0) for out in outputs) / 100_000_000,
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=True,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.BITCOIN,
+                        block_number=block_height or 0,
+                        block_timestamp=block_timestamp,
+                        from_address=from_addr,
+                        from_address_type=await self._classify_address(from_addr),
+                        to_address=to_addr,
+                        to_address_type=await self._classify_address(to_addr),
+                        value=value_btc,
+                        currency="BTC",
+                        fee=sum(
+                            inp.get("prevout", {}).get("value", 0) for inp in inputs
+                        )
+                        / 100_000_000
+                        - sum(out.get("value", 0) for out in outputs) / 100_000_000,
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=True,
+                    )
+                )
 
             return transactions
 
@@ -307,25 +332,33 @@ class BitcoinAdapter(ChainAdapter):
                 inputs = tx_data.get("vin", [])
                 outputs = tx_data.get("vout", [])
 
-                from_address = inputs[0].get("prevout", {}).get("scriptpubkey_address", "") if inputs else ""
-                to_address = outputs[0].get("scriptpubkey_address", "") if outputs else ""
+                from_address = (
+                    inputs[0].get("prevout", {}).get("scriptpubkey_address", "")
+                    if inputs
+                    else ""
+                )
+                to_address = (
+                    outputs[0].get("scriptpubkey_address", "") if outputs else ""
+                )
 
                 value_btc = sum(out.get("value", 0) for out in outputs) / 100_000_000
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.BITCOIN,
-                    block_number=block_number,
-                    block_timestamp=block_timestamp,
-                    from_address=from_address,
-                    from_address_type=await self._classify_address(from_address),
-                    to_address=to_address,
-                    to_address_type=await self._classify_address(to_address),
-                    value=value_btc,
-                    currency="BTC",
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=True,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.BITCOIN,
+                        block_number=block_number,
+                        block_timestamp=block_timestamp,
+                        from_address=from_address,
+                        from_address_type=await self._classify_address(from_address),
+                        to_address=to_address,
+                        to_address_type=await self._classify_address(to_address),
+                        value=value_btc,
+                        currency="BTC",
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=True,
+                    )
+                )
 
             return transactions
 
@@ -368,8 +401,12 @@ class BitcoinAdapter(ChainAdapter):
                 "is_contract": False,  # Bitcoin doesn't have smart contracts
                 "chain": ChainType.BITCOIN.value,
                 "tx_count": addr_data.get("chain_stats", {}).get("tx_count", 0),
-                "funded_txo_count": addr_data.get("chain_stats", {}).get("funded_txo_count", 0),
-                "spent_txo_count": addr_data.get("chain_stats", {}).get("spent_txo_count", 0),
+                "funded_txo_count": addr_data.get("chain_stats", {}).get(
+                    "funded_txo_count", 0
+                ),
+                "spent_txo_count": addr_data.get("chain_stats", {}).get(
+                    "spent_txo_count", 0
+                ),
             }
 
         except Exception as e:

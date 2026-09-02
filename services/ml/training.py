@@ -3,6 +3,7 @@
 Provides data preparation, model training, hyperparameter tuning,
 evaluation, and experiment tracking capabilities.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class TrainingStatus(str, Enum):
     """Training run status."""
+
     PENDING = "pending"
     PREPARING_DATA = "preparing_data"
     TRAINING = "training"
@@ -25,6 +27,7 @@ class TrainingStatus(str, Enum):
 
 class DatasetSplit(str, Enum):
     """Dataset split types."""
+
     TRAIN = "train"
     VALIDATION = "validation"
     TEST = "test"
@@ -32,6 +35,7 @@ class DatasetSplit(str, Enum):
 
 class DataType(str, Enum):
     """Data source types."""
+
     TRANSACTIONS = "transactions"
     ADDRESSES = "addresses"
     LABELS = "labels"
@@ -43,6 +47,7 @@ class DataType(str, Enum):
 
 class TrainingConfig(BaseModel):
     """Training configuration."""
+
     # Model parameters
     model_type: str  # "random_forest", "gradient_boosting", "neural_network", etc.
     model_params: dict[str, Any] = {}
@@ -65,7 +70,9 @@ class TrainingConfig(BaseModel):
     # Preprocessing
     normalize: bool = True
     handle_imbalance: bool = True
-    imbalance_method: str = "smote"  # "smote", "undersample", "oversample", "class_weights"
+    imbalance_method: str = (
+        "smote"  # "smote", "undersample", "oversample", "class_weights"
+    )
 
     # Validation
     cross_validation_folds: int = 5
@@ -86,6 +93,7 @@ class TrainingConfig(BaseModel):
 
 class DatasetInfo(BaseModel):
     """Dataset information."""
+
     dataset_id: str
     data_type: DataType
     name: str
@@ -114,6 +122,7 @@ class DatasetInfo(BaseModel):
 
 class TrainingMetrics(BaseModel):
     """Training metrics."""
+
     # Loss
     train_loss: list[float] = []
     val_loss: list[float] = []
@@ -137,6 +146,7 @@ class TrainingMetrics(BaseModel):
 
 class EvaluationResults(BaseModel):
     """Model evaluation results."""
+
     # Test set metrics
     test_metrics: dict[str, float] = {}
 
@@ -161,6 +171,7 @@ class EvaluationResults(BaseModel):
 
 class TrainingRun(BaseModel):
     """A training run."""
+
     run_id: str
     model_name: str
 
@@ -260,7 +271,9 @@ class TrainingPipeline:
             name=f"{data_type.value}_dataset",
             total_records=10000,  # Placeholder
             feature_count=len(feature_columns),
-            data_hash=hashlib.sha256(f"{data_source}:{data_type}".encode()).hexdigest()[:16],
+            data_hash=hashlib.sha256(f"{data_source}:{data_type}".encode()).hexdigest()[
+                :16
+            ],
         )
 
         # Simulate splits
@@ -312,7 +325,9 @@ class TrainingPipeline:
             train_score = min(0.95, 0.5 + epoch * 0.01 + 0.05 * (epoch / num_epochs))
             val_score = min(0.92, 0.48 + epoch * 0.009 + 0.04 * (epoch / num_epochs))
 
-            metrics.train_metrics.append({"accuracy": train_score, "f1": train_score * 0.95})
+            metrics.train_metrics.append(
+                {"accuracy": train_score, "f1": train_score * 0.95}
+            )
             metrics.val_metrics.append({"accuracy": val_score, "f1": val_score * 0.93})
 
             if val_score > best_val_score:
@@ -351,7 +366,7 @@ class TrainingPipeline:
             },
             confusion_matrix=[
                 [9450, 50],  # True negatives, false positives
-                [75, 425],   # False negatives, true positives
+                [75, 425],  # False negatives, true positives
             ],
             class_labels=["legitimate", "fraudulent"],
             per_class_metrics={
@@ -419,7 +434,11 @@ class TrainingPipeline:
         if not run:
             raise ValueError(f"Run not found: {run_id}")
 
-        if run.status in [TrainingStatus.COMPLETED, TrainingStatus.FAILED, TrainingStatus.CANCELLED]:
+        if run.status in [
+            TrainingStatus.COMPLETED,
+            TrainingStatus.FAILED,
+            TrainingStatus.CANCELLED,
+        ]:
             raise ValueError(f"Cannot cancel run in status: {run.status}")
 
         run.status = TrainingStatus.CANCELLED

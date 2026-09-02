@@ -3,6 +3,7 @@
 Provides automated model testing, validation metrics, drift detection,
 and model comparison capabilities.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class ValidationStatus(str, Enum):
     """Validation status."""
+
     PENDING = "pending"
     RUNNING = "running"
     PASSED = "passed"
@@ -24,6 +26,7 @@ class ValidationStatus(str, Enum):
 
 class MetricType(str, Enum):
     """Metric types."""
+
     ACCURACY = "accuracy"
     PRECISION = "precision"
     RECALL = "recall"
@@ -47,6 +50,7 @@ class MetricType(str, Enum):
 
 class ValidationMetric(BaseModel):
     """A single validation metric."""
+
     metric_name: str
     metric_type: MetricType
     value: float
@@ -68,10 +72,13 @@ class ValidationMetric(BaseModel):
 
 class ValidationCheck(BaseModel):
     """A validation check configuration."""
+
     check_id: str
     name: str
     description: str
-    check_type: str  # "metric_threshold", "drift_detection", "bias_check", "fairness", "custom"
+    check_type: (
+        str  # "metric_threshold", "drift_detection", "bias_check", "fairness", "custom"
+    )
 
     # Configuration
     config: dict[str, Any] = {}
@@ -85,6 +92,7 @@ class ValidationCheck(BaseModel):
 
 class ValidationReport(BaseModel):
     """Model validation report."""
+
     report_id: str
     model_id: str
     model_version: str
@@ -107,7 +115,9 @@ class ValidationReport(BaseModel):
 
     # Comparison with baseline
     baseline_model_id: str | None = None
-    comparison_metrics: dict[str, dict[str, float]] = {}  # metric -> {current, baseline, change}
+    comparison_metrics: dict[
+        str, dict[str, float]
+    ] = {}  # metric -> {current, baseline, change}
 
     # Drift detection
     drift_detected: bool = False
@@ -294,8 +304,12 @@ class ModelValidationPipeline:
                 metric_name=metric_name,
                 metric_type=self._infer_metric_type(metric_name),
                 value=actual_value,
-                threshold_min=check.warning_threshold if operator in ["gte", "gt"] else None,
-                threshold_max=check.failure_threshold if operator in ["lt", "lte"] else None,
+                threshold_min=check.warning_threshold
+                if operator in ["gte", "gt"]
+                else None,
+                threshold_max=check.failure_threshold
+                if operator in ["lt", "lte"]
+                else None,
                 is_required=True,
                 passed=metric_passed,
                 deviation=deviation,
@@ -327,7 +341,11 @@ class ModelValidationPipeline:
             )
 
         # Complete
-        report.status = ValidationStatus.PASSED if report.checks_failed == 0 else ValidationStatus.FAILED
+        report.status = (
+            ValidationStatus.PASSED
+            if report.checks_failed == 0
+            else ValidationStatus.FAILED
+        )
         report.completed_at = datetime.now(timezone.utc)
 
         # Store report
@@ -438,21 +456,21 @@ class ModelValidationPipeline:
             "total_checks": sum(r.total_checks for r in reports),
         }
 
-    def _evaluate_threshold(self, value: float, operator: str, threshold: float) -> bool:
+    def _evaluate_threshold(
+        self, value: float, operator: str, threshold: float
+    ) -> bool:
         """Evaluate a threshold condition."""
-        if operator == "gt":
-            return value > threshold
-        elif operator == "gte":
-            return value >= threshold
-        elif operator == "lt":
-            return value < threshold
-        elif operator == "lte":
-            return value <= threshold
-        elif operator == "eq":
-            return value == threshold
-        elif operator == "neq":
-            return value != threshold
-        return False
+        ops = {
+            "gt": lambda v, t: v > t,
+            "gte": lambda v, t: v >= t,
+            "lt": lambda v, t: v < t,
+            "lte": lambda v, t: v <= t,
+            "eq": lambda v, t: v == t,
+            "neq": lambda v, t: v != t,
+        }
+        if operator not in ops:
+            return False
+        return ops[operator](value, threshold)
 
     def _infer_metric_type(self, metric_name: str) -> MetricType:
         """Infer metric type from name."""

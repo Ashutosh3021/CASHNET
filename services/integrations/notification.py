@@ -3,6 +3,7 @@
 Provides notification capabilities for banks and financial institutions
 regarding fraud cases, freeze requests, and investigation updates.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class NotificationType(str, Enum):
     """Notification types."""
+
     FRAUD_ALERT = "fraud_alert"
     FREEZE_REQUEST = "freeze_request"
     INVESTIGATION_UPDATE = "investigation_update"
@@ -25,6 +27,7 @@ class NotificationType(str, Enum):
 
 class NotificationPriority(str, Enum):
     """Notification priority levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -34,6 +37,7 @@ class NotificationPriority(str, Enum):
 
 class NotificationChannel(str, Enum):
     """Notification delivery channels."""
+
     EMAIL = "email"
     SMS = "sms"
     API = "api"
@@ -43,6 +47,7 @@ class NotificationChannel(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification delivery status."""
+
     PENDING = "pending"
     QUEUED = "queued"
     SENT = "sent"
@@ -53,6 +58,7 @@ class NotificationStatus(str, Enum):
 
 class NotificationRecord(BaseModel):
     """Notification record."""
+
     notification_id: str
     notification_type: NotificationType
     priority: NotificationPriority
@@ -94,6 +100,7 @@ class NotificationRecord(BaseModel):
 
 class FinancialInstitution(BaseModel):
     """Financial institution details."""
+
     institution_id: str
     name: str
     institution_type: str  # "bank", "nbfi", "exchange", "vasp"
@@ -114,13 +121,17 @@ class NotificationService:
         self._notifications: dict[str, NotificationRecord] = {}
         self._institutions: dict[str, FinancialInstitution] = {}
         self._case_index: dict[str, list[str]] = {}  # case_id -> [notification_ids]
-        self._institution_index: dict[str, list[str]] = {}  # institution_id -> [notification_ids]
+        self._institution_index: dict[
+            str, list[str]
+        ] = {}  # institution_id -> [notification_ids]
 
         # Email provider config (would be set in production)
         self._email_config: dict[str, Any] = {}
         self._sms_config: dict[str, Any] = {}
 
-    def register_institution(self, institution: FinancialInstitution) -> FinancialInstitution:
+    def register_institution(
+        self, institution: FinancialInstitution
+    ) -> FinancialInstitution:
         """Register a financial institution."""
         self._institutions[institution.institution_id] = institution
         return institution
@@ -295,24 +306,36 @@ class NotificationService:
     def get_notifications_for_case(self, case_id: str) -> list[NotificationRecord]:
         """Get all notifications for a case."""
         notification_ids = self._case_index.get(case_id, [])
-        return [self._notifications[nid] for nid in notification_ids if nid in self._notifications]
+        return [
+            self._notifications[nid]
+            for nid in notification_ids
+            if nid in self._notifications
+        ]
 
-    def get_notifications_for_institution(self, institution_id: str) -> list[NotificationRecord]:
+    def get_notifications_for_institution(
+        self, institution_id: str
+    ) -> list[NotificationRecord]:
         """Get all notifications for an institution."""
         notification_ids = self._institution_index.get(institution_id, [])
-        return [self._notifications[nid] for nid in notification_ids if nid in self._notifications]
+        return [
+            self._notifications[nid]
+            for nid in notification_ids
+            if nid in self._notifications
+        ]
 
     def get_pending_notifications(self) -> list[NotificationRecord]:
         """Get all pending notifications."""
         return [
-            n for n in self._notifications.values()
+            n
+            for n in self._notifications.values()
             if n.status in [NotificationStatus.PENDING, NotificationStatus.QUEUED]
         ]
 
     def get_failed_notifications(self) -> list[NotificationRecord]:
         """Get all failed notifications."""
         return [
-            n for n in self._notifications.values()
+            n
+            for n in self._notifications.values()
             if n.status == NotificationStatus.FAILED
         ]
 
@@ -514,7 +537,7 @@ Affected Accounts:
 {accounts_str}
 
 Description:
-{description or 'No additional description provided.'}
+{description or "No additional description provided."}
 
 ACTION REQUIRED:
 Please investigate the above-mentioned accounts immediately and take appropriate
@@ -551,9 +574,9 @@ Account Number: {account_number}
 Amount to Freeze: {amount_str}
 
 Reason for Freeze:
-{reason or 'Suspicious activity detected in connection with fraud investigation.'}
+{reason or "Suspicious activity detected in connection with fraud investigation."}
 
-Legal Reference: {legal_reference or 'Pending'}
+Legal Reference: {legal_reference or "Pending"}
 
 INSTRUCTIONS:
 1. Immediately freeze the above account
@@ -611,7 +634,9 @@ CashNet Investigation Team"""
         deadline: datetime | None,
     ) -> str:
         """Render evidence request email body."""
-        deadline_str = deadline.strftime("%Y-%m-%d %H:%M UTC") if deadline else "Not specified"
+        deadline_str = (
+            deadline.strftime("%Y-%m-%d %H:%M UTC") if deadline else "Not specified"
+        )
 
         return f"""Evidence Request
 

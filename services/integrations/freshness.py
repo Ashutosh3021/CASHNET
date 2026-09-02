@@ -3,6 +3,7 @@
 Monitors blockchain data freshness, detects staleness, and provides
 alerts for operations dashboard.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,10 +13,12 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from ..blockchain.base import ChainType
+import contextlib
 
 
 class FreshnessStatus(str, Enum):
     """Data freshness status."""
+
     FRESH = "fresh"
     ACCEPTABLE = "acceptable"
     STALE = "stale"
@@ -25,6 +28,7 @@ class FreshnessStatus(str, Enum):
 
 class DataSourceType(str, Enum):
     """Data source types."""
+
     BLOCKCHAIN_NODE = "blockchain_node"
     EXPLORER_API = "explorer_api"
     GRAPH_DATABASE = "graph_database"
@@ -34,6 +38,7 @@ class DataSourceType(str, Enum):
 
 class FreshnessMetric(BaseModel):
     """Freshness metric for a data source."""
+
     source_id: str
     source_type: DataSourceType
     chain: ChainType
@@ -53,9 +58,9 @@ class FreshnessMetric(BaseModel):
     synced_block: int | None = None
 
     # Thresholds (in seconds)
-    fresh_threshold: int = 300      # 5 minutes
+    fresh_threshold: int = 300  # 5 minutes
     acceptable_threshold: int = 3600  # 1 hour
-    stale_threshold: int = 86400     # 24 hours
+    stale_threshold: int = 86400  # 24 hours
 
     # Metadata
     metadata: dict[str, Any] = {}
@@ -63,6 +68,7 @@ class FreshnessMetric(BaseModel):
 
 class FreshnessAlert(BaseModel):
     """Freshness alert."""
+
     alert_id: str
     source_id: str
     chain: ChainType
@@ -85,34 +91,34 @@ class FreshnessMonitor:
         # Default thresholds per chain
         self._chain_thresholds: dict[ChainType, dict[str, int]] = {
             ChainType.ETHEREUM: {
-                "fresh": 300,       # 5 min (12s block time)
+                "fresh": 300,  # 5 min (12s block time)
                 "acceptable": 1800,  # 30 min
-                "stale": 3600,      # 1 hour
+                "stale": 3600,  # 1 hour
             },
             ChainType.BITCOIN: {
-                "fresh": 600,       # 10 min (10 min block time)
+                "fresh": 600,  # 10 min (10 min block time)
                 "acceptable": 3600,  # 1 hour
-                "stale": 7200,      # 2 hours
+                "stale": 7200,  # 2 hours
             },
             ChainType.TRON: {
-                "fresh": 180,       # 3 min (3s block time)
-                "acceptable": 900,   # 15 min
-                "stale": 1800,      # 30 min
+                "fresh": 180,  # 3 min (3s block time)
+                "acceptable": 900,  # 15 min
+                "stale": 1800,  # 30 min
             },
             ChainType.BNB: {
-                "fresh": 180,       # 3 min (3s block time)
-                "acceptable": 900,   # 15 min
-                "stale": 1800,      # 30 min
+                "fresh": 180,  # 3 min (3s block time)
+                "acceptable": 900,  # 15 min
+                "stale": 1800,  # 30 min
             },
             ChainType.SOLANA: {
-                "fresh": 60,        # 1 min (400ms slot time)
-                "acceptable": 300,   # 5 min
-                "stale": 600,       # 10 min
+                "fresh": 60,  # 1 min (400ms slot time)
+                "acceptable": 300,  # 5 min
+                "stale": 600,  # 10 min
             },
             ChainType.POLYGON: {
-                "fresh": 180,       # 3 min (2s block time)
-                "acceptable": 900,   # 15 min
-                "stale": 1800,      # 30 min
+                "fresh": 180,  # 3 min (2s block time)
+                "acceptable": 900,  # 15 min
+                "stale": 1800,  # 30 min
             },
         }
 
@@ -221,10 +227,7 @@ class FreshnessMonitor:
 
     def get_chain_overview(self, chain: ChainType) -> dict[str, Any]:
         """Get freshness overview for a chain."""
-        chain_metrics = [
-            m for m in self._metrics.values()
-            if m.chain == chain
-        ]
+        chain_metrics = [m for m in self._metrics.values() if m.chain == chain]
 
         if not chain_metrics:
             return {
@@ -249,7 +252,8 @@ class FreshnessMonitor:
             "sources": len(chain_metrics),
             "overall_status": worst_status.status.value,
             "max_lag_seconds": max(m.lag_seconds for m in chain_metrics),
-            "avg_lag_seconds": sum(m.lag_seconds for m in chain_metrics) // len(chain_metrics),
+            "avg_lag_seconds": sum(m.lag_seconds for m in chain_metrics)
+            // len(chain_metrics),
             "sources_by_status": {
                 status.value: len([m for m in chain_metrics if m.status == status])
                 for status in FreshnessStatus
@@ -287,8 +291,7 @@ class FreshnessMonitor:
             "total_sources": len(self._metrics),
             "overall_status": overall.value,
             "chains": {
-                chain: self.get_chain_overview(ChainType(chain))
-                for chain in chains
+                chain: self.get_chain_overview(ChainType(chain)) for chain in chains
             },
             "alerts_count": len([a for a in self._alerts if not a.acknowledged]),
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -355,7 +358,9 @@ class FreshnessMonitor:
             "max_lag_seconds": max(lag_values),
             "avg_lag_seconds": sum(lag_values) // len(lag_values),
             "total_alerts": len(self._alerts),
-            "unacknowledged_alerts": len([a for a in self._alerts if not a.acknowledged]),
+            "unacknowledged_alerts": len(
+                [a for a in self._alerts if not a.acknowledged]
+            ),
         }
 
     def _determine_status(self, metric: FreshnessMetric) -> FreshnessStatus:
@@ -377,8 +382,11 @@ class FreshnessMonitor:
         if metric.status in [FreshnessStatus.STALE, FreshnessStatus.CRITICAL]:
             # Check if we already have an active alert for this source
             existing_alert = next(
-                (a for a in self._alerts
-                 if a.source_id == metric.source_id and not a.acknowledged),
+                (
+                    a
+                    for a in self._alerts
+                    if a.source_id == metric.source_id and not a.acknowledged
+                ),
                 None,
             )
 
@@ -396,7 +404,5 @@ class FreshnessMonitor:
 
                 # Trigger callbacks
                 for callback in self._alert_callbacks:
-                    try:
+                    with contextlib.suppress(Exception):
                         callback(alert)
-                    except Exception:
-                        pass

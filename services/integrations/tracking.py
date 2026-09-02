@@ -2,6 +2,7 @@
 
 Tracks the status of requests sent to external partners.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -13,6 +14,7 @@ from pydantic import BaseModel, Field
 
 class TrackingStatus(str, Enum):
     """Tracking status."""
+
     QUEUED = "queued"
     SENT = "sent"
     ACKNOWLEDGED = "acknowledged"
@@ -26,6 +28,7 @@ class TrackingStatus(str, Enum):
 
 class PartnerType(str, Enum):
     """Partner types."""
+
     SAHYOG = "sahyog"
     NCRP = "ncrp"
     VASP = "vasp"
@@ -37,6 +40,7 @@ class PartnerType(str, Enum):
 
 class TrackingRecord(BaseModel):
     """Tracking record for a partner request."""
+
     tracking_id: str
     partner_type: PartnerType
     partner_name: str
@@ -97,6 +101,7 @@ class PartnerTracker:
         sla_deadline = None
         if sla_hours:
             from datetime import timedelta
+
             sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
 
         record = TrackingRecord(
@@ -111,10 +116,12 @@ class PartnerTracker:
         )
 
         # Add initial status
-        record.status_history.append({
-            "status": TrackingStatus.QUEUED.value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        record.status_history.append(
+            {
+                "status": TrackingStatus.QUEUED.value,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         # Store record
         self._records[tracking_id] = record
@@ -144,12 +151,14 @@ class PartnerTracker:
 
         # Update status
         record.status = status
-        record.status_history.append({
-            "status": status.value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "response_data": response_data,
-            "error_message": error_message,
-        })
+        record.status_history.append(
+            {
+                "status": status.value,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "response_data": response_data,
+                "error_message": error_message,
+            }
+        )
 
         # Update timestamps
         now = datetime.now(timezone.utc)
@@ -157,7 +166,11 @@ class PartnerTracker:
             record.sent_at = now
         elif status == TrackingStatus.ACKNOWLEDGED:
             record.acknowledged_at = now
-        elif status in [TrackingStatus.COMPLETED, TrackingStatus.REJECTED, TrackingStatus.FAILED]:
+        elif status in [
+            TrackingStatus.COMPLETED,
+            TrackingStatus.REJECTED,
+            TrackingStatus.FAILED,
+        ]:
             record.completed_at = now
 
         # Update response data
@@ -190,8 +203,10 @@ class PartnerTracker:
     def get_pending_requests(self) -> list[TrackingRecord]:
         """Get all pending requests."""
         return [
-            r for r in self._records.values()
-            if r.status in [
+            r
+            for r in self._records.values()
+            if r.status
+            in [
                 TrackingStatus.QUEUED,
                 TrackingStatus.SENT,
                 TrackingStatus.ACKNOWLEDGED,
@@ -201,22 +216,17 @@ class PartnerTracker:
 
     def get_failed_requests(self) -> list[TrackingRecord]:
         """Get all failed requests."""
-        return [
-            r for r in self._records.values()
-            if r.status == TrackingStatus.FAILED
-        ]
+        return [r for r in self._records.values() if r.status == TrackingStatus.FAILED]
 
     def get_sla_breached_requests(self) -> list[TrackingRecord]:
         """Get all SLA breached requests."""
-        return [
-            r for r in self._records.values()
-            if r.sla_breached
-        ]
+        return [r for r in self._records.values() if r.sla_breached]
 
     def get_requests_needing_retry(self) -> list[TrackingRecord]:
         """Get requests that need retry."""
         return [
-            r for r in self._records.values()
+            r
+            for r in self._records.values()
             if r.status == TrackingStatus.FAILED and r.retry_count < r.max_retries
         ]
 
@@ -227,8 +237,8 @@ class PartnerTracker:
             return False
 
         return (
-            record.status == TrackingStatus.FAILED and
-            record.retry_count < record.max_retries
+            record.status == TrackingStatus.FAILED
+            and record.retry_count < record.max_retries
         )
 
     def increment_retry(self, tracking_id: str) -> TrackingRecord:
@@ -240,11 +250,13 @@ class PartnerTracker:
         record.retry_count += 1
         record.status = TrackingStatus.QUEUED
 
-        record.status_history.append({
-            "status": "retry",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "retry_count": record.retry_count,
-        })
+        record.status_history.append(
+            {
+                "status": "retry",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "retry_count": record.retry_count,
+            }
+        )
 
         return record
 
@@ -285,7 +297,8 @@ class PartnerTracker:
         breached = [r for r in sla_records if r.sla_breached]
         sla_compliance = (
             (len(sla_records) - len(breached)) / len(sla_records) * 100
-            if sla_records else 100
+            if sla_records
+            else 100
         )
 
         # Average completion time
@@ -340,7 +353,9 @@ class PartnerTracker:
                     "partner": r.partner_name,
                     "case_id": r.case_id,
                     "status": r.status.value,
-                    "sla_deadline": r.sla_deadline.isoformat() if r.sla_deadline else None,
+                    "sla_deadline": r.sla_deadline.isoformat()
+                    if r.sla_deadline
+                    else None,
                 }
                 for r in self.get_pending_requests()[:5]
             ],
@@ -349,7 +364,9 @@ class PartnerTracker:
                     "tracking_id": r.tracking_id,
                     "partner": r.partner_name,
                     "case_id": r.case_id,
-                    "sla_deadline": r.sla_deadline.isoformat() if r.sla_deadline else None,
+                    "sla_deadline": r.sla_deadline.isoformat()
+                    if r.sla_deadline
+                    else None,
                 }
                 for r in self.get_sla_breached_requests()[:5]
             ],

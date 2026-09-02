@@ -2,6 +2,7 @@
 
 Provides encryption/decryption for data at rest and in transit.
 """
+
 from __future__ import annotations
 
 import base64
@@ -18,7 +19,7 @@ class EncryptionService:
 
     def __init__(self, encryption_key: str | None = None):
         """Initialize encryption service.
-        
+
         Args:
             encryption_key: Base key for encryption. If not provided,
                           will use environment variable or generate one.
@@ -55,10 +56,10 @@ class EncryptionService:
 
     def encrypt(self, data: str) -> str:
         """Encrypt a string value.
-        
+
         Args:
             data: String to encrypt.
-            
+
         Returns:
             Encrypted string (base64 encoded).
         """
@@ -67,10 +68,10 @@ class EncryptionService:
 
     def decrypt(self, encrypted_data: str) -> str:
         """Decrypt an encrypted string.
-        
+
         Args:
             encrypted_data: Encrypted string (base64 encoded).
-            
+
         Returns:
             Decrypted string.
         """
@@ -79,36 +80,38 @@ class EncryptionService:
 
     def encrypt_dict(self, data: dict) -> str:
         """Encrypt a dictionary.
-        
+
         Args:
             data: Dictionary to encrypt.
-            
+
         Returns:
             Encrypted JSON string.
         """
         import json
+
         json_str = json.dumps(data, default=str)
         return self.encrypt(json_str)
 
     def decrypt_dict(self, encrypted_data: str) -> dict:
         """Decrypt an encrypted dictionary.
-        
+
         Args:
             encrypted_data: Encrypted JSON string.
-            
+
         Returns:
             Decrypted dictionary.
         """
         import json
+
         json_str = self.decrypt(encrypted_data)
         return json.loads(json_str)
 
     def hash_data(self, data: str) -> str:
         """Create a SHA-256 hash of data.
-        
+
         Args:
             data: Data to hash.
-            
+
         Returns:
             Hex-encoded hash.
         """
@@ -116,11 +119,11 @@ class EncryptionService:
 
     def verify_hash(self, data: str, expected_hash: str) -> bool:
         """Verify data matches expected hash.
-        
+
         Args:
             data: Data to verify.
             expected_hash: Expected hash value.
-            
+
         Returns:
             True if hash matches, False otherwise.
         """

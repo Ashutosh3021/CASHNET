@@ -2,6 +2,7 @@
 
 Provides immutable, hash-chained audit logs with integrity verification.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -16,6 +17,7 @@ from pydantic import BaseModel, Field
 
 class AuditAction(str, Enum):
     """Audit actions that can be logged."""
+
     # Authentication
     LOGIN = "login"
     LOGOUT = "logout"
@@ -72,6 +74,7 @@ class AuditAction(str, Enum):
 
 class AuditOutcome(str, Enum):
     """Outcome of the audited action."""
+
     SUCCESS = "success"
     FAILURE = "failure"
     PARTIAL = "partial"
@@ -80,6 +83,7 @@ class AuditOutcome(str, Enum):
 
 class AuditLog(BaseModel):
     """Audit log entry."""
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     correlation_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -188,7 +192,7 @@ class AuditLogger:
 
     def verify_integrity(self) -> tuple[bool, list[str]]:
         """Verify the integrity of the audit log chain.
-        
+
         Returns:
             Tuple of (is_valid, list of error messages)
         """
@@ -257,7 +261,7 @@ class AuditLogger:
         # Sort by timestamp descending
         filtered.sort(key=lambda x: x.timestamp, reverse=True)
 
-        return filtered[offset:offset + limit]
+        return filtered[offset : offset + limit]
 
     def get_statistics(self) -> dict[str, Any]:
         """Get audit log statistics."""
@@ -273,7 +277,9 @@ class AuditLogger:
             action_counts[log.action.value] = action_counts.get(log.action.value, 0) + 1
 
             # Count by outcome
-            outcome_counts[log.outcome.value] = outcome_counts.get(log.outcome.value, 0) + 1
+            outcome_counts[log.outcome.value] = (
+                outcome_counts.get(log.outcome.value, 0) + 1
+            )
 
             # Count by actor
             actor_counts[log.actor_id] = actor_counts.get(log.actor_id, 0) + 1
@@ -287,16 +293,16 @@ class AuditLogger:
             "last_log": self._logs[-1].timestamp.isoformat() if self._logs else None,
         }
 
-    def export_logs(self, format: str = "json") -> str:
+    def export_logs(self, export_format: str = "json") -> str:
         """Export audit logs."""
-        if format == "json":
+        if export_format == "json":
             return json.dumps(
                 [log.model_dump() for log in self._logs],
                 indent=2,
                 default=str,
             )
         else:
-            raise ValueError(f"Unsupported export format: {format}")
+            raise ValueError(f"Unsupported export format: {export_format}")
 
     def clear_old_logs(self, before: datetime) -> int:
         """Clear logs older than a specific date."""
@@ -328,6 +334,7 @@ def audit_log(
     get_resource_id: str | None = None,
 ):
     """Decorator to automatically log audit events."""
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             # This is a simplified example
@@ -335,5 +342,7 @@ def audit_log(
             result = await func(*args, **kwargs)
             # Log success
             return result
+
         return wrapper
+
     return decorator

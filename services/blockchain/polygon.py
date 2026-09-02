@@ -2,6 +2,7 @@
 
 Provides integration with Polygon PoS via Web3.py.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -48,10 +49,11 @@ class PolygonAdapter(ChainAdapter):
     async def connect(self) -> bool:
         """Connect to Polygon node."""
         try:
-            self.w3 = Web3(Web3.HTTPProvider(
-                self.rpc_url,
-                request_kwargs={"timeout": self.timeout}
-            ))
+            self.w3 = Web3(
+                Web3.HTTPProvider(
+                    self.rpc_url, request_kwargs={"timeout": self.timeout}
+                )
+            )
 
             if not self.w3.is_connected():
                 raise ConnectionError("Failed to connect to Polygon node")
@@ -229,25 +231,27 @@ class PolygonAdapter(ChainAdapter):
                 gas_price = tx.get("gasPrice", 0)
                 fee_matic = float(Web3.from_wei(gas_used * gas_price, "ether"))
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx["hash"].hex(),
-                    chain=ChainType.POLYGON,
-                    block_number=block_number,
-                    block_timestamp=datetime.fromtimestamp(
-                        block["timestamp"], tz=timezone.utc
-                    ),
-                    from_address=tx["from"].lower(),
-                    from_address_type=from_type,
-                    to_address=tx.get("to", "").lower() if tx.get("to") else "",
-                    to_address_type=to_type,
-                    value=value_matic,
-                    currency="MATIC",
-                    gas_price=float(Web3.from_wei(gas_price, "gwei")),
-                    gas_used=gas_used,
-                    fee=fee_matic,
-                    transaction_type=self._determine_tx_type(tx, receipt),
-                    is_success=receipt.get("status", 1) == 1,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx["hash"].hex(),
+                        chain=ChainType.POLYGON,
+                        block_number=block_number,
+                        block_timestamp=datetime.fromtimestamp(
+                            block["timestamp"], tz=timezone.utc
+                        ),
+                        from_address=tx["from"].lower(),
+                        from_address_type=from_type,
+                        to_address=tx.get("to", "").lower() if tx.get("to") else "",
+                        to_address_type=to_type,
+                        value=value_matic,
+                        currency="MATIC",
+                        gas_price=float(Web3.from_wei(gas_price, "gwei")),
+                        gas_used=gas_used,
+                        fee=fee_matic,
+                        transaction_type=self._determine_tx_type(tx, receipt),
+                        is_success=receipt.get("status", 1) == 1,
+                    )
+                )
 
             return transactions
 

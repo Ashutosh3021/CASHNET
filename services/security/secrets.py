@@ -3,6 +3,7 @@
 Provides secure storage and retrieval of secrets with support for
 HashiCorp Vault, AWS Secrets Manager, and local development.
 """
+
 from __future__ import annotations
 
 import base64
@@ -20,6 +21,7 @@ from pydantic import BaseModel, ValidationError
 
 class SecretBackend(str, Enum):
     """Supported secret backends."""
+
     VAULT = "vault"
     AWS_SECRETS_MANAGER = "aws_secrets_manager"
     LOCAL = "local"
@@ -27,6 +29,7 @@ class SecretBackend(str, Enum):
 
 class SecretMetadata(BaseModel):
     """Metadata for a secret."""
+
     name: str
     version: int = 1
     created_at: datetime = datetime.now(timezone.utc)
@@ -44,7 +47,9 @@ class SecretsBackend(ABC):
         """Get a secret by name."""
 
     @abstractmethod
-    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
+    def set_secret(
+        self, name: str, value: str, metadata: SecretMetadata | None = None
+    ) -> bool:
         """Set a secret value."""
 
     @abstractmethod
@@ -63,13 +68,17 @@ class SecretsBackend(ABC):
 class LocalSecretsBackend(SecretsBackend):
     """Local file-based secrets backend for development."""
 
-    def __init__(self, secrets_dir: str = ".secrets", encryption_key: str | None = None):
+    def __init__(
+        self, secrets_dir: str = ".secrets", encryption_key: str | None = None
+    ):
         self.secrets_dir = Path(secrets_dir)
         self.secrets_dir.mkdir(parents=True, exist_ok=True)
 
         # Use provided key or generate one
         if encryption_key:
-            key = base64.urlsafe_b64encode(hashlib.sha256(encryption_key.encode()).digest())
+            key = base64.urlsafe_b64encode(
+                hashlib.sha256(encryption_key.encode()).digest()
+            )
         else:
             key = Fernet.generate_key()
 
@@ -98,7 +107,9 @@ class LocalSecretsBackend(SecretsBackend):
         except (InvalidToken, OSError, ValueError):
             return None
 
-    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
+    def set_secret(
+        self, name: str, value: str, metadata: SecretMetadata | None = None
+    ) -> bool:
         """Set a secret value."""
         try:
             # Encrypt and save
@@ -191,7 +202,9 @@ class VaultSecretsBackend(SecretsBackend):
         # Placeholder for development
         return os.getenv(name)
 
-    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
+    def set_secret(
+        self, name: str, value: str, metadata: SecretMetadata | None = None
+    ) -> bool:
         """Set a secret in Vault."""
         # In production:
         # try:
@@ -266,7 +279,9 @@ class AWSSecretsManagerBackend(SecretsBackend):
         # Placeholder for development
         return os.getenv(name)
 
-    def set_secret(self, name: str, value: str, metadata: SecretMetadata | None = None) -> bool:
+    def set_secret(
+        self, name: str, value: str, metadata: SecretMetadata | None = None
+    ) -> bool:
         """Set a secret in AWS Secrets Manager."""
         # In production:
         # try:

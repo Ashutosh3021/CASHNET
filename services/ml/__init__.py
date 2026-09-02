@@ -3,6 +3,7 @@
 Provides typology detection, model governance, validation pipelines,
 training pipelines, and advanced fraud detection capabilities.
 """
+
 from .enhanced_bridge import (
     BridgePattern,
     BridgeProtocol,
@@ -71,67 +72,62 @@ from .typology import (
 )
 
 __all__ = [
-    # Typology
-    "TypologyEngine",
-    "TypologyRule",
-    "TypologyMatch",
-    "TypologyCategory",
-    "MatchSeverity",
-
-    # Model Registry
-    "ModelRegistry",
-    "ModelVersion",
-    "ModelArtifact",
-    "ModelStatus",
-    "DeploymentStage",
-    "ModelType",
-
-    # Model Validation
-    "ModelValidationPipeline",
-    "ValidationReport",
-    "ValidationMetric",
-    "ValidationStatus",
-
-    # Training
-    "TrainingPipeline",
-    "TrainingConfig",
-    "TrainingRun",
-    "TrainingStatus",
-    "DatasetSplit",
+    "AccessLogEntry",
+    "Agency",
+    "AlertRule",
+    "AlertType",
+    "BridgePattern",
+    "BridgeProtocol",
+    "ClassificationLevel",
+    # Cross-Agency Intelligence Sharing
+    "CrossAgencySharingService",
     "DataType",
-
-    # Mixer Detection
-    "MixerDetector",
-    "MixerSignal",
-    "MixerType",
-    "MixerRiskLevel",
-
+    "DatasetSplit",
+    "DeliveryProvider",
+    "DeliveryStatus",
+    "DeploymentStage",
     # Enhanced Bridge/Swap
     "EnhancedBridgeDetector",
-    "BridgePattern",
-    "SwapPattern",
-    "BridgeProtocol",
-    "SwapProtocol",
-
+    "IntelligencePackage",
+    "IntelligenceRecord",
+    "MatchSeverity",
+    "MessageChannel",
+    # Mixer Detection
+    "MixerDetector",
+    "MixerRiskLevel",
+    "MixerSignal",
+    "MixerType",
+    "ModelArtifact",
+    # Model Registry
+    "ModelRegistry",
+    "ModelStatus",
+    "ModelType",
+    # Model Validation
+    "ModelValidationPipeline",
+    "ModelVersion",
+    "RealtimeNotification",
     # Real-time Notifications
     "RealtimeNotificationService",
     "Recipient",
-    "AlertRule",
-    "DeliveryProvider",
-    "RealtimeNotification",
-    "AlertType",
-    "MessageChannel",
-    "DeliveryStatus",
-
-    # Cross-Agency Intelligence Sharing
-    "CrossAgencySharingService",
-    "SharingPolicy",
+    "RedactionAction",
     "RedactionRule",
-    "IntelligencePackage",
-    "Agency",
-    "AccessLogEntry",
-    "IntelligenceRecord",
-    "SharingScope",
-    "ClassificationLevel",
     "ShareStatus",
+    "SharingPolicy",
+    "SharingScope",
+    "SwapPattern",
+    "SwapProtocol",
+    "TrainingConfig",
+    # Training
+    "TrainingPipeline",
+    "TrainingRun",
+    "TrainingStatus",
+    "TypologyCategory",
+    # Typology
+    "TypologyEngine",
+    "TypologyMatch",
+    "TypologyRule",
+    "ValidationMetric",
+    "ValidationReport",
+    "ValidationStatus",
+    "format_notification_for_slack",
 ]

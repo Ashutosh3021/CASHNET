@@ -2,6 +2,7 @@
 
 Defines the common interface that all chain adapters must implement.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class ChainType(str, Enum):
     """Supported blockchain types."""
+
     ETHEREUM = "ethereum"
     BITCOIN = "bitcoin"
     TRON = "tron"
@@ -24,6 +26,7 @@ class ChainType(str, Enum):
 
 class TransactionType(str, Enum):
     """Normalized transaction types."""
+
     TRANSFER = "transfer"
     SWAP = "swap"
     BRIDGE = "bridge"
@@ -35,6 +38,7 @@ class TransactionType(str, Enum):
 
 class AddressType(str, Enum):
     """Address classification types."""
+
     EOA = "eoa"  # Externally Owned Account
     CONTRACT = "contract"
     EXCHANGE = "exchange"
@@ -44,6 +48,7 @@ class AddressType(str, Enum):
 
 class NormalizedTransaction(BaseModel):
     """Normalized transaction format across all chains."""
+
     # Unique identifiers
     tx_hash: str
     chain: ChainType
@@ -90,6 +95,7 @@ class NormalizedTransaction(BaseModel):
 
 class ChainHealth(BaseModel):
     """Chain health status."""
+
     chain: ChainType
     is_healthy: bool
     block_height: int

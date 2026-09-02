@@ -3,16 +3,18 @@
 FastAPI router definitions for all CASHNET services. Provides endpoints
 for case management, blockchain operations, ML/intelligence, and integrations.
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, ClassVar
 
 from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 # ==================== Request/Response Models ====================
+
 
 class HealthResponse(BaseModel):
     status: str = "healthy"
@@ -122,9 +124,11 @@ async def health_check() -> HealthResponse:
 
 # ==================== Service Singletons (Lazy) ====================
 
+
 class ServiceRegistry:
     """Lazy-loaded service instances."""
-    _instances: dict[str, Any] = {}
+
+    _instances: ClassVar[dict[str, Any]] = {}
 
     @classmethod
     def get(cls, service_name: str) -> Any:
@@ -136,66 +140,87 @@ class ServiceRegistry:
     def _create(cls, service_name: str) -> Any:
         if service_name == "attribution":
             from services.blockchain.attribution import VASPAttributionService
+
             return VASPAttributionService()
         if service_name == "evidence":
             from services.blockchain.evidence import EvidenceService
+
             return EvidenceService()
         if service_name == "timeline":
             from services.blockchain.timeline import TimelineService
+
             return TimelineService()
         if service_name == "bridge":
             from services.blockchain.bridge import BridgeDetector
+
             return BridgeDetector()
         if service_name == "monitor":
             from services.blockchain.monitoring import ChainMonitor
+
             return ChainMonitor()
         if service_name == "notification":
             from services.integrations.notification import NotificationService
+
             return NotificationService()
         if service_name == "freshness":
             from services.integrations.freshness import FreshnessMonitor
+
             return FreshnessMonitor()
         if service_name == "sahyog":
             from services.integrations.sahyog import SAHYOGConnector
+
             return SAHYOGConnector({})
         if service_name == "ncrp":
             from services.integrations.ncrp import NCRPConnector
+
             return NCRPConnector({})
         if service_name == "vasp":
             from services.integrations.vasp import VASPConnector
+
             return VASPConnector({})
         if service_name == "approval":
             from services.integrations.approval import ApprovalWorkflow
+
             return ApprovalWorkflow()
         if service_name == "tracking":
             from services.integrations.tracking import PartnerTracker
+
             return PartnerTracker()
         if service_name == "escalation":
             from services.integrations.escalation import EscalationManager
+
             return EscalationManager()
         if service_name == "typology":
             from services.ml.typology import TypologyEngine
+
             return TypologyEngine()
         if service_name == "model_registry":
             from services.ml.model_registry import ModelRegistry
+
             return ModelRegistry()
         if service_name == "model_validation":
             from services.ml.model_validation import ModelValidationPipeline
+
             return ModelValidationPipeline()
         if service_name == "training":
             from services.ml.training import TrainingPipeline
+
             return TrainingPipeline()
         if service_name == "mixer":
             from services.ml.mixer_detection import MixerDetector
+
             return MixerDetector()
         if service_name == "enhanced_bridge":
             from services.ml.enhanced_bridge import EnhancedBridgeDetector
+
             return EnhancedBridgeDetector()
         if service_name == "realtime":
             from services.ml.notifications import RealtimeNotificationService
+
             return RealtimeNotificationService()
         if service_name == "intel_sharing":
             from services.ml.intelligence_sharing import CrossAgencySharingService
+
             return CrossAgencySharingService()
         raise ValueError(f"Unknown service: {service_name}")
 
@@ -321,8 +346,12 @@ async def get_finding(finding_id: str) -> dict[str, Any]:
     }
 
 
-@findings_router.post("/{finding_id}/adjudications", status_code=status.HTTP_201_CREATED)
-async def create_adjudication(finding_id: str, payload: AdjudicationInput) -> dict[str, Any]:
+@findings_router.post(
+    "/{finding_id}/adjudications", status_code=status.HTTP_201_CREATED
+)
+async def create_adjudication(
+    finding_id: str, payload: AdjudicationInput
+) -> dict[str, Any]:
     _ = ServiceRegistry.get("attribution")
     return {
         "adjudication_id": str(uuid.uuid4()),
@@ -409,14 +438,15 @@ async def seal_evidence_package(package_id: str) -> dict[str, Any]:
 @evidence_router.get("/{package_id}/export")
 async def export_evidence_package(
     package_id: str,
-    format: str = Query("json", pattern="^(json|html|csv)$"),
+    export_format: str = Query("json", pattern="^(json|html|csv)$"),
 ) -> dict[str, Any]:
     service = ServiceRegistry.get("evidence")
     try:
         from services.blockchain.evidence import ReportFormat
-        fmt = ReportFormat(format)
+
+        fmt = ReportFormat(export_format)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid format")
+        raise HTTPException(status_code=400, detail="Invalid format") from None
     return service.export_package(package_id, fmt)
 
 
@@ -446,7 +476,9 @@ async def create_action_request(payload: ActionRequestInput) -> dict[str, Any]:
 
 
 @action_router.post("/{request_id}/approve", status_code=status.HTTP_201_CREATED)
-async def approve_action_request(request_id: str, payload: ActionApproveInput) -> dict[str, Any]:
+async def approve_action_request(
+    request_id: str, payload: ActionApproveInput
+) -> dict[str, Any]:
     approval = ServiceRegistry.get("approval")
     try:
         decision = approval.approve(
@@ -461,11 +493,13 @@ async def approve_action_request(request_id: str, payload: ActionApproveInput) -
             "decision": decision.decision.value,
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @action_router.post("/{request_id}/reject", status_code=status.HTTP_201_CREATED)
-async def reject_action_request(request_id: str, payload: ActionApproveInput) -> dict[str, Any]:
+async def reject_action_request(
+    request_id: str, payload: ActionApproveInput
+) -> dict[str, Any]:
     approval = ServiceRegistry.get("approval")
     try:
         decision = approval.reject(
@@ -480,7 +514,7 @@ async def reject_action_request(request_id: str, payload: ActionApproveInput) ->
             "decision": decision.decision.value,
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @action_router.post("/{request_id}/send")
@@ -619,9 +653,13 @@ ml_router = APIRouter(prefix="/ml", tags=["ml"])
 @ml_router.post("/typology/detect")
 async def detect_typologies(
     case_id: str | None = None,
-    transaction: dict[str, Any] = {},
-    known_addresses: dict[str, list[str]] = {},
+    transaction: dict[str, Any] | None = None,
+    known_addresses: dict[str, list[str]] | None = None,
 ) -> dict[str, Any]:
+    if known_addresses is None:
+        known_addresses = {}
+    if transaction is None:
+        transaction = {}
     engine = ServiceRegistry.get("typology")
 
     known_sets = {
@@ -707,7 +745,9 @@ async def list_models() -> dict[str, Any]:
                 "model_name": m.model_name,
                 "version": m.version,
                 "status": m.status.value,
-                "deployment_stage": m.deployment_stage.value if m.deployment_stage else None,
+                "deployment_stage": m.deployment_stage.value
+                if m.deployment_stage
+                else None,
             }
             for m in models
         ],
@@ -723,6 +763,7 @@ async def register_model(
     description: str | None = None,
 ) -> dict[str, Any]:
     from services.ml.model_registry import ModelType
+
     registry = ServiceRegistry.get("model_registry")
     model = registry.register_model(
         model_name=model_name,
@@ -768,6 +809,7 @@ async def create_training_run(
     triggered_by: str,
 ) -> dict[str, Any]:
     from services.ml.training import TrainingConfig
+
     pipeline = ServiceRegistry.get("training")
     run = pipeline.create_run(
         model_name=model_name,
@@ -838,6 +880,7 @@ async def send_notification(
     channel: str = "email",
 ) -> dict[str, Any]:
     from services.ml.notifications import MessageChannel
+
     realtime = ServiceRegistry.get("realtime")
     notification = realtime.send_immediate(
         recipient_id=recipient_id,
@@ -872,6 +915,7 @@ async def share_intelligence(
     policy_id: str = "default_internal",
 ) -> dict[str, Any]:
     from services.ml.intelligence_sharing import ClassificationLevel
+
     service = ServiceRegistry.get("intel_sharing")
     try:
         package = service.share_intelligence(
@@ -892,7 +936,7 @@ async def share_intelligence(
             "recipients": package.recipients,
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @intelligence_router.post("/{package_id}/approve")
@@ -910,7 +954,7 @@ async def approve_intelligence_package(
             "approved_by": package.approved_by,
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @intelligence_router.post("/{package_id}/acknowledge")
@@ -927,10 +971,11 @@ async def acknowledge_intelligence(
             "status": record.status.value,
         }
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 # ==================== Main Router ====================
+
 
 def get_api_router() -> APIRouter:
     """Aggregate all routers into a single API router."""

@@ -2,6 +2,7 @@
 
 Manages escalation rules, SLA tracking, and deadline monitoring.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -13,6 +14,7 @@ from pydantic import BaseModel
 
 class SLAStatus(str, Enum):
     """SLA status."""
+
     ON_TRACK = "on_track"
     AT_RISK = "at_risk"
     BREACHED = "breached"
@@ -21,6 +23,7 @@ class SLAStatus(str, Enum):
 
 class EscalationLevel(str, Enum):
     """Escalation levels."""
+
     LEVEL_1 = "level_1"  # Supervisor
     LEVEL_2 = "level_2"  # Manager
     LEVEL_3 = "level_3"  # Director
@@ -29,6 +32,7 @@ class EscalationLevel(str, Enum):
 
 class EscalationRule(BaseModel):
     """Escalation rule definition."""
+
     rule_id: str
     name: str
     description: str
@@ -57,6 +61,7 @@ class EscalationRule(BaseModel):
 
 class SLADefinition(BaseModel):
     """SLA definition."""
+
     sla_id: str
     name: str
     description: str
@@ -79,6 +84,7 @@ class SLADefinition(BaseModel):
 
 class SLATracking(BaseModel):
     """SLA tracking record."""
+
     tracking_id: str
     sla_id: str
 
@@ -265,7 +271,9 @@ class EscalationManager:
         # Update status
         if tracking.resolved_at:
             tracking.status = SLAStatus.COMPLETED
-        elif now > tracking.resolution_deadline or (now > tracking.response_deadline and not tracking.first_response_at):
+        elif now > tracking.resolution_deadline or (
+            now > tracking.response_deadline and not tracking.first_response_at
+        ):
             tracking.status = SLAStatus.BREACHED
         elif now > tracking.response_deadline - timedelta(hours=24):
             tracking.status = SLAStatus.AT_RISK
@@ -303,16 +311,18 @@ class EscalationManager:
                         if self._is_in_cooldown(tracking.tracking_id, rule.rule_id):
                             continue
 
-                        escalations_needed.append({
-                            "tracking_id": tracking.tracking_id,
-                            "case_id": tracking.case_id,
-                            "request_id": tracking.request_id,
-                            "partner": tracking.partner_name,
-                            "rule": rule.rule_id,
-                            "level": rule.escalation_level.value,
-                            "notify_roles": rule.notify_roles,
-                            "hours_elapsed": hours_elapsed,
-                        })
+                        escalations_needed.append(
+                            {
+                                "tracking_id": tracking.tracking_id,
+                                "case_id": tracking.case_id,
+                                "request_id": tracking.request_id,
+                                "partner": tracking.partner_name,
+                                "rule": rule.rule_id,
+                                "level": rule.escalation_level.value,
+                                "notify_roles": rule.notify_roles,
+                                "hours_elapsed": hours_elapsed,
+                            }
+                        )
 
         return escalations_needed
 
@@ -352,16 +362,12 @@ class EscalationManager:
     def get_breached_slas(self) -> list[SLATracking]:
         """Get all breached SLAs."""
         return [
-            t for t in self._sla_tracking.values()
-            if t.status == SLAStatus.BREACHED
+            t for t in self._sla_tracking.values() if t.status == SLAStatus.BREACHED
         ]
 
     def get_at_risk_slas(self) -> list[SLATracking]:
         """Get all at-risk SLAs."""
-        return [
-            t for t in self._sla_tracking.values()
-            if t.status == SLAStatus.AT_RISK
-        ]
+        return [t for t in self._sla_tracking.values() if t.status == SLAStatus.AT_RISK]
 
     def get_sla_statistics(self) -> dict[str, Any]:
         """Get SLA statistics."""
@@ -382,9 +388,7 @@ class EscalationManager:
 
         completed = [r for r in tracking_records if r.status == SLAStatus.COMPLETED]
 
-        response_compliance = (
-            response_met / len(completed) * 100 if completed else 100
-        )
+        response_compliance = response_met / len(completed) * 100 if completed else 100
         resolution_compliance = (
             resolution_met / len(completed) * 100 if completed else 100
         )
@@ -429,7 +433,7 @@ class EscalationManager:
         business_hours_only: bool = False,
         business_start: int = 9,
         business_end: int = 18,
-        business_days: list[int] = None,
+        business_days: list[int] | None = None,
     ) -> datetime:
         """Calculate deadline considering business hours."""
         if not business_hours_only:
@@ -450,10 +454,7 @@ class EscalationManager:
                 deadline = deadline + timedelta(days=1)
 
             # Calculate available hours today
-            available_today = min(
-                business_end - deadline.hour,
-                hours_remaining
-            )
+            available_today = min(business_end - deadline.hour, hours_remaining)
 
             deadline = deadline + timedelta(hours=available_today)
             hours_remaining -= available_today

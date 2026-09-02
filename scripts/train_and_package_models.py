@@ -11,6 +11,7 @@ This script:
 Run this locally or in build pipeline to pre-generate models.
 Usage: python scripts/train_and_package_models.py
 """
+
 from __future__ import annotations
 
 import json
@@ -26,8 +27,7 @@ import lib.io_utils as io
 import lib.model_manager as mm
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,9 @@ def train_and_package_models() -> dict[str, dict]:
             model_path = io.MODELS_DIR / f"{model_id}_model.pkl"
             if model_path.exists():
                 file_size_mb = model_path.stat().st_size / (1024 * 1024)
-                logger.info(f"✓ Model file exists: {model_path} ({file_size_mb:.2f} MB)")
+                logger.info(
+                    f"✓ Model file exists: {model_path} ({file_size_mb:.2f} MB)"
+                )
             else:
                 logger.warning(f"✗ Model file not found: {model_path}")
 

@@ -2,6 +2,7 @@
 
 Provides integration with Ethereum blockchain via Web3.py and public APIs.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -22,6 +23,7 @@ from .base import (
     NormalizedTransaction,
     TransactionType,
 )
+import contextlib
 
 
 class EthereumAdapter(ChainAdapter):
@@ -49,16 +51,15 @@ class EthereumAdapter(ChainAdapter):
     async def connect(self) -> bool:
         """Connect to Ethereum node."""
         try:
-            self.w3 = Web3(Web3.HTTPProvider(
-                self.rpc_url,
-                request_kwargs={"timeout": self.timeout}
-            ))
+            self.w3 = Web3(
+                Web3.HTTPProvider(
+                    self.rpc_url, request_kwargs={"timeout": self.timeout}
+                )
+            )
 
             # Add PoA middleware for some providers
-            try:
+            with contextlib.suppress(Exception):
                 self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-            except Exception:
-                pass
 
             # Check connection
             if not self.w3.is_connected():
@@ -180,7 +181,9 @@ class EthereumAdapter(ChainAdapter):
                 fee=fee_eth,
                 transaction_type=tx_type,
                 is_success=receipt.get("status", 1) == 1,
-                error_message=None if receipt.get("status", 1) == 1 else "Transaction reverted",
+                error_message=None
+                if receipt.get("status", 1) == 1
+                else "Transaction reverted",
                 method_id=method_id,
                 input_data=input_data if input_data != "0x" else None,
             )
@@ -218,7 +221,9 @@ class EthereumAdapter(ChainAdapter):
 
             # This is a placeholder - in production, use proper indexing
             # Etherscan API, The Graph, or archive node
-            print(f"Getting transactions for {address} (blocks {start_block}-{start_block + block_range})")
+            print(
+                f"Getting transactions for {address} (blocks {start_block}-{start_block + block_range})"
+            )
 
             return transactions
 
@@ -255,25 +260,27 @@ class EthereumAdapter(ChainAdapter):
                 gas_price = tx.get("gasPrice", 0)
                 fee_eth = float(Web3.from_wei(gas_used * gas_price, "ether"))
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx["hash"].hex(),
-                    chain=ChainType.ETHEREUM,
-                    block_number=block_number,
-                    block_timestamp=datetime.fromtimestamp(
-                        block["timestamp"], tz=timezone.utc
-                    ),
-                    from_address=tx["from"].lower(),
-                    from_address_type=from_type,
-                    to_address=tx.get("to", "").lower() if tx.get("to") else "",
-                    to_address_type=to_type,
-                    value=value_eth,
-                    currency="ETH",
-                    gas_price=float(Web3.from_wei(gas_price, "gwei")),
-                    gas_used=gas_used,
-                    fee=fee_eth,
-                    transaction_type=self._determine_tx_type(tx, receipt),
-                    is_success=receipt.get("status", 1) == 1,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx["hash"].hex(),
+                        chain=ChainType.ETHEREUM,
+                        block_number=block_number,
+                        block_timestamp=datetime.fromtimestamp(
+                            block["timestamp"], tz=timezone.utc
+                        ),
+                        from_address=tx["from"].lower(),
+                        from_address_type=from_type,
+                        to_address=tx.get("to", "").lower() if tx.get("to") else "",
+                        to_address_type=to_type,
+                        value=value_eth,
+                        currency="ETH",
+                        gas_price=float(Web3.from_wei(gas_price, "gwei")),
+                        gas_used=gas_used,
+                        fee=fee_eth,
+                        transaction_type=self._determine_tx_type(tx, receipt),
+                        is_success=receipt.get("status", 1) == 1,
+                    )
+                )
 
             return transactions
 
@@ -366,31 +373,35 @@ class EthereumAdapter(ChainAdapter):
                     from_addr = "0x" + log["topics"][1].hex()[-40:]
                     to_addr = "0x" + log["topics"][2].hex()[-40:]
                     value = int(log["data"].hex(), 16)
-                    value_normalized = value / (10 ** decimals)
+                    value_normalized = value / (10**decimals)
 
                     # Get transaction details
                     _ = self.w3.eth.get_transaction(log["transactionHash"].hex())
-                    receipt = self.w3.eth.get_transaction_receipt(log["transactionHash"].hex())
+                    receipt = self.w3.eth.get_transaction_receipt(
+                        log["transactionHash"].hex()
+                    )
                     block = self.w3.eth.get_block(log["blockNumber"])
 
-                    transfers.append(NormalizedTransaction(
-                        tx_hash=log["transactionHash"].hex(),
-                        chain=ChainType.ETHEREUM,
-                        block_number=log["blockNumber"],
-                        block_timestamp=datetime.fromtimestamp(
-                            block["timestamp"], tz=timezone.utc
-                        ),
-                        from_address=from_addr.lower(),
-                        from_address_type=await self._classify_address(from_addr),
-                        to_address=to_addr.lower(),
-                        to_address_type=await self._classify_address(to_addr),
-                        value=value_normalized,
-                        currency="TOKEN",
-                        transaction_type=TransactionType.TRANSFER,
-                        is_success=receipt.get("status", 1) == 1,
-                        token_address=token_address.lower(),
-                        token_decimals=decimals,
-                    ))
+                    transfers.append(
+                        NormalizedTransaction(
+                            tx_hash=log["transactionHash"].hex(),
+                            chain=ChainType.ETHEREUM,
+                            block_number=log["blockNumber"],
+                            block_timestamp=datetime.fromtimestamp(
+                                block["timestamp"], tz=timezone.utc
+                            ),
+                            from_address=from_addr.lower(),
+                            from_address_type=await self._classify_address(from_addr),
+                            to_address=to_addr.lower(),
+                            to_address_type=await self._classify_address(to_addr),
+                            value=value_normalized,
+                            currency="TOKEN",
+                            transaction_type=TransactionType.TRANSFER,
+                            is_success=receipt.get("status", 1) == 1,
+                            token_address=token_address.lower(),
+                            token_decimals=decimals,
+                        )
+                    )
 
                 except Exception as e:
                     print(f"Error parsing transfer log: {e}")
@@ -490,10 +501,12 @@ class EthereumAdapter(ChainAdapter):
             # ERC20 decimals() function signature
             decimals_signature = "0x313ce567"
 
-            result = self.w3.eth.call({
-                "to": Web3.to_checksum_address(token_address),
-                "data": decimals_signature,
-            })
+            result = self.w3.eth.call(
+                {
+                    "to": Web3.to_checksum_address(token_address),
+                    "data": decimals_signature,
+                }
+            )
 
             decimals = int(result.hex(), 16)
             self._token_decimals[token_address] = decimals

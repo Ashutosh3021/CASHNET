@@ -2,6 +2,7 @@
 
 Provides normalization, enrichment, and risk scoring for transactions.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -38,9 +39,21 @@ class TransactionNormalizer:
 
         # Risk indicators
         self._high_risk_patterns: list[dict[str, Any]] = [
-            {"type": "mixer_interaction", "score": 0.8, "description": "Transaction involves known mixer"},
-            {"type": "large_value", "score": 0.3, "description": "Transaction value > 100 ETH"},
-            {"type": "rapid_movement", "score": 0.4, "description": "Funds moved within 1 block"},
+            {
+                "type": "mixer_interaction",
+                "score": 0.8,
+                "description": "Transaction involves known mixer",
+            },
+            {
+                "type": "large_value",
+                "score": 0.3,
+                "description": "Transaction value > 100 ETH",
+            },
+            {
+                "type": "rapid_movement",
+                "score": 0.4,
+                "description": "Funds moved within 1 block",
+            },
         ]
 
     def normalize(
@@ -51,7 +64,9 @@ class TransactionNormalizer:
         """Normalize a transaction."""
         # Ensure consistent address format
         transaction.from_address = transaction.from_address.lower()
-        transaction.to_address = transaction.to_address.lower() if transaction.to_address else ""
+        transaction.to_address = (
+            transaction.to_address.lower() if transaction.to_address else ""
+        )
 
         # Enrich with additional data
         if enrich:
@@ -75,12 +90,10 @@ class TransactionNormalizer:
         """Enrich transaction with additional information."""
         # Classify addresses
         transaction.from_address_type = self._classify_address(
-            transaction.from_address,
-            transaction.from_address_type
+            transaction.from_address, transaction.from_address_type
         )
         transaction.to_address_type = self._classify_address(
-            transaction.to_address,
-            transaction.to_address_type
+            transaction.to_address, transaction.to_address_type
         )
 
         # Determine transaction type if unknown
@@ -126,8 +139,10 @@ class TransactionNormalizer:
         score = 0.0
 
         # Mixer interaction
-        if (transaction.from_address_type == AddressType.MIXER or
-            transaction.to_address_type == AddressType.MIXER):
+        if (
+            transaction.from_address_type == AddressType.MIXER
+            or transaction.to_address_type == AddressType.MIXER
+        ):
             score += 0.8
 
         # Large value transactions
@@ -154,7 +169,9 @@ class TransactionNormalizer:
     def generate_unique_id(self, transaction: NormalizedTransaction) -> str:
         """Generate a unique ID for a normalized transaction."""
         # Combine chain, hash, and timestamp for uniqueness
-        unique_string = f"{transaction.chain}:{transaction.tx_hash}:{transaction.block_number}"
+        unique_string = (
+            f"{transaction.chain}:{transaction.tx_hash}:{transaction.block_number}"
+        )
         return hashlib.sha256(unique_string.encode()).hexdigest()[:16]
 
     def merge_transactions(
@@ -186,7 +203,9 @@ class TransactionNormalizer:
         merged = tx1.model_copy()
 
         # Merge risk scores (take highest)
-        if tx2.risk_score and (not merged.risk_score or tx2.risk_score > merged.risk_score):
+        if tx2.risk_score and (
+            not merged.risk_score or tx2.risk_score > merged.risk_score
+        ):
             merged.risk_score = tx2.risk_score
             merged.is_suspicious = tx2.is_suspicious
 
@@ -199,20 +218,28 @@ class TransactionNormalizer:
         """Convert transaction to database-compatible format."""
         return {
             "tx_hash": transaction.tx_hash,
-            "chain": transaction.chain.value if isinstance(transaction.chain, ChainType) else transaction.chain,
+            "chain": transaction.chain.value
+            if isinstance(transaction.chain, ChainType)
+            else transaction.chain,
             "block_number": transaction.block_number,
             "block_timestamp": transaction.block_timestamp.isoformat(),
             "from_address": transaction.from_address,
-            "from_address_type": transaction.from_address_type.value if isinstance(transaction.from_address_type, AddressType) else transaction.from_address_type,
+            "from_address_type": transaction.from_address_type.value
+            if isinstance(transaction.from_address_type, AddressType)
+            else transaction.from_address_type,
             "to_address": transaction.to_address,
-            "to_address_type": transaction.to_address_type.value if isinstance(transaction.to_address_type, AddressType) else transaction.to_address_type,
+            "to_address_type": transaction.to_address_type.value
+            if isinstance(transaction.to_address_type, AddressType)
+            else transaction.to_address_type,
             "value": transaction.value,
             "currency": transaction.currency,
             "value_usd": transaction.value_usd,
             "gas_price": transaction.gas_price,
             "gas_used": transaction.gas_used,
             "fee": transaction.fee,
-            "transaction_type": transaction.transaction_type.value if isinstance(transaction.transaction_type, TransactionType) else transaction.transaction_type,
+            "transaction_type": transaction.transaction_type.value
+            if isinstance(transaction.transaction_type, TransactionType)
+            else transaction.transaction_type,
             "is_success": transaction.is_success,
             "error_message": transaction.error_message,
             "token_address": transaction.token_address,

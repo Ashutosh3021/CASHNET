@@ -3,6 +3,7 @@
 The generated records are synthetic and must never be represented as NCRP,
 bank, UPI, ATM, I4C, SAHYOG, or law-enforcement records.
 """
+
 from __future__ import annotations
 
 import json
@@ -31,8 +32,30 @@ CITIES = [
     ("Patna", "Bihar", "Patna", "800001", 25.5941, 85.1376, 12),
     ("Ranchi", "Jharkhand", "Ranchi", "834001", 23.3441, 85.3096, 10),
 ]
-FRAUD_TYPES = ["UPI_FRAUD", "PHISHING", "INVESTMENT_FRAUD", "TASK_FRAUD", "IMPERSONATION_FRAUD", "CARD_FRAUD", "ACCOUNT_TAKEOVER", "ROMANCE_SCAM", "CRYPTO_FRAUD", "OTHER"]
-LOCATION_TYPES = ["ATM", "ATM", "ATM", "BANK_BRANCH", "BANK_BRANCH", "MERCHANT", "MERCHANT", "UPI_MERCHANT", "UNKNOWN", "OTHER"]
+FRAUD_TYPES = [
+    "UPI_FRAUD",
+    "PHISHING",
+    "INVESTMENT_FRAUD",
+    "TASK_FRAUD",
+    "IMPERSONATION_FRAUD",
+    "CARD_FRAUD",
+    "ACCOUNT_TAKEOVER",
+    "ROMANCE_SCAM",
+    "CRYPTO_FRAUD",
+    "OTHER",
+]
+LOCATION_TYPES = [
+    "ATM",
+    "ATM",
+    "ATM",
+    "BANK_BRANCH",
+    "BANK_BRANCH",
+    "MERCHANT",
+    "MERCHANT",
+    "UPI_MERCHANT",
+    "UNKNOWN",
+    "OTHER",
+]
 
 
 def pick_city():
@@ -41,11 +64,22 @@ def pick_city():
 
 def offset(latitude: float, longitude: float, km: float):
     angle = RNG.random() * math.tau
-    return (latitude + km * math.cos(angle) / 111.32, longitude + km * math.sin(angle) / (111.32 * math.cos(math.radians(latitude))))
+    return (
+        latitude + km * math.cos(angle) / 111.32,
+        longitude + km * math.sin(angle) / (111.32 * math.cos(math.radians(latitude))),
+    )
 
 
 def risk_category(score: int) -> str:
-    return "CRITICAL" if score >= 88 else "HIGH" if score >= 72 else "MEDIUM" if score >= 52 else "LOW"
+    return (
+        "CRITICAL"
+        if score >= 88
+        else "HIGH"
+        if score >= 72
+        else "MEDIUM"
+        if score >= 52
+        else "LOW"
+    )
 
 
 def build():
@@ -55,20 +89,88 @@ def build():
         city, state, district, pincode, latitude, longitude, _ = pick_city()
         distance = RNG.uniform(3.5, 12) if index >= 475 else abs(RNG.gauss(0, 0.8))
         lat, lng = offset(latitude, longitude, distance)
-        score = max(35, min(99, round(57 + RNG.random() * 38 - (10 if index >= 475 else 0))))
-        timestamp = now - timedelta(days=RNG.randrange(90), seconds=RNG.randrange(86400))
-        transactions.append({"id": f"HST-{index + 1:05}", "case_id": "CASE-CASHNET-001" if index % 7 == 0 else f"CASE-SYN-{index % 36 + 1:03}", "transaction_id": f"TXN-HIST-{index + 1:05}", "transaction_type": RNG.choice(["ATM_WITHDRAWAL", "TRANSFER", "CARD_PAYMENT", "UPI_TRANSFER"]), "amount": round(8000 + RNG.random() ** 2 * 260000), "currency": "INR", "timestamp": timestamp.isoformat(), "source_entity_id": f"SRC-{RNG.randrange(1800)}", "destination_entity_id": f"DST-{RNG.randrange(1800)}", "latitude": round(lat, 6), "longitude": round(lng, 6), "state": state, "district": district, "city": city, "pincode": pincode, "location_type": RNG.choice(LOCATION_TYPES), "risk_score": score, "risk_category": risk_category(score), "fraud_type": RNG.choice(FRAUD_TYPES), "data_source": "SYNTHETIC", "created_at": timestamp.isoformat()})
+        score = max(
+            35, min(99, round(57 + RNG.random() * 38 - (10 if index >= 475 else 0)))
+        )
+        timestamp = now - timedelta(
+            days=RNG.randrange(90), seconds=RNG.randrange(86400)
+        )
+        transactions.append(
+            {
+                "id": f"HST-{index + 1:05}",
+                "case_id": "CASE-CASHNET-001"
+                if index % 7 == 0
+                else f"CASE-SYN-{index % 36 + 1:03}",
+                "transaction_id": f"TXN-HIST-{index + 1:05}",
+                "transaction_type": RNG.choice(
+                    ["ATM_WITHDRAWAL", "TRANSFER", "CARD_PAYMENT", "UPI_TRANSFER"]
+                ),
+                "amount": round(8000 + RNG.random() ** 2 * 260000),
+                "currency": "INR",
+                "timestamp": timestamp.isoformat(),
+                "source_entity_id": f"SRC-{RNG.randrange(1800)}",
+                "destination_entity_id": f"DST-{RNG.randrange(1800)}",
+                "latitude": round(lat, 6),
+                "longitude": round(lng, 6),
+                "state": state,
+                "district": district,
+                "city": city,
+                "pincode": pincode,
+                "location_type": RNG.choice(LOCATION_TYPES),
+                "risk_score": score,
+                "risk_category": risk_category(score),
+                "fraud_type": RNG.choice(FRAUD_TYPES),
+                "data_source": "SYNTHETIC",
+                "created_at": timestamp.isoformat(),
+            }
+        )
+
     def poi(prefix, count, branch=False):
         output = []
         for index in range(count):
-            city, state, district, pincode, latitude, longitude, _ = CITIES[index % len(CITIES)]
+            city, state, district, pincode, latitude, longitude, _ = CITIES[
+                index % len(CITIES)
+            ]
             lat, lng = offset(latitude, longitude, RNG.random() * (4 if branch else 5))
-            output.append({"id": f"{prefix}-{index + 1:03}", "name": f"{city} Synthetic {'Branch' if branch else 'ATM'} {index + 1:03}", "bank_name": RNG.choice(["Synthetic National Bank", "Demo Cooperative Bank", "Prototype Bank"]), "ifsc": f"SYNB0{index + 1:06}" if branch else None, "latitude": round(lat, 6), "longitude": round(lng, 6), "city": city, "district": district, "state": state, "pincode": pincode, "status": "ACTIVE" if not branch else None, "data_source": "SYNTHETIC"})
+            output.append(
+                {
+                    "id": f"{prefix}-{index + 1:03}",
+                    "name": f"{city} Synthetic {'Branch' if branch else 'ATM'} {index + 1:03}",
+                    "bank_name": RNG.choice(
+                        [
+                            "Synthetic National Bank",
+                            "Demo Cooperative Bank",
+                            "Prototype Bank",
+                        ]
+                    ),
+                    "ifsc": f"SYNB0{index + 1:06}" if branch else None,
+                    "latitude": round(lat, 6),
+                    "longitude": round(lng, 6),
+                    "city": city,
+                    "district": district,
+                    "state": state,
+                    "pincode": pincode,
+                    "status": "ACTIVE" if not branch else None,
+                    "data_source": "SYNTHETIC",
+                }
+            )
         return output
-    return {"metadata": {"data_source": "SYNTHETIC", "seed": 20260818, "generated_at": now.isoformat()}, "transactions": transactions, "atms": poi("ATM", 210), "branches": poi("BRANCH", 60, branch=True)}
+
+    return {
+        "metadata": {
+            "data_source": "SYNTHETIC",
+            "seed": 20260818,
+            "generated_at": now.isoformat(),
+        },
+        "transactions": transactions,
+        "atms": poi("ATM", 210),
+        "branches": poi("BRANCH", 60, branch=True),
+    }
 
 
 if __name__ == "__main__":
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    (OUTPUT / "synthetic-geospatial.json").write_text(json.dumps(build(), indent=2), encoding="utf-8")
+    (OUTPUT / "synthetic-geospatial.json").write_text(
+        json.dumps(build(), indent=2), encoding="utf-8"
+    )
     print(f"Wrote {OUTPUT / 'synthetic-geospatial.json'}")

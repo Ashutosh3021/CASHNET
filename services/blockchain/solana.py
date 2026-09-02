@@ -2,6 +2,7 @@
 
 Provides integration with Solana blockchain via JSON-RPC.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -57,7 +58,9 @@ class SolanaAdapter(ChainAdapter):
             if response and response.get("result") == "ok":
                 # Get version
                 version_response = await self._rpc_call("getVersion")
-                version = version_response.get("result", {}).get("solana-core", "unknown")
+                version = version_response.get("result", {}).get(
+                    "solana-core", "unknown"
+                )
                 print(f"Connected to Solana (Version: {version})")
                 return True
 
@@ -72,7 +75,7 @@ class SolanaAdapter(ChainAdapter):
         if self._client:
             await self._client.aclose()
 
-    async def _rpc_call(self, method: str, params: list = None) -> dict:
+    async def _rpc_call(self, method: str, params: list | None = None) -> dict:
         """Make an RPC call."""
         if not self._client:
             await self.connect()
@@ -104,14 +107,13 @@ class SolanaAdapter(ChainAdapter):
             block_height = slot_response.get("result", 0)
 
             # Get block time
-            block_time_response = await self._rpc_call(
-                "getBlockTime",
-                [block_height]
-            )
+            block_time_response = await self._rpc_call("getBlockTime", [block_height])
             block_time_unix = block_time_response.get("result", 0)
-            block_timestamp = datetime.fromtimestamp(
-                block_time_unix, tz=timezone.utc
-            ) if block_time_unix else datetime.now(timezone.utc)
+            block_timestamp = (
+                datetime.fromtimestamp(block_time_unix, tz=timezone.utc)
+                if block_time_unix
+                else datetime.now(timezone.utc)
+            )
 
             # Calculate lag
             now = datetime.now(timezone.utc)
@@ -153,8 +155,7 @@ class SolanaAdapter(ChainAdapter):
 
             # Get transaction
             response = await self._rpc_call(
-                "getTransaction",
-                [tx_hash, {"encoding": "jsonParsed"}]
+                "getTransaction", [tx_hash, {"encoding": "jsonParsed"}]
             )
 
             tx_data = response.get("result")
@@ -167,9 +168,11 @@ class SolanaAdapter(ChainAdapter):
 
             # Get block time
             block_time = tx_data.get("blockTime", 0)
-            block_timestamp = datetime.fromtimestamp(
-                block_time, tz=timezone.utc
-            ) if block_time else datetime.now(timezone.utc)
+            block_timestamp = (
+                datetime.fromtimestamp(block_time, tz=timezone.utc)
+                if block_time
+                else datetime.now(timezone.utc)
+            )
 
             # Get slot
             slot = tx_data.get("slot", 0)
@@ -180,7 +183,9 @@ class SolanaAdapter(ChainAdapter):
                 # Try parsed format
                 account_keys = [
                     key.get("pubkey", "") if isinstance(key, dict) else key
-                    for key in transaction.get("transaction", {}).get("message", {}).get("accountKeys", [])
+                    for key in transaction.get("transaction", {})
+                    .get("message", {})
+                    .get("accountKeys", [])
                 ]
 
             # Get fee
@@ -248,8 +253,7 @@ class SolanaAdapter(ChainAdapter):
 
             # Get signatures
             response = await self._rpc_call(
-                "getSignaturesForAddress",
-                [address, {"limit": limit}]
+                "getSignaturesForAddress", [address, {"limit": limit}]
             )
 
             signatures = response.get("result", [])
@@ -259,8 +263,7 @@ class SolanaAdapter(ChainAdapter):
 
                 # Get transaction details
                 tx_response = await self._rpc_call(
-                    "getTransaction",
-                    [tx_hash, {"encoding": "jsonParsed"}]
+                    "getTransaction", [tx_hash, {"encoding": "jsonParsed"}]
                 )
 
                 tx_data = tx_response.get("result")
@@ -272,30 +275,34 @@ class SolanaAdapter(ChainAdapter):
                 block_time = tx_data.get("blockTime", 0)
                 slot = tx_data.get("slot", 0)
 
-                block_timestamp = datetime.fromtimestamp(
-                    block_time, tz=timezone.utc
-                ) if block_time else datetime.now(timezone.utc)
+                block_timestamp = (
+                    datetime.fromtimestamp(block_time, tz=timezone.utc)
+                    if block_time
+                    else datetime.now(timezone.utc)
+                )
 
                 fee_lamports = meta.get("fee", 0)
                 fee_sol = fee_lamports / 1_000_000_000
 
                 is_success = meta.get("err") is None
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.SOLANA,
-                    block_number=slot,
-                    block_timestamp=block_timestamp,
-                    from_address=address,
-                    from_address_type=await self._classify_address(address),
-                    to_address="",  # Would need to parse further
-                    to_address_type=AddressType.UNKNOWN,
-                    value=0,  # Would need to parse further
-                    currency="SOL",
-                    fee=fee_sol,
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=is_success,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.SOLANA,
+                        block_number=slot,
+                        block_timestamp=block_timestamp,
+                        from_address=address,
+                        from_address_type=await self._classify_address(address),
+                        to_address="",  # Would need to parse further
+                        to_address_type=AddressType.UNKNOWN,
+                        value=0,  # Would need to parse further
+                        currency="SOL",
+                        fee=fee_sol,
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=is_success,
+                    )
+                )
 
             return transactions
 
@@ -317,7 +324,10 @@ class SolanaAdapter(ChainAdapter):
             # Get block
             response = await self._rpc_call(
                 "getBlock",
-                [block_number, {"encoding": "jsonParsed", "transactionDetails": "full"}]
+                [
+                    block_number,
+                    {"encoding": "jsonParsed", "transactionDetails": "full"},
+                ],
             )
 
             block_data = response.get("result")
@@ -325,9 +335,11 @@ class SolanaAdapter(ChainAdapter):
                 return transactions
 
             block_time = block_data.get("blockTime", 0)
-            block_timestamp = datetime.fromtimestamp(
-                block_time, tz=timezone.utc
-            ) if block_time else datetime.now(timezone.utc)
+            block_timestamp = (
+                datetime.fromtimestamp(block_time, tz=timezone.utc)
+                if block_time
+                else datetime.now(timezone.utc)
+            )
 
             txs = block_data.get("transactions", [])
 
@@ -350,21 +362,23 @@ class SolanaAdapter(ChainAdapter):
 
                 is_success = meta.get("err") is None
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.SOLANA,
-                    block_number=block_number,
-                    block_timestamp=block_timestamp,
-                    from_address=from_address,
-                    from_address_type=await self._classify_address(from_address),
-                    to_address=to_address,
-                    to_address_type=await self._classify_address(to_address),
-                    value=0,  # Would need balance analysis
-                    currency="SOL",
-                    fee=fee_sol,
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=is_success,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.SOLANA,
+                        block_number=block_number,
+                        block_timestamp=block_timestamp,
+                        from_address=from_address,
+                        from_address_type=await self._classify_address(from_address),
+                        to_address=to_address,
+                        to_address_type=await self._classify_address(to_address),
+                        value=0,  # Would need balance analysis
+                        currency="SOL",
+                        fee=fee_sol,
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=is_success,
+                    )
+                )
 
             return transactions
 
@@ -379,18 +393,14 @@ class SolanaAdapter(ChainAdapter):
                 await self.connect()
 
             # Get balance
-            balance_response = await self._rpc_call(
-                "getBalance",
-                [address]
-            )
+            balance_response = await self._rpc_call("getBalance", [address])
 
             balance_lamports = balance_response.get("result", {}).get("value", 0)
             balance_sol = balance_lamports / 1_000_000_000
 
             # Check if account exists
             account_response = await self._rpc_call(
-                "getAccountInfo",
-                [address, {"encoding": "jsonParsed"}]
+                "getAccountInfo", [address, {"encoding": "jsonParsed"}]
             )
 
             account_data = account_response.get("result", {}).get("value")
@@ -438,15 +448,18 @@ class SolanaAdapter(ChainAdapter):
                 await self.connect()
 
             response = await self._rpc_call(
-                "getTransaction",
-                [tx_hash, {"encoding": "jsonParsed"}]
+                "getTransaction", [tx_hash, {"encoding": "jsonParsed"}]
             )
 
             tx_data = response.get("result")
             if not tx_data:
                 return []
 
-            instructions = tx_data.get("transaction", {}).get("message", {}).get("instructions", [])
+            instructions = (
+                tx_data.get("transaction", {})
+                .get("message", {})
+                .get("instructions", [])
+            )
 
             return [
                 {
@@ -476,8 +489,7 @@ class SolanaAdapter(ChainAdapter):
             await self.connect()
 
         response = await self._rpc_call(
-            "getBlock",
-            [block_number, {"encoding": "jsonParsed"}]
+            "getBlock", [block_number, {"encoding": "jsonParsed"}]
         )
 
         block_data = response.get("result", {})

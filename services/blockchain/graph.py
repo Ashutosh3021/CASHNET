@@ -2,6 +2,7 @@
 
 Provides Neo4j integration for storing and querying transaction graphs.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -54,14 +55,10 @@ class GraphService:
             )
 
             # Block index
-            await session.run(
-                "CREATE INDEX IF NOT EXISTS FOR (b:Block) ON (b.number)"
-            )
+            await session.run("CREATE INDEX IF NOT EXISTS FOR (b:Block) ON (b.number)")
 
             # Chain index
-            await session.run(
-                "CREATE INDEX IF NOT EXISTS FOR (a:Address) ON (a.chain)"
-            )
+            await session.run("CREATE INDEX IF NOT EXISTS FOR (a:Address) ON (a.chain)")
 
             # Composite index for address + chain
             await session.run(
@@ -78,16 +75,22 @@ class GraphService:
                     MERGE (from:Address {address: $from_address, chain: $chain})
                     SET from.type = $from_type,
                         from.last_seen = datetime()
-                    
+
                     MERGE (to:Address {address: $to_address, chain: $chain})
                     SET to.type = $to_type,
                         to.last_seen = datetime()
                     """,
                     from_address=transaction.from_address,
                     to_address=transaction.to_address,
-                    chain=transaction.chain.value if isinstance(transaction.chain, ChainType) else transaction.chain,
-                    from_type=transaction.from_address_type.value if isinstance(transaction.from_address_type, AddressType) else transaction.from_address_type,
-                    to_type=transaction.to_address_type.value if isinstance(transaction.to_address_type, AddressType) else transaction.to_address_type,
+                    chain=transaction.chain.value
+                    if isinstance(transaction.chain, ChainType)
+                    else transaction.chain,
+                    from_type=transaction.from_address_type.value
+                    if isinstance(transaction.from_address_type, AddressType)
+                    else transaction.from_address_type,
+                    to_type=transaction.to_address_type.value
+                    if isinstance(transaction.to_address_type, AddressType)
+                    else transaction.to_address_type,
                 )
 
                 # Create transaction and relationships
@@ -95,7 +98,7 @@ class GraphService:
                     """
                     MATCH (from:Address {address: $from_address, chain: $chain})
                     MATCH (to:Address {address: $to_address, chain: $chain})
-                    
+
                     MERGE (tx:Transaction {tx_hash: $tx_hash, chain: $chain})
                     SET tx.block_number = $block_number,
                         tx.block_timestamp = datetime($block_timestamp),
@@ -106,19 +109,23 @@ class GraphService:
                         tx.is_suspicious = $is_suspicious,
                         tx.risk_score = $risk_score,
                         tx.created_at = datetime()
-                    
+
                     MERGE (from)-[:SENT]->(tx)
                     MERGE (tx)-[:RECEIVED_BY]->(to)
                     """,
                     from_address=transaction.from_address,
                     to_address=transaction.to_address,
-                    chain=transaction.chain.value if isinstance(transaction.chain, ChainType) else transaction.chain,
+                    chain=transaction.chain.value
+                    if isinstance(transaction.chain, ChainType)
+                    else transaction.chain,
                     tx_hash=transaction.tx_hash,
                     block_number=transaction.block_number,
                     block_timestamp=transaction.block_timestamp.isoformat(),
                     value=transaction.value,
                     currency=transaction.currency,
-                    tx_type=transaction.transaction_type.value if isinstance(transaction.transaction_type, TransactionType) else transaction.transaction_type,
+                    tx_type=transaction.transaction_type.value
+                    if isinstance(transaction.transaction_type, TransactionType)
+                    else transaction.transaction_type,
                     is_success=transaction.is_success,
                     is_suspicious=transaction.is_suspicious,
                     risk_score=transaction.risk_score or 0.0,
@@ -173,15 +180,17 @@ class GraphService:
                 async for record in result:
                     tx = record["tx"]
                     if tx:
-                        transactions.append({
-                            "tx_hash": tx["tx_hash"],
-                            "block_number": tx["block_number"],
-                            "value": tx["value"],
-                            "currency": tx["currency"],
-                            "transaction_type": tx["transaction_type"],
-                            "is_suspicious": tx["is_suspicious"],
-                            "risk_score": tx["risk_score"],
-                        })
+                        transactions.append(
+                            {
+                                "tx_hash": tx["tx_hash"],
+                                "block_number": tx["block_number"],
+                                "value": tx["value"],
+                                "currency": tx["currency"],
+                                "transaction_type": tx["transaction_type"],
+                                "is_suspicious": tx["is_suspicious"],
+                                "risk_score": tx["risk_score"],
+                            }
+                        )
 
                 return transactions
 
@@ -205,16 +214,18 @@ class GraphService:
                 result = await session.run(
                     """
                     MATCH path = (from:Address {address: $from_address, chain: $chain})
-                        -[:SENT|RECEIVED_BY*1..""" + str(max_hops) + """]-> 
+                        -[:SENT|RECEIVED_BY*1.."""
+                    + str(max_hops)
+                    + """]->
                         (to:Address {address: $to_address, chain: $chain})
-                    
-                    WHERE ALL(tx IN nodes(path) WHERE 
+
+                    WHERE ALL(tx IN nodes(path) WHERE
                         tx:Transaction AND
                         tx.value >= $min_value AND
                         tx.block_timestamp >= datetime() - duration({days: $max_time_days})
                     )
-                    
-                    RETURN path, 
+
+                    RETURN path,
                            [n IN nodes(path) | n] as nodes,
                            [r IN relationships(path) | r] as relationships
                     LIMIT 100
@@ -230,10 +241,14 @@ class GraphService:
                 async for record in result:
                     path_data = []
                     for node in record["nodes"]:
-                        path_data.append({
-                            "type": "address" if "address" in node else "transaction",
-                            "data": dict(node),
-                        })
+                        path_data.append(
+                            {
+                                "type": "address"
+                                if "address" in node
+                                else "transaction",
+                                "data": dict(node),
+                            }
+                        )
                     paths.append(path_data)
 
                 return paths
@@ -256,14 +271,16 @@ class GraphService:
                 result = await session.run(
                     """
                     MATCH path = (center:Address {address: $address, chain: $chain})
-                        -[:SENT|RECEIVED_BY*1..""" + str(depth) + """]-> 
+                        -[:SENT|RECEIVED_BY*1.."""
+                    + str(depth)
+                    + """]->
                         (connected:Address)
-                    
+
                     WITH center, connected, path
-                    
+
                     OPTIONAL MATCH (center)-[r1:SENT|RECEIVED_BY]->(tx1:Transaction)
                     OPTIONAL MATCH (tx1)-[r2:SENT|RECEIVED_BY]->(connected)
-                    
+
                     RETURN DISTINCT
                         collect(DISTINCT {
                             id: center.address,
@@ -277,11 +294,11 @@ class GraphService:
                             address_type: connected.type
                         }) as connected_nodes,
                         collect(DISTINCT {
-                            source: CASE 
+                            source: CASE
                                 WHEN startNode(r1).address = center.address THEN center.address
                                 ELSE connected.address
                             END,
-                            target: CASE 
+                            target: CASE
                                 WHEN endNode(r1).address = connected.address THEN connected.address
                                 ELSE center.address
                             END,
@@ -319,11 +336,11 @@ class GraphService:
                 result = await session.run(
                     """
                     MATCH (a:Address {address: $address, chain: $chain})
-                    
+
                     // Get all transactions
                     OPTIONAL MATCH (a)-[:SENT]->(tx_out:Transaction)
                     OPTIONAL MATCH (tx_in:Transaction)-[:RECEIVED_BY]->(a)
-                    
+
                     // Count suspicious transactions
                     WITH a,
                          count(DISTINCT tx_out) as outgoing_count,
@@ -333,11 +350,11 @@ class GraphService:
                          sum(tx_out.value) as total_out_value,
                          sum(tx_in.value) as total_in_value,
                          avg(CASE WHEN tx_out.is_suspicious THEN tx_out.risk_score ELSE 0 END) as avg_risk_score
-                    
+
                     // Get connected addresses
                     OPTIONAL MATCH (a)-[:SENT|RECEIVED_BY*1..2]-(connected:Address)
                     WHERE connected.type = 'mixer' OR connected.type = 'exchange'
-                    
+
                     RETURN a.address as address,
                            outgoing_count,
                            incoming_count,
@@ -360,7 +377,9 @@ class GraphService:
                     # Suspicious transaction ratio
                     total_tx = record["outgoing_count"] + record["incoming_count"]
                     if total_tx > 0:
-                        suspicious_ratio = (record["suspicious_out"] + record["suspicious_in"]) / total_tx
+                        suspicious_ratio = (
+                            record["suspicious_out"] + record["suspicious_in"]
+                        ) / total_tx
                         risk_score += suspicious_ratio * 0.4
 
                     # Average risk score of transactions

@@ -2,6 +2,7 @@
 
 Generates chronological timelines from transaction traces and investigation events.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -15,6 +16,7 @@ from .base import ChainType, NormalizedTransaction
 
 class TimelineEventType(str, Enum):
     """Timeline event types."""
+
     TRANSACTION = "transaction"
     BRIDGE_EVENT = "bridge_event"
     ADDRESS_DISCOVERY = "address_discovery"
@@ -29,6 +31,7 @@ class TimelineEventType(str, Enum):
 
 class TimelineEvent(BaseModel):
     """A single event in the timeline."""
+
     event_id: str
     event_type: TimelineEventType
     timestamp: datetime
@@ -59,6 +62,7 @@ class TimelineEvent(BaseModel):
 
 class TimelineFilter(BaseModel):
     """Filter criteria for timeline."""
+
     start_time: datetime | None = None
     end_time: datetime | None = None
     event_types: list[TimelineEventType] | None = None
@@ -71,6 +75,7 @@ class TimelineFilter(BaseModel):
 
 class TimelineSummary(BaseModel):
     """Summary statistics for a timeline."""
+
     total_events: int = 0
     time_span_hours: float = 0.0
     first_event: datetime | None = None
@@ -133,7 +138,9 @@ class TimelineService:
                 "from_address": transaction.from_address,
                 "to_address": transaction.to_address,
                 "block_number": transaction.block_number,
-                "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else transaction.transaction_type,
+                "transaction_type": transaction.transaction_type.value
+                if hasattr(transaction.transaction_type, "value")
+                else transaction.transaction_type,
                 "is_success": transaction.is_success,
             },
         )
@@ -289,15 +296,15 @@ class TimelineService:
     def get_timeline(
         self,
         case_id: str,
-        filter: TimelineFilter | None = None,
+        timeline_filter: TimelineFilter | None = None,
     ) -> list[TimelineEvent]:
         """Get timeline for a case, optionally filtered."""
         event_ids = self._case_index.get(case_id, [])
         events = [self._events[eid] for eid in event_ids if eid in self._events]
 
         # Apply filters
-        if filter:
-            events = self._apply_filter(events, filter)
+        if timeline_filter:
+            events = self._apply_filter(events, timeline_filter)
 
         # Sort by timestamp
         events.sort(key=lambda e: e.timestamp)
@@ -432,19 +439,23 @@ class TimelineService:
     def _apply_filter(
         self,
         events: list[TimelineEvent],
-        filter: TimelineFilter,
+        timeline_filter: TimelineFilter,
     ) -> list[TimelineEvent]:
         """Apply filter to events."""
         filtered = events
 
-        if filter.start_time:
-            filtered = [e for e in filtered if e.timestamp >= filter.start_time]
+        if timeline_filter.start_time:
+            filtered = [
+                e for e in filtered if e.timestamp >= timeline_filter.start_time
+            ]
 
-        if filter.end_time:
-            filtered = [e for e in filtered if e.timestamp <= filter.end_time]
+        if timeline_filter.end_time:
+            filtered = [e for e in filtered if e.timestamp <= timeline_filter.end_time]
 
-        if filter.event_types:
-            filtered = [e for e in filtered if e.event_type in filter.event_types]
+        if timeline_filter.event_types:
+            filtered = [
+                e for e in filtered if e.event_type in timeline_filter.event_types
+            ]
 
         if filter.chains:
             filtered = [e for e in filtered if e.chain == filter.chains]
@@ -452,15 +463,22 @@ class TimelineService:
         if filter.addresses:
             filter_addrs = {a.lower() for a in filter.addresses}
             filtered = [
-                e for e in filtered
-                if e.address and e.address.lower() in filter_addrs
+                e for e in filtered if e.address and e.address.lower() in filter_addrs
             ]
 
         if filter.min_value is not None:
-            filtered = [e for e in filtered if e.value is not None and e.value >= filter.min_value]
+            filtered = [
+                e
+                for e in filtered
+                if e.value is not None and e.value >= filter.min_value
+            ]
 
         if filter.max_value is not None:
-            filtered = [e for e in filtered if e.value is not None and e.value <= filter.max_value]
+            filtered = [
+                e
+                for e in filtered
+                if e.value is not None and e.value <= filter.max_value
+            ]
 
         if filter.include_suspicious_only:
             filtered = [e for e in filtered if e.is_suspicious]

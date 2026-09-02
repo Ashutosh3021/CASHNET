@@ -3,6 +3,7 @@
 Provides workflow for freeze requests, disclosure requests, and
 communication with Virtual Asset Service Providers (VASPs).
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -21,6 +22,7 @@ from .base import (
 
 class VASPRequestType(str, Enum):
     """VASP request types."""
+
     FREEZE = "freeze"
     DISCLOSURE = "disclosure"
     BLOCK = "block"
@@ -30,6 +32,7 @@ class VASPRequestType(str, Enum):
 
 class VASPRequestStatus(str, Enum):
     """VASP request status."""
+
     DRAFT = "draft"
     PENDING_APPROVAL = "pending_approval"
     APPROVED = "approved"
@@ -159,9 +162,7 @@ class VASPConnector(IntegrationAdapter):
 
             # Check with VASP if online
             if self._client and request.get("vasp_api_endpoint"):
-                response = await self._client.get(
-                    f"/requests/{external_id}/status"
-                )
+                response = await self._client.get(f"/requests/{external_id}/status")
                 if response.status_code == 200:
                     vasp_status = response.json()
                     request["status"] = vasp_status.get("status")
@@ -439,6 +440,7 @@ class VASPConnector(IntegrationAdapter):
     def _calculate_expiry(self) -> str:
         """Calculate request expiry date."""
         from datetime import timedelta
+
         expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
         return expiry.isoformat()
 

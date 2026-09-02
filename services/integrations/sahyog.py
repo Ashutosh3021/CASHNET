@@ -3,6 +3,7 @@
 Provides integration with SAHYOG (System for Automated Handling of Your
 Online Grievances) for case hand-off and status tracking.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -114,7 +115,9 @@ class SAHYOGConnector(IntegrationAdapter):
                 return IntegrationResponse(
                     request_id=case_data.get("request_id", ""),
                     status=IntegrationStatus.FAILED,
-                    error_message=error_data.get("error", f"HTTP {response.status_code}"),
+                    error_message=error_data.get(
+                        "error", f"HTTP {response.status_code}"
+                    ),
                 )
 
         except (httpx.RequestError, ValueError, KeyError) as e:
@@ -258,7 +261,9 @@ class SAHYOGConnector(IntegrationAdapter):
             },
         }
 
-    def _transform_sahyog_to_cashnet(self, sahyog_data: dict[str, Any]) -> dict[str, Any]:
+    def _transform_sahyog_to_cashnet(
+        self, sahyog_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform SAHYOG case data to CashNet format."""
         return {
             "title": sahyog_data.get("title", ""),

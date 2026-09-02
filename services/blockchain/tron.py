@@ -2,6 +2,7 @@
 
 Provides integration with Tron blockchain via Trongrid API.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -58,7 +59,11 @@ class TronAdapter(ChainAdapter):
             response = await self._client.get("/wallet/getnowblock")
             if response.status_code == 200:
                 block_data = response.json()
-                block_height = block_data.get("block_header", {}).get("raw_data", {}).get("number", 0)
+                block_height = (
+                    block_data.get("block_header", {})
+                    .get("raw_data", {})
+                    .get("number", 0)
+                )
                 print(f"Connected to Tron (Block height: {block_height})")
                 return True
 
@@ -260,30 +265,28 @@ class TronAdapter(ChainAdapter):
                 contract = raw_data.get("contract", [{}])[0]
                 parameter = contract.get("parameter", {}).get("value", {})
 
-                from_address = self._hex_to_base58(
-                    parameter.get("owner_address", "")
-                )
-                to_address = self._hex_to_base58(
-                    parameter.get("to_address", "")
-                )
+                from_address = self._hex_to_base58(parameter.get("owner_address", ""))
+                to_address = self._hex_to_base58(parameter.get("to_address", ""))
 
                 amount = parameter.get("amount", 0)
                 value_trx = amount / 1_000_000
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.TRON,
-                    block_number=block_height,
-                    block_timestamp=block_timestamp,
-                    from_address=from_address,
-                    from_address_type=await self._classify_address(from_address),
-                    to_address=to_address,
-                    to_address_type=await self._classify_address(to_address),
-                    value=value_trx,
-                    currency="TRX",
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=True,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.TRON,
+                        block_number=block_height,
+                        block_timestamp=block_timestamp,
+                        from_address=from_address,
+                        from_address_type=await self._classify_address(from_address),
+                        to_address=to_address,
+                        to_address_type=await self._classify_address(to_address),
+                        value=value_trx,
+                        currency="TRX",
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=True,
+                    )
+                )
 
             return transactions
 
@@ -312,7 +315,11 @@ class TronAdapter(ChainAdapter):
                 return transactions
 
             block_data = response.json()
-            block_timestamp_raw = block_data.get("block_header", {}).get("raw_data", {}).get("timestamp", 0)
+            block_timestamp_raw = (
+                block_data.get("block_header", {})
+                .get("raw_data", {})
+                .get("timestamp", 0)
+            )
             block_timestamp = datetime.fromtimestamp(
                 block_timestamp_raw / 1000, tz=timezone.utc
             )
@@ -331,20 +338,22 @@ class TronAdapter(ChainAdapter):
                 amount = parameter.get("amount", 0)
                 value_trx = amount / 1_000_000
 
-                transactions.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.TRON,
-                    block_number=block_number,
-                    block_timestamp=block_timestamp,
-                    from_address=from_address,
-                    from_address_type=await self._classify_address(from_address),
-                    to_address=to_address,
-                    to_address_type=await self._classify_address(to_address),
-                    value=value_trx,
-                    currency="TRX",
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=True,
-                ))
+                transactions.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.TRON,
+                        block_number=block_number,
+                        block_timestamp=block_timestamp,
+                        from_address=from_address,
+                        from_address_type=await self._classify_address(from_address),
+                        to_address=to_address,
+                        to_address_type=await self._classify_address(to_address),
+                        value=value_trx,
+                        currency="TRX",
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=True,
+                    )
+                )
 
             return transactions
 
@@ -448,21 +457,23 @@ class TronAdapter(ChainAdapter):
                     block_timestamp_raw / 1000, tz=timezone.utc
                 )
 
-                transfers.append(NormalizedTransaction(
-                    tx_hash=tx_hash,
-                    chain=ChainType.TRON,
-                    block_number=tx_data.get("blockNumber", 0),
-                    block_timestamp=block_timestamp,
-                    from_address=from_addr,
-                    from_address_type=await self._classify_address(from_addr),
-                    to_address=to_addr,
-                    to_address_type=await self._classify_address(to_addr),
-                    value=float(amount),
-                    currency="TOKEN",
-                    transaction_type=TransactionType.TRANSFER,
-                    is_success=True,
-                    token_address=token_address,
-                ))
+                transfers.append(
+                    NormalizedTransaction(
+                        tx_hash=tx_hash,
+                        chain=ChainType.TRON,
+                        block_number=tx_data.get("blockNumber", 0),
+                        block_timestamp=block_timestamp,
+                        from_address=from_addr,
+                        from_address_type=await self._classify_address(from_addr),
+                        to_address=to_addr,
+                        to_address_type=await self._classify_address(to_addr),
+                        value=float(amount),
+                        currency="TOKEN",
+                        transaction_type=TransactionType.TRANSFER,
+                        is_success=True,
+                        token_address=token_address,
+                    )
+                )
 
             return transfers
 
@@ -482,7 +493,9 @@ class TronAdapter(ChainAdapter):
         response = await self._client.get("/wallet/getnowblock")
         if response.status_code == 200:
             block_data = response.json()
-            return block_data.get("block_header", {}).get("raw_data", {}).get("number", 0)
+            return (
+                block_data.get("block_header", {}).get("raw_data", {}).get("number", 0)
+            )
         return 0
 
     async def get_block_by_number(self, block_number: int) -> dict[str, Any]:
@@ -547,6 +560,7 @@ class TronAdapter(ChainAdapter):
 
         try:
             import base58
+
             return base58.b58encode_check(bytes.fromhex(hex_address)).decode()
         except Exception:
             # Fallback: return hex address

@@ -3,6 +3,7 @@
 Provides model versioning, approval workflows, deployment management,
 and governance tracking for ML models.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class ModelStatus(str, Enum):
     """Model lifecycle status."""
+
     DRAFT = "draft"
     PENDING_REVIEW = "pending_review"
     PENDING_APPROVAL = "pending_approval"
@@ -26,6 +28,7 @@ class ModelStatus(str, Enum):
 
 class DeploymentStage(str, Enum):
     """Deployment stages."""
+
     DEVELOPMENT = "development"
     STAGING = "staging"
     CANARY = "canary"
@@ -35,6 +38,7 @@ class DeploymentStage(str, Enum):
 
 class ModelType(str, Enum):
     """Model types."""
+
     CLASSIFICATION = "classification"
     REGRESSION = "regression"
     CLUSTERING = "clustering"
@@ -47,6 +51,7 @@ class ModelType(str, Enum):
 
 class ArtifactType(str, Enum):
     """Model artifact types."""
+
     MODEL_WEIGHTS = "model_weights"
     MODEL_CONFIG = "model_config"
     TRAINING_DATA = "training_data"
@@ -59,6 +64,7 @@ class ArtifactType(str, Enum):
 
 class ModelArtifact(BaseModel):
     """A model artifact (file/reference)."""
+
     artifact_id: str
     artifact_type: ArtifactType
     name: str
@@ -77,6 +83,7 @@ class ModelArtifact(BaseModel):
 
 class ApprovalRecord(BaseModel):
     """Model approval record."""
+
     approval_id: str
     reviewer_id: str
     reviewer_role: str
@@ -88,6 +95,7 @@ class ApprovalRecord(BaseModel):
 
 class ModelVersion(BaseModel):
     """A model version."""
+
     model_id: str
     model_name: str
     version: str  # Semantic version (e.g., "1.0.0")
@@ -187,11 +195,13 @@ class ModelRegistry:
         self._status_index[model.status].append(model_id)
 
         # Audit
-        model.audit_trail.append({
-            "action": "registered",
-            "actor": created_by,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        model.audit_trail.append(
+            {
+                "action": "registered",
+                "actor": created_by,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         return model
 
@@ -232,11 +242,13 @@ class ModelRegistry:
         model.status = ModelStatus.PENDING_REVIEW
         model.updated_at = datetime.now(timezone.utc)
 
-        model.audit_trail.append({
-            "action": "submitted_for_review",
-            "actor": submitted_by,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        model.audit_trail.append(
+            {
+                "action": "submitted_for_review",
+                "actor": submitted_by,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         return model
 
@@ -254,7 +266,10 @@ class ModelRegistry:
         if not model:
             raise ValueError(f"Model not found: {model_id}")
 
-        if model.status not in [ModelStatus.PENDING_REVIEW, ModelStatus.PENDING_APPROVAL]:
+        if model.status not in [
+            ModelStatus.PENDING_REVIEW,
+            ModelStatus.PENDING_APPROVAL,
+        ]:
             raise ValueError(f"Model not in review status, got: {model.status}")
 
         import uuid
@@ -282,13 +297,15 @@ class ModelRegistry:
 
         model.updated_at = datetime.now(timezone.utc)
 
-        model.audit_trail.append({
-            "action": f"review_{decision}",
-            "actor": reviewer_id,
-            "role": reviewer_role,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "comments": comments,
-        })
+        model.audit_trail.append(
+            {
+                "action": f"review_{decision}",
+                "actor": reviewer_id,
+                "role": reviewer_role,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "comments": comments,
+            }
+        )
 
         return model
 
@@ -313,16 +330,20 @@ class ModelRegistry:
         model.endpoint_url = endpoint_url
         model.updated_at = datetime.now(timezone.utc)
 
-        model.audit_trail.append({
-            "action": "deployed",
-            "actor": deployed_by,
-            "stage": stage.value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        model.audit_trail.append(
+            {
+                "action": "deployed",
+                "actor": deployed_by,
+                "stage": stage.value,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         return model
 
-    def archive_model(self, model_id: str, archived_by: str, reason: str) -> ModelVersion:
+    def archive_model(
+        self, model_id: str, archived_by: str, reason: str
+    ) -> ModelVersion:
         """Archive a model."""
         model = self._models.get(model_id)
         if not model:
@@ -331,12 +352,14 @@ class ModelRegistry:
         model.status = ModelStatus.ARCHIVED
         model.updated_at = datetime.now(timezone.utc)
 
-        model.audit_trail.append({
-            "action": "archived",
-            "actor": archived_by,
-            "reason": reason,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        model.audit_trail.append(
+            {
+                "action": "archived",
+                "actor": archived_by,
+                "reason": reason,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         return model
 
@@ -439,7 +462,7 @@ class ModelRegistry:
                 by_stage[stage] = by_stage.get(stage, 0) + 1
 
         # Unique model names
-        unique_names = set(m.model_name for m in models)
+        unique_names = {m.model_name for m in models}
 
         return {
             "total_models": len(models),
@@ -448,7 +471,8 @@ class ModelRegistry:
             "by_type": by_type,
             "by_deployment_stage": by_stage,
             "deployed_count": by_status.get("deployed", 0),
-            "pending_review_count": by_status.get("pending_review", 0) + by_status.get("pending_approval", 0),
+            "pending_review_count": by_status.get("pending_review", 0)
+            + by_status.get("pending_approval", 0),
         }
 
     def get_audit_trail(self, model_id: str) -> list[dict[str, Any]]:

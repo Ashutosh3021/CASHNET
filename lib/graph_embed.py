@@ -10,6 +10,7 @@ VASP-attribution head can consume. The same `embed()` works on any
 wallet->wallet transaction graph, so when live multi-chain indexers feed real
 edges this module upgrades the prototype to production attribution.
 """
+
 from __future__ import annotations
 
 import random
@@ -32,8 +33,9 @@ def build_adj(edge_lists: Iterable[Iterable[tuple[str, str]]]) -> dict[str, list
     return adj
 
 
-def random_walks(adj: dict[str, list[str]], num_walks: int = 10, walk_len: int = 8,
-                 seed: int = 42) -> list[list[str]]:
+def random_walks(
+    adj: dict[str, list[str]], num_walks: int = 10, walk_len: int = 8, seed: int = 42
+) -> list[list[str]]:
     rnd = random.Random(seed)
     nodes = [n for n in adj if adj[n]]
     walks: list[list[str]] = []
@@ -51,8 +53,14 @@ def random_walks(adj: dict[str, list[str]], num_walks: int = 10, walk_len: int =
     return walks
 
 
-def embed(adj: dict[str, list[str]], dim: int = 32, num_walks: int = 10,
-          walk_len: int = 8, window: int = 2, seed: int = 42):
+def embed(
+    adj: dict[str, list[str]],
+    dim: int = 32,
+    num_walks: int = 10,
+    walk_len: int = 8,
+    window: int = 2,
+    seed: int = 42,
+):
     """Return (node->vector dict, fitted TruncatedSVD)."""
     nodes = list(adj.keys())
     if not nodes:
@@ -76,8 +84,9 @@ def embed(adj: dict[str, list[str]], dim: int = 32, num_walks: int = 10,
     return {n: emb[i] for i, n in enumerate(nodes)}, svd
 
 
-def aggregate(node_vecs: dict[str, np.ndarray], node_list: Iterable[str],
-              dim: int) -> np.ndarray:
+def aggregate(
+    node_vecs: dict[str, np.ndarray], node_list: Iterable[str], dim: int
+) -> np.ndarray:
     vecs = [node_vecs[n] for n in node_list if n in node_vecs]
     if vecs:
         return np.mean(vecs, axis=0)

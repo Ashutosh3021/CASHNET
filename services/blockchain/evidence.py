@@ -2,6 +2,7 @@
 
 Provides immutable evidence snapshots, verification, and report export.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -17,6 +18,7 @@ from .base import ChainType, NormalizedTransaction
 
 class PackageType(str, Enum):
     """Evidence package types."""
+
     TRANSACTION_TRACE = "transaction_trace"
     VASP_ATTESTATION = "vasp_attestation"
     BLOCKCHAIN_SNAPSHOT = "blockchain_snapshot"
@@ -27,6 +29,7 @@ class PackageType(str, Enum):
 
 class ItemType(str, Enum):
     """Evidence item types."""
+
     TRANSACTION = "transaction"
     SCREENSHOT = "screenshot"
     DOCUMENT = "document"
@@ -39,6 +42,7 @@ class ItemType(str, Enum):
 
 class VerificationStatus(str, Enum):
     """Evidence verification status."""
+
     UNVERIFIED = "unverified"
     VERIFIED = "verified"
     TAMPERED = "tampered"
@@ -47,6 +51,7 @@ class VerificationStatus(str, Enum):
 
 class EvidenceItem(BaseModel):
     """Individual evidence item."""
+
     item_id: str
     item_type: ItemType
     content: dict[str, Any]
@@ -59,6 +64,7 @@ class EvidenceItem(BaseModel):
 
 class EvidencePackage(BaseModel):
     """Immutable evidence package."""
+
     package_id: str
     case_id: str
     package_type: PackageType
@@ -94,6 +100,7 @@ class EvidencePackage(BaseModel):
 
 class ReportFormat(str, Enum):
     """Report export formats."""
+
     JSON = "json"
     PDF = "pdf"
     HTML = "html"
@@ -196,14 +203,18 @@ class EvidenceService:
         """Add a transaction as evidence."""
         content = {
             "tx_hash": transaction.tx_hash,
-            "chain": transaction.chain.value if isinstance(transaction.chain, ChainType) else transaction.chain,
+            "chain": transaction.chain.value
+            if isinstance(transaction.chain, ChainType)
+            else transaction.chain,
             "block_number": transaction.block_number,
             "block_timestamp": transaction.block_timestamp.isoformat(),
             "from_address": transaction.from_address,
             "to_address": transaction.to_address,
             "value": transaction.value,
             "currency": transaction.currency,
-            "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else transaction.transaction_type,
+            "transaction_type": transaction.transaction_type.value
+            if hasattr(transaction.transaction_type, "value")
+            else transaction.transaction_type,
             "is_success": transaction.is_success,
             "risk_score": transaction.risk_score,
             "is_suspicious": transaction.is_suspicious,
@@ -291,16 +302,23 @@ class EvidenceService:
 
         # Verify package hash
         computed_package_hash = self._calculate_package_hash(package)
-        verification_result["package_hash_valid"] = computed_package_hash == package.content_hash
+        verification_result["package_hash_valid"] = (
+            computed_package_hash == package.content_hash
+        )
 
         # Determine overall status
-        if (verification_result["items_failed"] == 0 and
-            verification_result["package_hash_valid"] and
-            package.is_sealed):
+        if (
+            verification_result["items_failed"] == 0
+            and verification_result["package_hash_valid"]
+            and package.is_sealed
+        ):
             verification_result["overall_status"] = VerificationStatus.VERIFIED
             package.verification_status = VerificationStatus.VERIFIED
             package.verified_at = datetime.now(timezone.utc)
-        elif verification_result["items_failed"] > 0 or not verification_result["package_hash_valid"]:
+        elif (
+            verification_result["items_failed"] > 0
+            or not verification_result["package_hash_valid"]
+        ):
             verification_result["overall_status"] = VerificationStatus.TAMPERED
             package.verification_status = VerificationStatus.TAMPERED
         else:
@@ -325,18 +343,18 @@ class EvidenceService:
     def export_package(
         self,
         package_id: str,
-        format: ReportFormat = ReportFormat.JSON,
+        export_format: ReportFormat = ReportFormat.JSON,
     ) -> dict[str, Any]:
         """Export a package in the specified format."""
         package = self._packages.get(package_id)
         if not package:
             raise ValueError(f"Package not found: {package_id}")
 
-        if format == ReportFormat.JSON:
+        if export_format == ReportFormat.JSON:
             return self._export_json(package)
-        elif format == ReportFormat.HTML:
+        elif export_format == ReportFormat.HTML:
             return self._export_html(package)
-        elif format == ReportFormat.CSV:
+        elif export_format == ReportFormat.CSV:
             return self._export_csv(package)
         else:
             return self._export_json(package)
@@ -452,16 +470,16 @@ class EvidenceService:
         <p><strong>Case ID:</strong> {package.case_id}</p>
         <p><strong>Type:</strong> {package.package_type.value}</p>
         <p><strong>Status:</strong> {package.verification_status.value}</p>
-        <p><strong>Sealed:</strong> {'Yes' if package.is_sealed else 'No'}</p>
+        <p><strong>Sealed:</strong> {"Yes" if package.is_sealed else "No"}</p>
     </div>
-    
+
     <h2>Items ({len(package.items)})</h2>
 """
 
         for item in package.items:
             html_content += f"""
     <div class="item">
-        <h3>{item.item_type.value}: {item.description or 'No description'}</h3>
+        <h3>{item.item_type.value}: {item.description or "No description"}</h3>
         <p class="hash">Hash: {item.content_hash}</p>
         <pre>{json.dumps(item.content, indent=2)}</pre>
     </div>
@@ -490,7 +508,7 @@ class EvidenceService:
         for item in package.items:
             csv_rows.append(
                 f"{item.item_id},{item.item_type.value},"
-                f"\"{item.description or ''}\",{item.content_hash},"
+                f'"{item.description or ""}",{item.content_hash},'
                 f"{item.created_at.isoformat()}"
             )
 

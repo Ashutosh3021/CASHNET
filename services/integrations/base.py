@@ -2,6 +2,7 @@
 
 Defines common interface for all external integrations.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class IntegrationStatus(str, Enum):
     """Integration status."""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -24,6 +26,7 @@ class IntegrationStatus(str, Enum):
 
 class IntegrationType(str, Enum):
     """Integration types."""
+
     SAHYOG = "sahyog"
     NCRP = "ncrp"
     VASP = "vasp"
@@ -33,6 +36,7 @@ class IntegrationType(str, Enum):
 
 class IntegrationRequest(BaseModel):
     """Base integration request."""
+
     request_id: str
     integration_type: IntegrationType
     case_id: str
@@ -42,6 +46,7 @@ class IntegrationRequest(BaseModel):
 
 class IntegrationResponse(BaseModel):
     """Base integration response."""
+
     request_id: str
     status: IntegrationStatus
     response_data: dict[str, Any] = {}

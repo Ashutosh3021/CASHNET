@@ -5,6 +5,7 @@ structure (or a tiny synthetic fallback) so the training notebooks can still
 run end-to-end in environments where the large externally-fetched corpora
 have not been downloaded yet.
 """
+
 from __future__ import annotations
 
 import json
@@ -99,8 +100,9 @@ def load_snap_trust() -> pd.DataFrame:
         if not path.exists():
             continue
         try:
-            df = pd.read_csv(path, header=None,
-                             names=["source", "target", "rating", "time"])
+            df = pd.read_csv(
+                path, header=None, names=["source", "target", "rating", "time"]
+            )
             df["source_graph"] = path.stem
             edges.append(df)
         except (pd.errors.ParserError, FileNotFoundError, OSError):
@@ -110,7 +112,9 @@ def load_snap_trust() -> pd.DataFrame:
     return pd.DataFrame(columns=["source", "target", "rating", "time"])
 
 
-def load_elliptic(labeled_only: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_elliptic(
+    labeled_only: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load Elliptic AML data.
 
     Returns (features_df, classes_df, edgelist_df).
@@ -124,17 +128,26 @@ def load_elliptic(labeled_only: bool = True) -> tuple[pd.DataFrame, pd.DataFrame
     cls_path = base / "elliptic_txs_classes.csv"
     edge_path = base / "elliptic_txs_edgelist.csv"
 
-    classes = pd.read_csv(cls_path) if cls_path.exists() else pd.DataFrame(columns=["txId", "class"])
+    classes = (
+        pd.read_csv(cls_path)
+        if cls_path.exists()
+        else pd.DataFrame(columns=["txId", "class"])
+    )
     classes["txId"] = classes["txId"].astype(str)
 
-    edgelist = pd.read_csv(edge_path) if edge_path.exists() else pd.DataFrame(columns=["txId1", "txId2"])
+    edgelist = (
+        pd.read_csv(edge_path)
+        if edge_path.exists()
+        else pd.DataFrame(columns=["txId1", "txId2"])
+    )
 
     features = pd.DataFrame()
     if feat_path.exists():
         labeled_ids = set(classes["txId"].astype(str)) if labeled_only else None
         parts: list[pd.DataFrame] = []
-        for chunk in pd.read_csv(feat_path, header=None, chunksize=20000,
-                                 dtype={0: str}, low_memory=False):
+        for chunk in pd.read_csv(
+            feat_path, header=None, chunksize=20000, dtype={0: str}, low_memory=False
+        ):
             chunk = chunk.rename(columns={0: "txId"})
             chunk["txId"] = chunk["txId"].astype(str)
             if labeled_only and labeled_ids is not None:
@@ -152,7 +165,11 @@ def load_elliptic(labeled_only: bool = True) -> tuple[pd.DataFrame, pd.DataFrame
 def load_183_complaints() -> list[Any]:
     recs: list[Any] = []
     base = ROOT / "183/DATA"
-    for fam in ["Complaint datasets", "Support  reference datasets", "Transaction datasets"]:
+    for fam in [
+        "Complaint datasets",
+        "Support  reference datasets",
+        "Transaction datasets",
+    ]:
         recs.extend(load_json_batches(base / fam))
     # top-level generated json files
     for fp in base.glob("*_generated.json"):
@@ -198,11 +215,15 @@ def load_cfpb_sample(n: int = 100_000) -> pd.DataFrame:
     fp = ROOT / "183/DATA/external/cfpb_complaints/complaints.csv"
     if not fp.exists():
         return pd.DataFrame()
-    cols = ["Product", "Sub-product", "Issue",
-            "Consumer complaint narrative", "Company response to consumer"]
+    cols = [
+        "Product",
+        "Sub-product",
+        "Issue",
+        "Consumer complaint narrative",
+        "Company response to consumer",
+    ]
     try:
-        df = pd.read_csv(fp, nrows=n, usecols=lambda c: c in cols,
-                         low_memory=False)
+        df = pd.read_csv(fp, nrows=n, usecols=lambda c: c in cols, low_memory=False)
     except (pd.errors.ParserError, FileNotFoundError, OSError):
         return pd.DataFrame()
     df = df.dropna(subset=["Product"])
@@ -217,7 +238,9 @@ def load_184_synthetic() -> dict[str, Any]:
     out: dict[str, Any] = {}
     bank = _read_json(base / "bank/bank_transactions.json") or {}
     out["bank_transactions"] = bank
-    out["atm_withdrawal_links"] = _read_json(base / "bank/atm_withdrawal_links.json") or {}
+    out["atm_withdrawal_links"] = (
+        _read_json(base / "bank/atm_withdrawal_links.json") or {}
+    )
     out["transaction_graph"] = _read_json(base / "bank/transaction_graph.json") or {}
     out["atm_json"] = _read_json(base / "ATM.json") or {}
     out["complaints_bm_c"] = _read_json(base / "complaints/BM_C.json") or {}
@@ -256,8 +279,12 @@ def load_184_cfpb(n: int = 50_000) -> pd.DataFrame:
     if not fp.exists():
         return pd.DataFrame()
     try:
-        df = pd.read_csv(fp, nrows=n, usecols=["Product", "Consumer complaint narrative"],
-                         low_memory=False)
+        df = pd.read_csv(
+            fp,
+            nrows=n,
+            usecols=["Product", "Consumer complaint narrative"],
+            low_memory=False,
+        )
     except (pd.errors.ParserError, FileNotFoundError, OSError):
         return pd.DataFrame()
     return df.dropna(subset=["Product"]).reset_index(drop=True)
@@ -270,13 +297,19 @@ def _out_folder(model_id: int | str) -> Path:
     return ROOT / str(model_id) / "OUT"
 
 
-def write_out(model_id: int | str, payload: dict[str, Any], slug: str,
-              case_id: str | None = None, version: int = 1) -> Path:
+def write_out(
+    model_id: int | str,
+    payload: dict[str, Any],
+    slug: str,
+    case_id: str | None = None,
+    version: int = 1,
+) -> Path:
     """Validate *payload* against the canonical contract and write atomically.
 
     Filename: <slug>_<case_id>_<timestamp>_v<version>.json
     """
     from lib.schema import validate  # local import to avoid cycles
+
     validate(payload)
     folder = _out_folder(model_id)
     folder.mkdir(parents=True, exist_ok=True)

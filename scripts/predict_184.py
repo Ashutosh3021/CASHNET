@@ -37,7 +37,9 @@ def main():
 
     except (json.JSONDecodeError, KeyError, FileNotFoundError, OSError) as e:
         import traceback
+
         print(json.dumps({"error": str(e), "traceback": traceback.format_exc()}))
+
 
 if __name__ == "__main__":
     main()

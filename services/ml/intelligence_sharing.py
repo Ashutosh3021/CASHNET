@@ -3,6 +3,7 @@
 Provides secure, policy-governed sharing of intelligence between
 agencies, with redaction, audit trails, and compliance tracking.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -16,6 +17,7 @@ from pydantic import BaseModel, Field
 
 class SharingScope(str, Enum):
     """Scope of intelligence sharing."""
+
     AGENCY = "agency"
     JURISDICTION = "jurisdiction"
     NATIONAL = "national"
@@ -25,6 +27,7 @@ class SharingScope(str, Enum):
 
 class ClassificationLevel(str, Enum):
     """Classification levels for shared intelligence."""
+
     UNCLASSIFIED = "unclassified"
     OFFICIAL = "official"
     CONFIDENTIAL = "confidential"
@@ -34,6 +37,7 @@ class ClassificationLevel(str, Enum):
 
 class ShareStatus(str, Enum):
     """Status of a shared intelligence package."""
+
     PENDING_APPROVAL = "pending_approval"
     APPROVED = "approved"
     SHARED = "shared"
@@ -45,6 +49,7 @@ class ShareStatus(str, Enum):
 
 class RedactionAction(str, Enum):
     """Types of redaction."""
+
     REMOVE_FIELD = "remove_field"
     MASK_VALUE = "mask_value"
     REPLACE_VALUE = "replace_value"
@@ -53,6 +58,7 @@ class RedactionAction(str, Enum):
 
 class SharingPolicy(BaseModel):
     """Policy governing intelligence sharing."""
+
     policy_id: str
     name: str
     description: str
@@ -89,6 +95,7 @@ class SharingPolicy(BaseModel):
 
 class RedactionRule(BaseModel):
     """A redaction rule for sensitive data."""
+
     field_path: str
     action: RedactionAction
     replacement: str | None = None
@@ -97,6 +104,7 @@ class RedactionRule(BaseModel):
 
 class IntelligencePackage(BaseModel):
     """A package of intelligence to share."""
+
     package_id: str
     case_id: str
     title: str
@@ -141,6 +149,7 @@ class IntelligencePackage(BaseModel):
 
 class Agency(BaseModel):
     """A partner agency for intelligence sharing."""
+
     agency_id: str
     name: str
     jurisdiction: str
@@ -167,6 +176,7 @@ class Agency(BaseModel):
 
 class AccessLogEntry(BaseModel):
     """Audit trail entry for intelligence access."""
+
     entry_id: str
     package_id: str
     agency_id: str
@@ -180,6 +190,7 @@ class AccessLogEntry(BaseModel):
 
 class IntelligenceRecord(BaseModel):
     """A shared intelligence record with status tracking."""
+
     record_id: str
     package_id: str
     recipient_agency: str
@@ -254,9 +265,13 @@ class CrossAgencySharingService:
         if not policy:
             raise ValueError(f"Policy not found: {policy_id}")
 
-        if classification not in policy.classification_level and \
-           classification.value > policy.classification_level.value:
-            raise ValueError(f"Classification {classification.value} exceeds policy level {policy.classification_level.value}")
+        if (
+            classification not in policy.classification_level
+            and classification.value > policy.classification_level.value
+        ):
+            raise ValueError(
+                f"Classification {classification.value} exceeds policy level {policy.classification_level.value}"
+            )
 
         for recipient in recipients:
             if recipient not in self._agencies:
@@ -283,19 +298,26 @@ class CrossAgencySharingService:
 
         if expires_in_days:
             from datetime import timedelta
+
             package.expires_at = now + timedelta(days=expires_in_days)
 
-        original_content = json_module.dumps({
-            "findings": findings,
-            "addresses": addresses,
-            "transactions": transactions,
-        }, sort_keys=True, default=str)
+        original_content = json_module.dumps(
+            {
+                "findings": findings,
+                "addresses": addresses,
+                "transactions": transactions,
+            },
+            sort_keys=True,
+            default=str,
+        )
         package.original_hash = hashlib.sha256(original_content.encode()).hexdigest()
 
         if policy.requires_approval:
             package.status = ShareStatus.PENDING_APPROVAL
         else:
-            package = self._approve_sharing(package, "SYSTEM", "Auto-approved by policy")
+            package = self._approve_sharing(
+                package, "SYSTEM", "Auto-approved by policy"
+            )
 
         self._packages[package.package_id] = package
 
@@ -310,7 +332,9 @@ class CrossAgencySharingService:
                 expires_at=package.expires_at,
             )
             self._records[record.record_id] = record
-            self._package_index.setdefault(package.package_id, []).append(record.record_id)
+            self._package_index.setdefault(package.package_id, []).append(
+                record.record_id
+            )
 
         return package
 
@@ -356,11 +380,15 @@ class CrossAgencySharingService:
     def _apply_redactions(
         self, package: IntelligencePackage, policy: SharingPolicy
     ) -> IntelligencePackage:
-        _ = json_module.dumps({
-            "findings": package.findings,
-            "addresses": package.addresses,
-            "transactions": package.transactions,
-        }, sort_keys=True, default=str)
+        _ = json_module.dumps(
+            {
+                "findings": package.findings,
+                "addresses": package.addresses,
+                "transactions": package.transactions,
+            },
+            sort_keys=True,
+            default=str,
+        )
 
         package.redacted = True
         package.pii_removed = True
@@ -371,19 +399,27 @@ class CrossAgencySharingService:
             if "victim_name" in finding:
                 old_val = finding["victim_name"]
                 finding["victim_name"] = "[REDACTED]"
-                redaction_log.append({
-                    "field": "victim_name",
-                    "action": RedactionAction.MASK_VALUE.value,
-                    "original_hash": hashlib.sha256(old_val.encode()).hexdigest()[:16],
-                })
+                redaction_log.append(
+                    {
+                        "field": "victim_name",
+                        "action": RedactionAction.MASK_VALUE.value,
+                        "original_hash": hashlib.sha256(old_val.encode()).hexdigest()[
+                            :16
+                        ],
+                    }
+                )
             if "victim_email" in finding:
                 old_val = finding["victim_email"]
                 finding["victim_email"] = "[REDACTED]"
-                redaction_log.append({
-                    "field": "victim_email",
-                    "action": RedactionAction.MASK_VALUE.value,
-                    "original_hash": hashlib.sha256(old_val.encode()).hexdigest()[:16],
-                })
+                redaction_log.append(
+                    {
+                        "field": "victim_email",
+                        "action": RedactionAction.MASK_VALUE.value,
+                        "original_hash": hashlib.sha256(old_val.encode()).hexdigest()[
+                            :16
+                        ],
+                    }
+                )
 
         package.redaction_log = redaction_log
 
@@ -408,11 +444,14 @@ class CrossAgencySharingService:
         actor: str,
     ) -> IntelligenceRecord:
         records = [
-            r for r in self._records.values()
+            r
+            for r in self._records.values()
             if r.package_id == package_id and r.recipient_agency == agency_id
         ]
         if not records:
-            raise ValueError(f"No sharing record found for package {package_id}, agency {agency_id}")
+            raise ValueError(
+                f"No sharing record found for package {package_id}, agency {agency_id}"
+            )
 
         record = records[0]
         record.acknowledged_at = datetime.now(timezone.utc)
@@ -451,20 +490,15 @@ class CrossAgencySharingService:
         return self._packages.get(package_id)
 
     def get_shares_for_case(self, case_id: str) -> list[IntelligencePackage]:
-        return [
-            p for p in self._packages.values()
-            if p.case_id == case_id
-        ]
+        return [p for p in self._packages.values() if p.case_id == case_id]
 
     def get_shares_for_agency(self, agency_id: str) -> list[IntelligencePackage]:
-        return [
-            p for p in self._packages.values()
-            if agency_id in p.recipients
-        ]
+        return [p for p in self._packages.values() if agency_id in p.recipients]
 
     def get_pending_approvals(self) -> list[IntelligencePackage]:
         return [
-            p for p in self._packages.values()
+            p
+            for p in self._packages.values()
             if p.status == ShareStatus.PENDING_APPROVAL
         ]
 
@@ -473,7 +507,11 @@ class CrossAgencySharingService:
         expired = []
 
         for package in self._packages.values():
-            if package.expires_at and package.expires_at < now and package.status != ShareStatus.EXPIRED:
+            if (
+                package.expires_at
+                and package.expires_at < now
+                and package.status != ShareStatus.EXPIRED
+            ):
                 package.status = ShareStatus.EXPIRED
                 for record_id in self._package_index.get(package.package_id, []):
                     record = self._records.get(record_id)
@@ -535,7 +573,8 @@ class CrossAgencySharingService:
             "by_classification": by_classification,
             "total_access_events": total_access,
             "pending_approval": by_status.get("pending_approval", 0),
-            "active_shares": by_status.get("shared", 0) + by_status.get("acknowledged", 0),
+            "active_shares": by_status.get("shared", 0)
+            + by_status.get("acknowledged", 0),
         }
 
     def _seed_default_policies(self) -> None:

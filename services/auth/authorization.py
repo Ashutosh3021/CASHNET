@@ -2,6 +2,7 @@
 
 Provides role-based and attribute-based access control for all resources.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -16,6 +17,7 @@ from .models import ROLE_PERMISSIONS, Permission, UserRole
 
 class ResourceType(str, Enum):
     """Resource types in the system."""
+
     CASE = "case"
     FINDING = "finding"
     EVIDENCE = "evidence"
@@ -29,6 +31,7 @@ class ResourceType(str, Enum):
 
 class Action(str, Enum):
     """Actions that can be performed on resources."""
+
     CREATE = "create"
     READ = "read"
     UPDATE = "update"
@@ -42,6 +45,7 @@ class Action(str, Enum):
 
 class Resource(BaseModel):
     """Resource being accessed."""
+
     type: ResourceType
     id: str | None = None
     owner_id: str | None = None
@@ -52,6 +56,7 @@ class Resource(BaseModel):
 
 class AccessContext(BaseModel):
     """Context for access control decisions."""
+
     user_id: str
     user_role: UserRole
     permissions: list[str]
@@ -62,6 +67,7 @@ class AccessContext(BaseModel):
 
 class AccessDecision(BaseModel):
     """Access control decision."""
+
     allowed: bool
     reason: str
     conditions: list[str] = []
@@ -70,6 +76,7 @@ class AccessDecision(BaseModel):
 
 class Policy(BaseModel):
     """Access control policy."""
+
     id: str
     name: str
     description: str
@@ -91,115 +98,143 @@ class AuthorizationService:
         """Setup default RBAC policies."""
 
         # Admin can do everything
-        self.policies.append(Policy(
-            id="admin-all",
-            name="Admin Full Access",
-            description="Admins have full access to all resources",
-            resource_type=ResourceType.CASE,
-            action=Action.CREATE,
-            effect="allow",
-            conditions=[lambda ctx, res: ctx.user_role == UserRole.ADMIN],
-            priority=100,
-        ))
+        self.policies.append(
+            Policy(
+                id="admin-all",
+                name="Admin Full Access",
+                description="Admins have full access to all resources",
+                resource_type=ResourceType.CASE,
+                action=Action.CREATE,
+                effect="allow",
+                conditions=[lambda ctx, res: ctx.user_role == UserRole.ADMIN],
+                priority=100,
+            )
+        )
 
         # Supervisor policies
-        self.policies.append(Policy(
-            id="supervisor-case-assign",
-            name="Supervisor Can Assign Cases",
-            description="Supervisors can assign cases",
-            resource_type=ResourceType.CASE,
-            action=Action.ASSIGN,
-            effect="allow",
-            conditions=[lambda ctx, res: ctx.user_role == UserRole.SUPERVISOR],
-            priority=90,
-        ))
+        self.policies.append(
+            Policy(
+                id="supervisor-case-assign",
+                name="Supervisor Can Assign Cases",
+                description="Supervisors can assign cases",
+                resource_type=ResourceType.CASE,
+                action=Action.ASSIGN,
+                effect="allow",
+                conditions=[lambda ctx, res: ctx.user_role == UserRole.SUPERVISOR],
+                priority=90,
+            )
+        )
 
-        self.policies.append(Policy(
-            id="supervisor-approve",
-            name="Supervisor Can Approve Actions",
-            description="Supervisors can approve action requests",
-            resource_type=ResourceType.ACTION_REQUEST,
-            action=Action.APPROVE,
-            effect="allow",
-            conditions=[lambda ctx, res: ctx.user_role in [UserRole.SUPERVISOR, UserRole.ADMIN]],
-            priority=90,
-        ))
+        self.policies.append(
+            Policy(
+                id="supervisor-approve",
+                name="Supervisor Can Approve Actions",
+                description="Supervisors can approve action requests",
+                resource_type=ResourceType.ACTION_REQUEST,
+                action=Action.APPROVE,
+                effect="allow",
+                conditions=[
+                    lambda ctx, res: (
+                        ctx.user_role in [UserRole.SUPERVISOR, UserRole.ADMIN]
+                    )
+                ],
+                priority=90,
+            )
+        )
 
         # Investigator policies
-        self.policies.append(Policy(
-            id="investigator-case-read",
-            name="Investigator Can Read Assigned Cases",
-            description="Investigators can read cases they are assigned to",
-            resource_type=ResourceType.CASE,
-            action=Action.READ,
-            effect="allow",
-            conditions=[
-                lambda ctx, res: ctx.user_role == UserRole.INVESTIGATOR,
-                lambda ctx, res: res.owner_id == ctx.user_id or res.owner_id is None,
-            ],
-            priority=80,
-        ))
+        self.policies.append(
+            Policy(
+                id="investigator-case-read",
+                name="Investigator Can Read Assigned Cases",
+                description="Investigators can read cases they are assigned to",
+                resource_type=ResourceType.CASE,
+                action=Action.READ,
+                effect="allow",
+                conditions=[
+                    lambda ctx, res: ctx.user_role == UserRole.INVESTIGATOR,
+                    lambda ctx, res: (
+                        res.owner_id == ctx.user_id or res.owner_id is None
+                    ),
+                ],
+                priority=80,
+            )
+        )
 
-        self.policies.append(Policy(
-            id="investigator-case-update",
-            name="Investigator Can Update Assigned Cases",
-            description="Investigators can update cases they are assigned to",
-            resource_type=ResourceType.CASE,
-            action=Action.UPDATE,
-            effect="allow",
-            conditions=[
-                lambda ctx, res: ctx.user_role == UserRole.INVESTIGATOR,
-                lambda ctx, res: res.owner_id == ctx.user_id,
-            ],
-            priority=80,
-        ))
+        self.policies.append(
+            Policy(
+                id="investigator-case-update",
+                name="Investigator Can Update Assigned Cases",
+                description="Investigators can update cases they are assigned to",
+                resource_type=ResourceType.CASE,
+                action=Action.UPDATE,
+                effect="allow",
+                conditions=[
+                    lambda ctx, res: ctx.user_role == UserRole.INVESTIGATOR,
+                    lambda ctx, res: res.owner_id == ctx.user_id,
+                ],
+                priority=80,
+            )
+        )
 
         # Analyst policies
-        self.policies.append(Policy(
-            id="analyst-read-only",
-            name="Analyst Read-Only Access",
-            description="Analysts can read all resources but not modify",
-            resource_type=ResourceType.CASE,
-            action=Action.READ,
-            effect="allow",
-            conditions=[lambda ctx, res: ctx.user_role == UserRole.ANALYST],
-            priority=70,
-        ))
+        self.policies.append(
+            Policy(
+                id="analyst-read-only",
+                name="Analyst Read-Only Access",
+                description="Analysts can read all resources but not modify",
+                resource_type=ResourceType.CASE,
+                action=Action.READ,
+                effect="allow",
+                conditions=[lambda ctx, res: ctx.user_role == UserRole.ANALYST],
+                priority=70,
+            )
+        )
 
         # Viewer policies
-        self.policies.append(Policy(
-            id="viewer-read-only",
-            name="Viewer Read-Only Access",
-            description="Viewers can read resources but not modify",
-            resource_type=ResourceType.CASE,
-            action=Action.READ,
-            effect="allow",
-            conditions=[lambda ctx, res: ctx.user_role == UserRole.VIEWER],
-            priority=60,
-        ))
+        self.policies.append(
+            Policy(
+                id="viewer-read-only",
+                name="Viewer Read-Only Access",
+                description="Viewers can read resources but not modify",
+                resource_type=ResourceType.CASE,
+                action=Action.READ,
+                effect="allow",
+                conditions=[lambda ctx, res: ctx.user_role == UserRole.VIEWER],
+                priority=60,
+            )
+        )
 
         # Deny policies (higher priority)
-        self.policies.append(Policy(
-            id="deny-delete-non-admin",
-            name="Deny Delete for Non-Admins",
-            description="Only admins can delete resources",
-            resource_type=ResourceType.CASE,
-            action=Action.DELETE,
-            effect="deny",
-            conditions=[lambda ctx, res: ctx.user_role != UserRole.ADMIN],
-            priority=200,
-        ))
+        self.policies.append(
+            Policy(
+                id="deny-delete-non-admin",
+                name="Deny Delete for Non-Admins",
+                description="Only admins can delete resources",
+                resource_type=ResourceType.CASE,
+                action=Action.DELETE,
+                effect="deny",
+                conditions=[lambda ctx, res: ctx.user_role != UserRole.ADMIN],
+                priority=200,
+            )
+        )
 
-        self.policies.append(Policy(
-            id="deny-approve-non-supervisor",
-            name="Deny Approve for Non-Supervisors",
-            description="Only supervisors and admins can approve actions",
-            resource_type=ResourceType.ACTION_REQUEST,
-            action=Action.APPROVE,
-            effect="deny",
-            conditions=[lambda ctx, res: ctx.user_role not in [UserRole.SUPERVISOR, UserRole.ADMIN]],
-            priority=200,
-        ))
+        self.policies.append(
+            Policy(
+                id="deny-approve-non-supervisor",
+                name="Deny Approve for Non-Supervisors",
+                description="Only supervisors and admins can approve actions",
+                resource_type=ResourceType.ACTION_REQUEST,
+                action=Action.APPROVE,
+                effect="deny",
+                conditions=[
+                    lambda ctx, res: (
+                        ctx.user_role not in [UserRole.SUPERVISOR, UserRole.ADMIN]
+                    )
+                ],
+                priority=200,
+            )
+        )
 
     def add_policy(self, policy: Policy) -> None:
         """Add a custom policy."""
@@ -231,8 +266,7 @@ class AuthorizationService:
 
             # Evaluate all conditions
             conditions_met = all(
-                condition(context, resource)
-                for condition in policy.conditions
+                condition(context, resource) for condition in policy.conditions
             )
 
             if conditions_met:

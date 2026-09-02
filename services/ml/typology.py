@@ -3,6 +3,7 @@
 Detects known fraud patterns (typologies) using configurable rules,
 transaction analysis, and behavioral signals.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class TypologyCategory(str, Enum):
     """Fraud typology categories."""
+
     RANSOMWARE = "ransomware"
     PHISHING = "phishing"
     INVESTMENT_SCAM = "investment_scam"
@@ -32,6 +34,7 @@ class TypologyCategory(str, Enum):
 
 class MatchSeverity(str, Enum):
     """Match severity levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -40,6 +43,7 @@ class MatchSeverity(str, Enum):
 
 class RuleConditionType(str, Enum):
     """Types of rule conditions."""
+
     VALUE_THRESHOLD = "value_threshold"
     VALUE_RANGE = "value_range"
     CURRENCY_MATCH = "currency_match"
@@ -57,6 +61,7 @@ class RuleConditionType(str, Enum):
 
 class RuleCondition(BaseModel):
     """A single condition in a typology rule."""
+
     condition_type: RuleConditionType
     field: str  # Which transaction field to check
     operator: str  # "eq", "neq", "gt", "lt", "gte", "lte", "in", "not_in", "contains", "regex"
@@ -66,6 +71,7 @@ class RuleCondition(BaseModel):
 
 class TypologyRule(BaseModel):
     """A typology detection rule."""
+
     rule_id: str
     name: str
     description: str
@@ -94,6 +100,7 @@ class TypologyRule(BaseModel):
 
 class TypologyMatch(BaseModel):
     """A detected typology match."""
+
     match_id: str
     rule_id: str
     rule_name: str
@@ -380,7 +387,9 @@ class TypologyEngine:
         address_data = address_data or {}
 
         for rule in self.get_all_active_rules():
-            match = self._evaluate_address_rule(rule, address, chain, address_data, known_addresses)
+            match = self._evaluate_address_rule(
+                rule, address, chain, address_data, known_addresses
+            )
             if match:
                 matches.append(match)
                 self._matches.append(match)
@@ -431,8 +440,7 @@ class TypologyEngine:
 
         # Average confidence
         avg_confidence = (
-            sum(m.confidence for m in matches) / len(matches)
-            if matches else 0.0
+            sum(m.confidence for m in matches) / len(matches) if matches else 0.0
         )
 
         return {
@@ -457,28 +465,35 @@ class TypologyEngine:
         evidence: list[dict[str, Any]] = []
 
         for condition in rule.conditions:
-            if self._evaluate_condition(condition, transaction, known_addresses, context):
+            if self._evaluate_condition(
+                condition, transaction, known_addresses, context
+            ):
                 matched_conditions.append(
-                    condition.description or f"{condition.field} {condition.operator} {condition.value}"
+                    condition.description
+                    or f"{condition.field} {condition.operator} {condition.value}"
                 )
-                evidence.append({
-                    "condition_type": condition.condition_type.value,
-                    "field": condition.field,
-                    "operator": condition.operator,
-                    "value": condition.value,
-                    "actual_value": transaction.get(condition.field),
-                })
+                evidence.append(
+                    {
+                        "condition_type": condition.condition_type.value,
+                        "field": condition.field,
+                        "operator": condition.operator,
+                        "value": condition.value,
+                        "actual_value": transaction.get(condition.field),
+                    }
+                )
 
         # Check if enough conditions matched
         if len(matched_conditions) >= rule.min_match_count:
             # Calculate confidence
             match_ratio = len(matched_conditions) / len(rule.conditions)
             confidence = min(
-                rule.base_score * rule.score_multiplier * match_ratio + rule.confidence_boost,
+                rule.base_score * rule.score_multiplier * match_ratio
+                + rule.confidence_boost,
                 1.0,
             )
 
             import uuid
+
             return TypologyMatch(
                 match_id=str(uuid.uuid4()),
                 rule_id=rule.rule_id,
@@ -509,29 +524,38 @@ class TypologyEngine:
         evidence: list[dict[str, Any]] = []
 
         for condition in rule.conditions:
-            if self._evaluate_condition(condition, {
-                "address": address,
-                "chain": chain,
-                **address_data,
-            }, known_addresses, {}):
+            if self._evaluate_condition(
+                condition,
+                {
+                    "address": address,
+                    "chain": chain,
+                    **address_data,
+                },
+                known_addresses,
+                {},
+            ):
                 matched_conditions.append(
                     condition.description or f"{condition.field} {condition.operator}"
                 )
-                evidence.append({
-                    "condition_type": condition.condition_type.value,
-                    "field": condition.field,
-                    "address": address,
-                    "chain": chain,
-                })
+                evidence.append(
+                    {
+                        "condition_type": condition.condition_type.value,
+                        "field": condition.field,
+                        "address": address,
+                        "chain": chain,
+                    }
+                )
 
         if len(matched_conditions) >= rule.min_match_count:
             match_ratio = len(matched_conditions) / len(rule.conditions)
             confidence = min(
-                rule.base_score * rule.score_multiplier * match_ratio + rule.confidence_boost,
+                rule.base_score * rule.score_multiplier * match_ratio
+                + rule.confidence_boost,
                 1.0,
             )
 
             import uuid
+
             return TypologyMatch(
                 match_id=str(uuid.uuid4()),
                 rule_id=rule.rule_id,
@@ -588,7 +612,9 @@ class TypologyEngine:
 
             elif condition.condition_type == RuleConditionType.ADDRESS_LIST:
                 if known_addresses and condition.value in known_addresses:
-                    return actual_value.lower() in {a.lower() for a in known_addresses[condition.value]}
+                    return actual_value.lower() in {
+                        a.lower() for a in known_addresses[condition.value]
+                    }
                 return False
 
             elif condition.condition_type == RuleConditionType.PATTERN_MATCH:
@@ -598,6 +624,7 @@ class TypologyEngine:
                     return condition.value in str(actual_value)
                 elif condition.operator == "regex":
                     import re
+
                     return bool(re.search(condition.value, str(actual_value)))
 
             elif condition.condition_type == RuleConditionType.FREQUENCY:
@@ -623,8 +650,16 @@ class TypologyEngine:
 
             elif condition.condition_type == RuleConditionType.LABEL_MATCH:
                 if condition.operator == "contains":
-                    labels = actual_value if isinstance(actual_value, list) else [actual_value]
-                    target = condition.value if isinstance(condition.value, list) else [condition.value]
+                    labels = (
+                        actual_value
+                        if isinstance(actual_value, list)
+                        else [actual_value]
+                    )
+                    target = (
+                        condition.value
+                        if isinstance(condition.value, list)
+                        else [condition.value]
+                    )
                     return any(label in labels for label in target)
 
             elif condition.condition_type == RuleConditionType.VELOCITY:

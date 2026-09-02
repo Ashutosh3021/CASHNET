@@ -2,6 +2,7 @@
 
 Implements bounded BFS/DFS for finding transaction paths between addresses.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict, deque
@@ -15,6 +16,7 @@ from .base import ChainType, NormalizedTransaction
 
 class PathFindingStrategy(str, Enum):
     """Path finding strategies."""
+
     BFS = "bfs"  # Breadth-First Search (shortest paths)
     DFS = "dfs"  # Depth-First Search (all paths)
     DIJKSTRA = "dijkstra"  # Weighted shortest path
@@ -23,6 +25,7 @@ class PathFindingStrategy(str, Enum):
 @dataclass
 class PathConstraints:
     """Constraints for path finding."""
+
     max_hops: int = 8
     min_value: float = 0
     max_value: float = float("inf")
@@ -36,6 +39,7 @@ class PathConstraints:
 @dataclass
 class TransactionEdge:
     """Represents a transaction in the path."""
+
     tx_hash: str
     from_address: str
     to_address: str
@@ -50,6 +54,7 @@ class TransactionEdge:
 @dataclass
 class Path:
     """Represents a complete path between two addresses."""
+
     source: str
     destination: str
     edges: list[TransactionEdge]
@@ -204,7 +209,10 @@ class PathFinder:
                     continue
 
                 # Skip excluded addresses
-                if constraints.exclude_addresses and neighbor in constraints.exclude_addresses:
+                if (
+                    constraints.exclude_addresses
+                    and neighbor in constraints.exclude_addresses
+                ):
                     continue
 
                 # Validate edge
@@ -212,7 +220,7 @@ class PathFinder:
                     continue
 
                 # Add to queue
-                new_edges = edges + [edge]
+                new_edges = [*edges, edge]
                 new_visited = visited | {neighbor}
                 queue.append((neighbor, new_edges, new_visited))
 
@@ -254,7 +262,10 @@ class PathFinder:
                     continue
 
                 # Skip excluded addresses
-                if constraints.exclude_addresses and neighbor in constraints.exclude_addresses:
+                if (
+                    constraints.exclude_addresses
+                    and neighbor in constraints.exclude_addresses
+                ):
                     continue
 
                 # Validate edge
@@ -264,7 +275,7 @@ class PathFinder:
                 # Recurse
                 dfs_recursive(
                     neighbor,
-                    edges + [edge],
+                    [*edges, edge],
                     visited | {neighbor},
                 )
 
@@ -283,7 +294,7 @@ class PathFinder:
 
         total_value = sum(e.value for e in edges)
         total_risk = sum(e.risk_score for e in edges)
-        chains_used = list(set(e.chain for e in edges))
+        chains_used = list({e.chain for e in edges})
 
         return Path(
             source=source,
@@ -318,10 +329,7 @@ class PathFinder:
             return False
 
         # Suspicious filter
-        if constraints.include_suspicious_only and not edge.is_suspicious:
-            return False
-
-        return True
+        return not (constraints.include_suspicious_only and not edge.is_suspicious)
 
     def _validate_path(
         self,
@@ -334,10 +342,7 @@ class PathFinder:
             return False
 
         # Minimum hops (at least 1)
-        if path.hop_count < 1:
-            return False
-
-        return True
+        return not path.hop_count < 1
 
     def find_shortest_path(
         self,
@@ -388,10 +393,7 @@ class PathFinder:
         )
 
         # Filter by risk score
-        high_risk_paths = [
-            p for p in paths
-            if p.average_risk_score >= risk_threshold
-        ]
+        high_risk_paths = [p for p in paths if p.average_risk_score >= risk_threshold]
 
         # Sort by risk score (highest first)
         high_risk_paths.sort(key=lambda p: p.average_risk_score, reverse=True)
@@ -424,14 +426,16 @@ class PathFinder:
             for neighbor, edge in self.graph.get_outgoing(current):
                 if neighbor not in visited:
                     visited.add(neighbor)
-                    result["neighbors"].append({
-                        "address": neighbor,
-                        "depth": current_depth + 1,
-                        "value": edge.value,
-                        "currency": edge.currency,
-                        "tx_hash": edge.tx_hash,
-                        "timestamp": edge.timestamp.isoformat(),
-                    })
+                    result["neighbors"].append(
+                        {
+                            "address": neighbor,
+                            "depth": current_depth + 1,
+                            "value": edge.value,
+                            "currency": edge.currency,
+                            "tx_hash": edge.tx_hash,
+                            "timestamp": edge.timestamp.isoformat(),
+                        }
+                    )
                     result["total_value"] += edge.value
                     result["transaction_count"] += 1
 
@@ -445,7 +449,9 @@ def format_path_for_display(path: Path) -> str:
     lines = []
     lines.append(f"Path: {path.source} -> {path.destination}")
     lines.append(f"Hops: {path.hop_count}")
-    lines.append(f"Total Value: {path.total_value:.4f} {path.edges[0].currency if path.edges else 'N/A'}")
+    lines.append(
+        f"Total Value: {path.total_value:.4f} {path.edges[0].currency if path.edges else 'N/A'}"
+    )
     lines.append(f"Risk Score: {path.average_risk_score:.2f}")
     lines.append(f"Chains: {', '.join(c.value for c in path.chains_used)}")
     lines.append("")

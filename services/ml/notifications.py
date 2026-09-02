@@ -3,6 +3,7 @@
 Provides real-time alerting capabilities for investigators and agencies
 via email, SMS, and webhook delivery channels.
 """
+
 from __future__ import annotations
 
 import json as json_module
@@ -15,6 +16,7 @@ from pydantic import BaseModel, Field
 
 class AlertType(str, Enum):
     """Alert types for real-time notifications."""
+
     NEW_CASE = "new_case"
     HIGH_RISK_TRANSACTION = "high_risk_transaction"
     NEW_FINDING = "new_finding"
@@ -31,6 +33,7 @@ class AlertType(str, Enum):
 
 class MessageChannel(str, Enum):
     """Delivery channels for real-time notifications."""
+
     EMAIL = "email"
     SMS = "sms"
     PUSH = "push"
@@ -41,6 +44,7 @@ class MessageChannel(str, Enum):
 
 class DeliveryStatus(str, Enum):
     """Notification delivery status."""
+
     PENDING = "pending"
     SENDING = "sending"
     SENT = "sent"
@@ -51,6 +55,7 @@ class DeliveryStatus(str, Enum):
 
 class Recipient(BaseModel):
     """A notification recipient."""
+
     recipient_id: str
     name: str
     email: str | None = None
@@ -63,6 +68,7 @@ class Recipient(BaseModel):
 
 class AlertRule(BaseModel):
     """Configuration for an alert trigger."""
+
     rule_id: str
     alert_type: AlertType
     channel: MessageChannel
@@ -84,6 +90,7 @@ class AlertRule(BaseModel):
 
 class DeliveryProvider(BaseModel):
     """Email/SMS provider configuration."""
+
     provider_id: str
     provider_type: MessageChannel
     name: str
@@ -102,6 +109,7 @@ class DeliveryProvider(BaseModel):
 
 class RealtimeNotification(BaseModel):
     """A real-time notification record."""
+
     notification_id: str
     alert_type: AlertType
     channel: MessageChannel
@@ -177,19 +185,21 @@ class RealtimeNotificationService:
         use_tls: bool = True,
         sender_email: str = "",
     ) -> DeliveryProvider:
-        return self.add_provider(DeliveryProvider(
-            provider_id=provider_id,
-            provider_type=MessageChannel.EMAIL,
-            name=f"Email ({smtp_host})",
-            config={
-                "smtp_host": smtp_host,
-                "smtp_port": smtp_port,
-                "username": username,
-                "password": password,
-                "use_tls": use_tls,
-            },
-            sender_email=sender_email,
-        ))
+        return self.add_provider(
+            DeliveryProvider(
+                provider_id=provider_id,
+                provider_type=MessageChannel.EMAIL,
+                name=f"Email ({smtp_host})",
+                config={
+                    "smtp_host": smtp_host,
+                    "smtp_port": smtp_port,
+                    "username": username,
+                    "password": password,
+                    "use_tls": use_tls,
+                },
+                sender_email=sender_email,
+            )
+        )
 
     def set_sms_config(
         self,
@@ -198,17 +208,19 @@ class RealtimeNotificationService:
         twilio_auth_token: str,
         sender_phone: str,
     ) -> DeliveryProvider:
-        return self.add_provider(DeliveryProvider(
-            provider_id=provider_id,
-            provider_type=MessageChannel.SMS,
-            name="Twilio SMS",
-            config={
-                "twilio_account_sid": twilio_account_sid,
-                "twilio_auth_token": twilio_auth_token,
-            },
-            api_key=twilio_auth_token,
-            sender_phone=sender_phone,
-        ))
+        return self.add_provider(
+            DeliveryProvider(
+                provider_id=provider_id,
+                provider_type=MessageChannel.SMS,
+                name="Twilio SMS",
+                config={
+                    "twilio_account_sid": twilio_account_sid,
+                    "twilio_auth_token": twilio_auth_token,
+                },
+                api_key=twilio_auth_token,
+                sender_phone=sender_phone,
+            )
+        )
 
     def trigger_alert(
         self,
@@ -223,14 +235,13 @@ class RealtimeNotificationService:
         data: dict[str, Any] | None = None,
         priority: str = "HIGH",
     ) -> list[RealtimeNotification]:
-        rules = self._get_matching_rules(
-            alert_type, risk_score, amount, chain
-        )
+        rules = self._get_matching_rules(alert_type, risk_score, amount, chain)
         if not rules:
             return []
 
         notifications: list[RealtimeNotification] = []
         import uuid
+
         now = datetime.now(timezone.utc)
 
         for rule in rules:
@@ -325,7 +336,9 @@ class RealtimeNotificationService:
 
         return notification
 
-    def _send_email(self, notification: RealtimeNotification, provider: DeliveryProvider) -> None:
+    def _send_email(
+        self, notification: RealtimeNotification, provider: DeliveryProvider
+    ) -> None:
         try:
             import smtplib
             from email.mime.multipart import MIMEMultipart
@@ -344,9 +357,7 @@ class RealtimeNotificationService:
                 server = smtplib.SMTP(config["smtp_host"], config.get("smtp_port", 587))
                 server.starttls()
             else:
-                server = smtplib.SMTP(
-                    config["smtp_host"], config.get("smtp_port", 25)
-                )
+                server = smtplib.SMTP(config["smtp_host"], config.get("smtp_port", 25))
 
             if config.get("username"):
                 server.login(config["username"], config["password"])
@@ -360,7 +371,9 @@ class RealtimeNotificationService:
             notification.status = DeliveryStatus.FAILED
             notification.error_message = str(e)
 
-    def _send_sms(self, notification: RealtimeNotification, provider: DeliveryProvider) -> None:
+    def _send_sms(
+        self, notification: RealtimeNotification, provider: DeliveryProvider
+    ) -> None:
         try:
             from twilio.rest import Client
 
@@ -384,7 +397,9 @@ class RealtimeNotificationService:
             notification.status = DeliveryStatus.FAILED
             notification.error_message = str(e)
 
-    def _send_webhook(self, notification: RealtimeNotification, provider: DeliveryProvider) -> None:
+    def _send_webhook(
+        self, notification: RealtimeNotification, provider: DeliveryProvider
+    ) -> None:
         try:
             import httpx
 
@@ -431,6 +446,7 @@ class RealtimeNotificationService:
             return None
 
         import uuid
+
         notification = RealtimeNotification(
             notification_id=str(uuid.uuid4()),
             alert_type=AlertType.SYSTEM_ALERT,
@@ -452,12 +468,18 @@ class RealtimeNotificationService:
 
     def get_notifications_for_case(self, case_id: str) -> list[RealtimeNotification]:
         notification_ids = self._case_index.get(case_id, [])
-        return [self._notifications[nid] for nid in notification_ids if nid in self._notifications]
+        return [
+            self._notifications[nid]
+            for nid in notification_ids
+            if nid in self._notifications
+        ]
 
     def get_pending_notifications(self) -> list[RealtimeNotification]:
         return [
-            n for n in self._notifications.values()
-            if n.status in [DeliveryStatus.PENDING, DeliveryStatus.SENDING, DeliveryStatus.FAILED]
+            n
+            for n in self._notifications.values()
+            if n.status
+            in [DeliveryStatus.PENDING, DeliveryStatus.SENDING, DeliveryStatus.FAILED]
             and n.retry_count < 3
         ]
 
@@ -511,7 +533,11 @@ class RealtimeNotificationService:
             by_type[n.alert_type.value] = by_type.get(n.alert_type.value, 0) + 1
             by_channel[n.channel.value] = by_channel.get(n.channel.value, 0) + 1
 
-        sent_count = sum(1 for n in notifications if n.status in [DeliveryStatus.SENT, DeliveryStatus.DELIVERED])
+        sent_count = sum(
+            1
+            for n in notifications
+            if n.status in [DeliveryStatus.SENT, DeliveryStatus.DELIVERED]
+        )
         total = len(notifications)
 
         return {
@@ -569,17 +595,42 @@ class RealtimeNotificationService:
 
 def format_notification_for_slack(notification: RealtimeNotification) -> str:
     """Format notification as Slack-compatible message."""
-    return json_module.dumps({
-        "text": notification.subject,
-        "attachments": [{
-            "color": "warning" if notification.priority in ["HIGH", "CRITICAL", "URGENT"] else "good",
-            "fields": [
-                {"title": "Alert Type", "value": notification.alert_type.value, "short": True},
-                {"title": "Priority", "value": notification.priority, "short": True},
-                {"title": "Case", "value": notification.case_id or "N/A", "short": True},
-                {"title": "Channel", "value": notification.channel.value, "short": True},
+    return json_module.dumps(
+        {
+            "text": notification.subject,
+            "attachments": [
+                {
+                    "color": "warning"
+                    if notification.priority in ["HIGH", "CRITICAL", "URGENT"]
+                    else "good",
+                    "fields": [
+                        {
+                            "title": "Alert Type",
+                            "value": notification.alert_type.value,
+                            "short": True,
+                        },
+                        {
+                            "title": "Priority",
+                            "value": notification.priority,
+                            "short": True,
+                        },
+                        {
+                            "title": "Case",
+                            "value": notification.case_id or "N/A",
+                            "short": True,
+                        },
+                        {
+                            "title": "Channel",
+                            "value": notification.channel.value,
+                            "short": True,
+                        },
+                    ],
+                    "text": notification.body[:500],
+                    "ts": int(notification.created_at.timestamp())
+                    if notification.created_at
+                    else None,
+                }
             ],
-            "text": notification.body[:500],
-            "ts": int(notification.created_at.timestamp()) if notification.created_at else None,
-        }],
-    }, indent=2)
+        },
+        indent=2,
+    )

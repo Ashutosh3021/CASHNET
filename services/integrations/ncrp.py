@@ -3,6 +3,7 @@
 Provides integration with National Cyber Crime Reporting Portal (NCRP)
 for case intake and status tracking.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -112,7 +113,9 @@ class NCRPConnector(IntegrationAdapter):
                 return IntegrationResponse(
                     request_id=case_data.get("request_id", ""),
                     status=IntegrationStatus.FAILED,
-                    error_message=error_data.get("error", f"HTTP {response.status_code}"),
+                    error_message=error_data.get(
+                        "error", f"HTTP {response.status_code}"
+                    ),
                 )
 
         except Exception as e:
@@ -279,7 +282,9 @@ class NCRPConnector(IntegrationAdapter):
         return {
             "title": ncrp_data.get("title", ""),
             "description": ncrp_data.get("description", ""),
-            "fraud_type": self._reverse_map_complaint_type(ncrp_data.get("complaint_type")),
+            "fraud_type": self._reverse_map_complaint_type(
+                ncrp_data.get("complaint_type")
+            ),
             "reported_amount": ncrp_data.get("financial_loss", {}).get("amount", 0),
             "currency": ncrp_data.get("financial_loss", {}).get("currency", "INR"),
             "victim_name": ncrp_data.get("complainant", {}).get("name"),

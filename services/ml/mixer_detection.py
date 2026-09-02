@@ -3,6 +3,7 @@
 Detects mixer, tumbler, and other privacy-enhancing transaction patterns
 using heuristic analysis and known address lists.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class MixerType(str, Enum):
     """Types of mixers/tumblers."""
+
     TORNADO_CASH = "tornado_cash"
     centralized_mixer = "centralized_mixer"
     decentralized_mixer = "decentralized_mixer"
@@ -27,6 +29,7 @@ class MixerType(str, Enum):
 
 class MixerRiskLevel(str, Enum):
     """Mixer risk levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -35,6 +38,7 @@ class MixerRiskLevel(str, Enum):
 
 class DetectionMethod(str, Enum):
     """Detection methods."""
+
     KNOWN_ADDRESS = "known_address"
     TRANSACTION_PATTERN = "transaction_pattern"
     BEHAVIORAL = "behavioral"
@@ -47,6 +51,7 @@ class DetectionMethod(str, Enum):
 
 class MixerSignal(BaseModel):
     """A mixer detection signal."""
+
     signal_id: str
     address: str
     chain: str
@@ -76,6 +81,7 @@ class MixerSignal(BaseModel):
 
 class KnownMixer(BaseModel):
     """A known mixer/tumbler."""
+
     address: str
     chain: str
     mixer_type: MixerType
@@ -184,16 +190,22 @@ class MixerDetector:
 
         # Check transaction patterns
         if transaction_data:
-            pattern_signals = self._check_patterns(address, chain, transaction_data, case_id)
+            pattern_signals = self._check_patterns(
+                address, chain, transaction_data, case_id
+            )
             signals.extend(pattern_signals)
 
             # Check amount analysis
-            amount_signal = self._check_amounts(address, chain, transaction_data, case_id)
+            amount_signal = self._check_amounts(
+                address, chain, transaction_data, case_id
+            )
             if amount_signal:
                 signals.append(amount_signal)
 
             # Check timing analysis
-            timing_signal = self._check_timing(address, chain, transaction_data, case_id)
+            timing_signal = self._check_timing(
+                address, chain, transaction_data, case_id
+            )
             if timing_signal:
                 signals.append(timing_signal)
 
@@ -270,8 +282,7 @@ class MixerDetector:
 
         # Average confidence
         avg_confidence = (
-            sum(s.confidence for s in signals) / len(signals)
-            if signals else 0.0
+            sum(s.confidence for s in signals) / len(signals) if signals else 0.0
         )
 
         return {
@@ -296,6 +307,7 @@ class MixerDetector:
 
         if known:
             import uuid
+
             return MixerSignal(
                 signal_id=str(uuid.uuid4()),
                 address=address.lower(),
@@ -304,11 +316,13 @@ class MixerDetector:
                 detection_method=DetectionMethod.KNOWN_ADDRESS,
                 confidence=0.99,
                 risk_level=known.risk_level,
-                evidence=[{
-                    "type": "known_mixer",
-                    "name": known.name,
-                    "source": known.source,
-                }],
+                evidence=[
+                    {
+                        "type": "known_mixer",
+                        "name": known.name,
+                        "source": known.source,
+                    }
+                ],
                 indicators=[f"Address is a known {known.mixer_type.value} mixer"],
                 known_mixer_address=address,
                 case_id=case_id,
@@ -329,30 +343,36 @@ class MixerDetector:
         # Pattern 1: Multiple inputs to single output (consolidation)
         input_count = transaction_data.get("input_count", 0)
         if input_count >= 5:
-            signals.append(self._create_signal(
-                address, chain,
-                MixerType.unknown_mixer,
-                DetectionMethod.TRANSACTION_PATTERN,
-                0.6,
-                MixerRiskLevel.MEDIUM,
-                [f"Transaction has {input_count} inputs (consolidation pattern)"],
-                case_id,
-            ))
+            signals.append(
+                self._create_signal(
+                    address,
+                    chain,
+                    MixerType.unknown_mixer,
+                    DetectionMethod.TRANSACTION_PATTERN,
+                    0.6,
+                    MixerRiskLevel.MEDIUM,
+                    [f"Transaction has {input_count} inputs (consolidation pattern)"],
+                    case_id,
+                )
+            )
 
         # Pattern 2: Fixed denomination amounts
         amounts = transaction_data.get("amounts", [])
         if amounts:
             unique_amounts = set(amounts)
             if len(unique_amounts) <= 3 and len(amounts) >= 5:
-                signals.append(self._create_signal(
-                    address, chain,
-                    MixerType.unknown_mixer,
-                    DetectionMethod.AMOUNT_ANALYSIS,
-                    0.7,
-                    MixerRiskLevel.MEDIUM,
-                    [f"Fixed denomination amounts detected: {unique_amounts}"],
-                    case_id,
-                ))
+                signals.append(
+                    self._create_signal(
+                        address,
+                        chain,
+                        MixerType.unknown_mixer,
+                        DetectionMethod.AMOUNT_ANALYSIS,
+                        0.7,
+                        MixerRiskLevel.MEDIUM,
+                        [f"Fixed denomination amounts detected: {unique_amounts}"],
+                        case_id,
+                    )
+                )
 
         return signals
 
@@ -370,7 +390,8 @@ class MixerDetector:
         for amount in amounts:
             if amount > 0 and (amount & (amount - 1)) == 0:  # Power of 2
                 return self._create_signal(
-                    address, chain,
+                    address,
+                    chain,
                     MixerType.unknown_mixer,
                     DetectionMethod.AMOUNT_ANALYSIS,
                     0.5,
@@ -394,20 +415,22 @@ class MixerDetector:
 
         if len(timestamps) >= 3:
             intervals = [
-                timestamps[i+1] - timestamps[i]
-                for i in range(len(timestamps) - 1)
+                timestamps[i + 1] - timestamps[i] for i in range(len(timestamps) - 1)
             ]
 
             # Check if intervals are very similar (automated)
             if intervals:
                 avg_interval = sum(intervals) / len(intervals)
                 if avg_interval > 0:
-                    variance = sum((i - avg_interval) ** 2 for i in intervals) / len(intervals)
-                    cv = (variance ** 0.5) / avg_interval if avg_interval > 0 else 0
+                    variance = sum((i - avg_interval) ** 2 for i in intervals) / len(
+                        intervals
+                    )
+                    cv = (variance**0.5) / avg_interval if avg_interval > 0 else 0
 
                     if cv < 0.1:  # Very uniform intervals
                         return self._create_signal(
-                            address, chain,
+                            address,
+                            chain,
                             MixerType.unknown_mixer,
                             DetectionMethod.TIMING_ANALYSIS,
                             0.65,

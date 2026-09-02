@@ -3,6 +3,7 @@
 Provides broader bridge and swap detection coverage with DEX protocol support,
 cross-chain analysis, and advanced pattern matching.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class BridgeProtocol(str, Enum):
     """Supported bridge protocols."""
+
     # Layer 0
     WORMHOLE = "wormhole"
     LAYERZERO = "layerzero"
@@ -46,6 +48,7 @@ class BridgeProtocol(str, Enum):
 
 class SwapProtocol(str, Enum):
     """Supported DEX/swap protocols."""
+
     # Uniswap
     UNISWAP_V2 = "uniswap_v2"
     UNISWAP_V3 = "uniswap_v3"
@@ -78,6 +81,7 @@ class SwapProtocol(str, Enum):
 
 class PatternType(str, Enum):
     """Pattern types."""
+
     BRIDGE = "bridge"
     SWAP = "swap"
     FLASH_LOAN = "flash_loan"
@@ -88,6 +92,7 @@ class PatternType(str, Enum):
 
 class RiskIndicator(str, Enum):
     """Risk indicators for bridge/swap activity."""
+
     HIGH_VALUE = "high_value"
     RAPID_CHAIN_HOPPING = "rapid_chain_hopping"
     PRIVACY_BRIDGE = "privacy_bridge"
@@ -101,6 +106,7 @@ class RiskIndicator(str, Enum):
 
 class BridgePattern(BaseModel):
     """Detected bridge pattern."""
+
     pattern_id: str
     pattern_type: PatternType = PatternType.BRIDGE
 
@@ -148,6 +154,7 @@ class BridgePattern(BaseModel):
 
 class SwapPattern(BaseModel):
     """Detected swap pattern."""
+
     pattern_id: str
     pattern_type: PatternType = PatternType.SWAP
 
@@ -202,10 +209,14 @@ class EnhancedBridgeDetector:
     def __init__(self):
         self._bridge_patterns: dict[str, BridgePattern] = {}
         self._swap_patterns: dict[str, SwapPattern] = {}
-        self._address_index: dict[str, dict[str, list[str]]] = {}  # address -> {type: [pattern_ids]}
+        self._address_index: dict[
+            str, dict[str, list[str]]
+        ] = {}  # address -> {type: [pattern_ids]}
 
         # Known protocol addresses
-        self._bridge_contracts: dict[str, dict[str, Any]] = self._load_bridge_contracts()
+        self._bridge_contracts: dict[str, dict[str, Any]] = (
+            self._load_bridge_contracts()
+        )
         self._dex_contracts: dict[str, dict[str, Any]] = self._load_dex_contracts()
 
         # Risk thresholds
@@ -249,7 +260,14 @@ class EnhancedBridgeDetector:
             "0x8731d54e9d02c286767d56ac03e8037c07e01e98": {
                 "protocol": BridgeProtocol.STARGATE,
                 "name": "Stargate Router",
-                "chains": ["ethereum", "bnb", "polygon", "avalanche", "arbitrum", "optimism"],
+                "chains": [
+                    "ethereum",
+                    "bnb",
+                    "polygon",
+                    "avalanche",
+                    "arbitrum",
+                    "optimism",
+                ],
             },
             # Celer
             "0x5427fefa711eff984124bfbb1ab6fbf5e3da1820": {
@@ -340,7 +358,11 @@ class EnhancedBridgeDetector:
             risk_score += 0.3
             risk_indicators.append(RiskIndicator.HIGH_VALUE)
 
-        if protocol in [BridgeProtocol.WORMHOLE, BridgeProtocol.CELER, BridgeProtocol.MULTICHAIN]:
+        if protocol in [
+            BridgeProtocol.WORMHOLE,
+            BridgeProtocol.CELER,
+            BridgeProtocol.MULTICHAIN,
+        ]:
             risk_score += 0.2
             risk_indicators.append(RiskIndicator.PRIVACY_BRIDGE)
 
@@ -348,6 +370,7 @@ class EnhancedBridgeDetector:
         destination_chain = self._infer_destination_chain(protocol, chain)
 
         import uuid
+
         pattern = BridgePattern(
             pattern_id=str(uuid.uuid4()),
             protocol=protocol,
@@ -420,6 +443,7 @@ class EnhancedBridgeDetector:
         is_front_run = False
 
         import uuid
+
         pattern = SwapPattern(
             pattern_id=str(uuid.uuid4()),
             protocol=protocol,
@@ -467,7 +491,11 @@ class EnhancedBridgeDetector:
         results = list(self._bridge_patterns.values())
 
         if chain:
-            results = [p for p in results if p.source_chain == chain or p.destination_chain == chain]
+            results = [
+                p
+                for p in results
+                if p.source_chain == chain or p.destination_chain == chain
+            ]
         if protocol:
             results = [p for p in results if p.protocol == protocol]
         if min_value is not None:
@@ -490,7 +518,11 @@ class EnhancedBridgeDetector:
         if protocol:
             results = [p for p in results if p.protocol == protocol]
         if min_value is not None:
-            results = [p for p in results if p.token_in_amount >= min_value or p.token_out_amount >= min_value]
+            results = [
+                p
+                for p in results
+                if p.token_in_amount >= min_value or p.token_out_amount >= min_value
+            ]
 
         return results[:limit]
 
@@ -556,7 +588,9 @@ class EnhancedBridgeDetector:
             "supported_dex_protocols": len(self._dex_contracts),
         }
 
-    def _infer_destination_chain(self, protocol: BridgeProtocol, source_chain: str) -> str:
+    def _infer_destination_chain(
+        self, protocol: BridgeProtocol, source_chain: str
+    ) -> str:
         """Infer destination chain from protocol."""
         # Simplified inference
         chain_mapping = {
@@ -582,7 +616,9 @@ def format_bridge_pattern(pattern: BridgePattern) -> str:
     ]
 
     if pattern.risk_indicators:
-        lines.append(f"Risk Indicators: {', '.join(i.value for i in pattern.risk_indicators)}")
+        lines.append(
+            f"Risk Indicators: {', '.join(i.value for i in pattern.risk_indicators)}"
+        )
 
     return "\n".join(lines)
 

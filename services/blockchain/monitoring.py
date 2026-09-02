@@ -2,6 +2,7 @@
 
 Provides monitoring, alerting, and metrics for blockchain integrations.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -17,6 +18,7 @@ from .base import ChainAdapter, ChainHealth, ChainType
 
 class AlertSeverity(str, Enum):
     """Alert severity levels."""
+
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -24,6 +26,7 @@ class AlertSeverity(str, Enum):
 
 class ChainAlert(BaseModel):
     """Chain health alert."""
+
     chain: ChainType
     severity: AlertSeverity
     message: str
@@ -33,6 +36,7 @@ class ChainAlert(BaseModel):
 
 class ChainMetrics(BaseModel):
     """Chain performance metrics."""
+
     chain: ChainType
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -228,9 +232,15 @@ class ChainMonitor:
             "chains": {},
             "alerts_summary": {
                 "total": len(self._alerts),
-                "critical": len([a for a in self._alerts if a.severity == AlertSeverity.CRITICAL]),
-                "warning": len([a for a in self._alerts if a.severity == AlertSeverity.WARNING]),
-                "info": len([a for a in self._alerts if a.severity == AlertSeverity.INFO]),
+                "critical": len(
+                    [a for a in self._alerts if a.severity == AlertSeverity.CRITICAL]
+                ),
+                "warning": len(
+                    [a for a in self._alerts if a.severity == AlertSeverity.WARNING]
+                ),
+                "info": len(
+                    [a for a in self._alerts if a.severity == AlertSeverity.INFO]
+                ),
             },
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
@@ -308,11 +318,21 @@ class MetricsCollector:
                 sorted_values = sorted(values)
                 lines.append(f"{name}_count {len(values)}")
                 lines.append(f"{name}_sum {sum(values)}")
-                lines.append(f"{name}_bucket{{le=\"0.1\"}} {len([v for v in sorted_values if v <= 0.1])}")
-                lines.append(f"{name}_bucket{{le=\"0.5\"}} {len([v for v in sorted_values if v <= 0.5])}")
-                lines.append(f"{name}_bucket{{le=\"1\"}} {len([v for v in sorted_values if v <= 1])}")
-                lines.append(f"{name}_bucket{{le=\"5\"}} {len([v for v in sorted_values if v <= 5])}")
-                lines.append(f"{name}_bucket{{le=\"10\"}} {len([v for v in sorted_values if v <= 10])}")
-                lines.append(f"{name}_bucket{{le=\"+Inf\"}} {len(values)}")
+                lines.append(
+                    f'{name}_bucket{{le="0.1"}} {len([v for v in sorted_values if v <= 0.1])}'
+                )
+                lines.append(
+                    f'{name}_bucket{{le="0.5"}} {len([v for v in sorted_values if v <= 0.5])}'
+                )
+                lines.append(
+                    f'{name}_bucket{{le="1"}} {len([v for v in sorted_values if v <= 1])}'
+                )
+                lines.append(
+                    f'{name}_bucket{{le="5"}} {len([v for v in sorted_values if v <= 5])}'
+                )
+                lines.append(
+                    f'{name}_bucket{{le="10"}} {len([v for v in sorted_values if v <= 10])}'
+                )
+                lines.append(f'{name}_bucket{{le="+Inf"}} {len(values)}')
 
         return "\n".join(lines)

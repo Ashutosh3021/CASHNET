@@ -5,6 +5,7 @@ later). Every artifact is wrapped with a small JSON header carrying a schema
 version, content hash, and provenance so corruption / version drift is
 detectable on load.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -69,4 +70,5 @@ def load_model(path: str | Path) -> tuple[Any, dict]:
 
 def model_path(model_id: int | str) -> Path:
     from lib.io_utils import MODELS_DIR
+
     return MODELS_DIR / f"{model_id}_model.pkl"

@@ -2,6 +2,7 @@
 
 Provides policy-based approval workflow for action requests.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -13,6 +14,7 @@ from pydantic import BaseModel, Field
 
 class ApprovalStatus(str, Enum):
     """Approval status."""
+
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -22,6 +24,7 @@ class ApprovalStatus(str, Enum):
 
 class ApprovalLevel(str, Enum):
     """Approval levels."""
+
     L1 = "l1"  # Supervisor
     L2 = "l2"  # Manager
     L3 = "l3"  # Director
@@ -30,6 +33,7 @@ class ApprovalLevel(str, Enum):
 
 class ApprovalRequest(BaseModel):
     """Approval request."""
+
     request_id: str
     action_type: str
     case_id: str
@@ -61,6 +65,7 @@ class ApprovalRequest(BaseModel):
 
 class ApprovalDecision(BaseModel):
     """Approval decision."""
+
     decision_id: str
     request_id: str
     approver_id: str
@@ -73,6 +78,7 @@ class ApprovalDecision(BaseModel):
 
 class PolicyRule(BaseModel):
     """Policy rule for approval."""
+
     rule_id: str
     name: str
     description: str
@@ -181,7 +187,11 @@ class ApprovalWorkflow:
         self._decisions[request.request_id] = []
 
         # Check for auto-approval
-        if policy and policy.auto_approve and self._check_auto_approve_conditions(request, policy):
+        if (
+            policy
+            and policy.auto_approve
+            and self._check_auto_approve_conditions(request, policy)
+        ):
             request.status = ApprovalStatus.APPROVED
             self._add_decision(
                 request.request_id,
@@ -211,7 +221,9 @@ class ApprovalWorkflow:
 
         # Check approver authority
         if not self._check_approver_authority(approver_role, request.current_level):
-            raise ValueError(f"Insufficient authority for approval level {request.current_level}")
+            raise ValueError(
+                f"Insufficient authority for approval level {request.current_level}"
+            )
 
         # Add decision
         decision = self._add_decision(
@@ -298,10 +310,7 @@ class ApprovalWorkflow:
 
     def get_requests_by_case(self, case_id: str) -> list[ApprovalRequest]:
         """Get all requests for a case."""
-        return [
-            r for r in self._requests.values()
-            if r.case_id == case_id
-        ]
+        return [r for r in self._requests.values() if r.case_id == case_id]
 
     def get_decision_history(self, request_id: str) -> list[ApprovalDecision]:
         """Get decision history for a request."""
@@ -387,7 +396,12 @@ class ApprovalWorkflow:
     ) -> bool:
         """Check if approver has authority for the required level."""
         authority_map = {
-            "admin": [ApprovalLevel.L1, ApprovalLevel.L2, ApprovalLevel.L3, ApprovalLevel.EMERGENCY],
+            "admin": [
+                ApprovalLevel.L1,
+                ApprovalLevel.L2,
+                ApprovalLevel.L3,
+                ApprovalLevel.EMERGENCY,
+            ],
             "supervisor": [ApprovalLevel.L1],
             "manager": [ApprovalLevel.L1, ApprovalLevel.L2],
             "director": [ApprovalLevel.L1, ApprovalLevel.L2, ApprovalLevel.L3],
@@ -479,7 +493,9 @@ class ApprovalWorkflow:
                 decisions = self._decisions.get(request.request_id, [])
                 if decisions:
                     last_decision = decisions[-1]
-                    time_diff = (last_decision.decided_at - request.requested_at).total_seconds()
+                    time_diff = (
+                        last_decision.decided_at - request.requested_at
+                    ).total_seconds()
                     approval_times.append(time_diff)
 
         avg_approval_time = (
