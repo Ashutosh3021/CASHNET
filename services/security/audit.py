@@ -332,12 +332,8 @@ def audit_log(
         async def wrapper(*args, **kwargs):
             # This is a simplified example
             # In production, you would inject the audit logger and user context
-            try:
-                result = await func(*args, **kwargs)
-                # Log success
-                return result
-            except Exception as e:
-                # Log failure
-                raise
+            result = await func(*args, **kwargs)
+            # Log success
+            return result
         return wrapper
     return decorator

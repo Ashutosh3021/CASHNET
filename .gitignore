@@ -54,3 +54,4 @@ Thumbs.db
 generic
 docs
 data
+*.pyc

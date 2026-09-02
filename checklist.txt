@@ -75,20 +75,20 @@ SECTION 3: PHASE 2 - CORE ATTRIBUTION MVP (Blockchain Integration) ✅ COMPLETED
 [DONE] P0 | H  | Bounded multi-hop path discovery
 [DONE] P0 | H  | Graph construction and queries
 [DONE] P0 | H  | Bridge event detection
-[NOT_STARTED] P0 | M  | Timeline generation
+[DONE] P0 | M  | Timeline generation
 
 --- VASP Attribution ---
 
-[NOT_STARTED] P0 | H  | Versioned known-address/cluster registry
-[NOT_STARTED] P0 | H  | Ranked VASP candidates with confidence
-[NOT_STARTED] P0 | M  | Confidence scoring with factors
-[NOT_STARTED] P0 | M  | Adjudication feedback loop
+[DONE] P0 | H  | Versioned known-address/cluster registry
+[DONE] P0 | H  | Ranked VASP candidates with confidence
+[DONE] P0 | M  | Confidence scoring with factors
+[DONE] P0 | M  | Adjudication feedback loop
 
 --- Evidence Package ---
 
-[NOT_STARTED] P0 | H  | Immutable evidence snapshots
-[NOT_STARTED] P0 | M  | Evidence verification
-[NOT_STARTED] P0 | M  | Report export (PDF/JSON)
+[DONE] P0 | H  | Immutable evidence snapshots
+[DONE] P0 | M  | Evidence verification
+[DONE] P0 | M  | Report export (PDF/JSON)
 
 --- Investigator Workspace (Enhanced) ---
 
@@ -106,7 +106,7 @@ SECTION 4: PHASE 3 - INTEGRATIONS AND OPERATIONALISATION (IN PROGRESS)
 [DONE] P0 | H  | SAHYOG integration
 [DONE] P0 | H  | NCRP integration
 [DONE] P0 | M  | VASP/exchange request workflow
-[NOT_STARTED] P0 | M  | Financial institution notification
+[DONE] P0 | M  | Financial institution notification
 
 --- Approval Workflow ---
 
@@ -116,7 +116,7 @@ SECTION 4: PHASE 3 - INTEGRATIONS AND OPERATIONALISATION (IN PROGRESS)
 
 --- Operations Dashboard ---
 
-[NOT_STARTED] P1 | M  | Data freshness monitoring
+[DONE] P1 | M  | Data freshness monitoring
 [NOT_STARTED] P1 | L  | Escalation management UI
 [NOT_STARTED] P1 | L  | Reporting templates
 
@@ -126,15 +126,15 @@ SECTION 5: PHASE 4 - INTELLIGENCE AND LEARNING
 
 --- Risk and Typology ---
 
-[PARTIAL] P1 | M  | Rules-based typology detection
-[NOT_STARTED] P1 | H  | Model registry and governance
-[NOT_STARTED] P1 | H  | Model validation pipeline
-[NOT_STARTED] P2 | M  | ML model training pipeline
+[DONE] P1 | M  | Rules-based typology detection
+[DONE] P1 | H  | Model registry and governance
+[DONE] P1 | H  | Model validation pipeline
+[DONE] P2 | M  | ML model training pipeline
 
 --- Advanced Features ---
 
-[NOT_STARTED] P2 | H  | Broader bridge/swap coverage
-[NOT_STARTED] P2 | M  | Mixer/tumbler detection signals
+[DONE] P2 | H  | Broader bridge/swap coverage
+[DONE] P2 | M  | Mixer/tumbler detection signals
 [NOT_STARTED] P2 | M  | Real-time notifications (email/SMS)
 [NOT_STARTED] P3 | H  | Cross-agency intelligence sharing
 
@@ -249,9 +249,9 @@ SUMMARY STATISTICS
 ================================================================================
 
 Total Items:        132
-  [DONE]:            47  (36%)
-  [PARTIAL]:         16  (12%)
-  [NOT_STARTED]:     69  (52%)
+  [DONE]:            63  (48%)
+  [PARTIAL]:         15  (11%)
+  [NOT_STARTED]:     54  (41%)
   [BLOCKED]:          0  (0%)
 
 By Priority:
@@ -277,13 +277,13 @@ PHASE 1: FOUNDATION (Infrastructure & Core Services) ✅ COMPLETED
   Items: 12 | Completed: 10 (83%)
 
 PHASE 2: CORE ATTRIBUTION MVP (Blockchain Integration) ✅ COMPLETED
-  Items: 12 | Completed: 12 (100%)
+  Items: 20 | Completed: 20 (100%)
 
 PHASE 3: INTEGRATIONS AND OPERATIONALISATION 🔄 IN PROGRESS
-  Items: 10 | Completed: 6 (60%)
+  Items: 10 | Completed: 8 (80%)
 
-PHASE 4: INTELLIGENCE AND LEARNING
-  Items: 12 | Completed: 0 (0%)
+PHASE 4: INTELLIGENCE AND LEARNING 🔄 IN PROGRESS
+  Items: 12 | Completed: 6 (50%)
 
 ================================================================================
 PHASE 3 COMPLETION DETAILS (Integrations)
@@ -296,12 +296,12 @@ PHASE 3 COMPLETION DETAILS (Integrations)
 4. Approval-led request dispatch
 5. Escalation rules and SLAs
 6. Partner response tracking
+7. Financial institution notification
+8. Data freshness monitoring
 
 ⏳ REMAINING ITEMS:
-1. Financial institution notification
-2. Data freshness monitoring (operations dashboard)
-3. Escalation management UI (frontend)
-4. Reporting templates
+1. Escalation management UI (frontend)
+2. Reporting templates (frontend)
 
 ================================================================================
 RECOMMENDED SEQUENCING (Critical Path)
@@ -329,4 +329,5 @@ NOTES
 Last Updated: 2026-09-02
 Generated from: docs/Deliverables.md cross-reference with codebase
 Updated by: Ashutosh (Backend & AI/ML Lead)
-Phase 3 Status: IN PROGRESS (60%)
+Phase 3 Status: IN PROGRESS (80%)
+Phase 4 Status: IN PROGRESS (50%)

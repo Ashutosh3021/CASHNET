@@ -67,7 +67,7 @@ class SAHYOGConnector(IntegrationAdapter):
             
             return False
             
-        except Exception as e:
+        except (httpx.ConnectError, httpx.TimeoutException, OSError) as e:
             print(f"Failed to connect to SAHYOG: {e}")
             return False
     
@@ -118,7 +118,7 @@ class SAHYOGConnector(IntegrationAdapter):
                     error_message=error_data.get("error", f"HTTP {response.status_code}"),
                 )
                 
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=case_data.get("request_id", ""),
                 status=IntegrationStatus.FAILED,
@@ -153,7 +153,7 @@ class SAHYOGConnector(IntegrationAdapter):
                     error_message=f"Failed to get status: HTTP {response.status_code}",
                 )
                 
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=external_id,
                 status=IntegrationStatus.FAILED,
@@ -174,7 +174,7 @@ class SAHYOGConnector(IntegrationAdapter):
             response = await self._client.get("/health")
             return response.status_code == 200
             
-        except Exception:
+        except httpx.RequestError:
             return False
     
     async def update_case(
@@ -211,7 +211,7 @@ class SAHYOGConnector(IntegrationAdapter):
                     error_message=f"Update failed: HTTP {response.status_code}",
                 )
                 
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=cashnet_case_id,
                 status=IntegrationStatus.FAILED,
@@ -231,7 +231,7 @@ class SAHYOGConnector(IntegrationAdapter):
             
             return []
             
-        except Exception:
+        except (httpx.RequestError, ValueError):
             return []
     
     def _transform_case_to_sahyog(self, case_data: dict[str, Any]) -> dict[str, Any]:

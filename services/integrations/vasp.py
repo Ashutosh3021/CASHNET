@@ -93,7 +93,7 @@ class VASPConnector(IntegrationAdapter):
             
             return False
             
-        except Exception as e:
+        except (httpx.ConnectError, httpx.TimeoutException, OSError) as e:
             print(f"Failed to connect to VASP API: {e}")
             return False
     
@@ -105,7 +105,6 @@ class VASPConnector(IntegrationAdapter):
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a freeze/disclosure request to a VASP."""
         try:
-            request_type = case_data.get("request_type", VASPRequestType.FREEZE)
             vasp_name = case_data.get("vasp_name")
             
             if not vasp_name:
@@ -141,7 +140,7 @@ class VASPConnector(IntegrationAdapter):
                     processed_at=datetime.now(timezone.utc),
                 )
                 
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=case_data.get("request_id", ""),
                 status=IntegrationStatus.FAILED,
@@ -176,7 +175,7 @@ class VASPConnector(IntegrationAdapter):
                 processed_at=datetime.now(timezone.utc),
             )
             
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=external_id,
                 status=IntegrationStatus.FAILED,
@@ -195,7 +194,7 @@ class VASPConnector(IntegrationAdapter):
         try:
             response = await self._client.get("/health")
             return response.status_code == 200
-        except Exception:
+        except httpx.RequestError:
             return False
     
     async def create_freeze_request(
@@ -303,7 +302,7 @@ class VASPConnector(IntegrationAdapter):
                 processed_at=datetime.now(timezone.utc),
             )
             
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.FAILED,
@@ -342,7 +341,7 @@ class VASPConnector(IntegrationAdapter):
                 processed_at=datetime.now(timezone.utc),
             )
             
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.FAILED,
@@ -406,7 +405,7 @@ class VASPConnector(IntegrationAdapter):
                     error_message=f"VASP request failed: HTTP {response.status_code}",
                 )
                 
-        except Exception as e:
+        except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_data["request_id"],
                 status=IntegrationStatus.FAILED,

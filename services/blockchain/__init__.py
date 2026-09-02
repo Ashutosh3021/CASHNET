@@ -1,7 +1,7 @@
 """CashNet Blockchain Services
 
 Provides chain adapters, transaction normalization, graph database integration,
-and bridge event detection for cross-chain transactions.
+bridge event detection, attribution, evidence, and timeline for cross-chain transactions.
 """
 from .base import ChainAdapter, ChainType, NormalizedTransaction
 from .ethereum import EthereumAdapter
@@ -15,6 +15,36 @@ from .graph import GraphService
 from .pathfinder import PathFinder, PathConstraints, TransactionGraph
 from .monitoring import ChainMonitor, MetricsCollector
 from .bridge import BridgeDetector, BridgeEvent, BridgeType
+from .attribution import (
+    VASPAttributionService,
+    VersionedRegistry,
+    ConfidenceScorer,
+    AdjudicationEngine,
+    KnownAddress,
+    AddressCluster,
+    VASPCandidate,
+    AdjudicationRecord,
+    EntityRiskCategory,
+    AttributionStatus,
+    ConfidenceFactor,
+)
+from .evidence import (
+    EvidenceService,
+    EvidencePackage,
+    EvidenceItem,
+    PackageType,
+    ItemType,
+    VerificationStatus,
+    ReportFormat,
+)
+from .timeline import (
+    TimelineService,
+    TimelineEvent,
+    TimelineFilter,
+    TimelineSummary,
+    TimelineEventType,
+    format_timeline_event,
+)
 
 __all__ = [
     # Base
@@ -45,6 +75,36 @@ __all__ = [
     "BridgeDetector",
     "BridgeEvent",
     "BridgeType",
+    
+    # Attribution
+    "VASPAttributionService",
+    "VersionedRegistry",
+    "ConfidenceScorer",
+    "AdjudicationEngine",
+    "KnownAddress",
+    "AddressCluster",
+    "VASPCandidate",
+    "AdjudicationRecord",
+    "EntityRiskCategory",
+    "AttributionStatus",
+    "ConfidenceFactor",
+    
+    # Evidence
+    "EvidenceService",
+    "EvidencePackage",
+    "EvidenceItem",
+    "PackageType",
+    "ItemType",
+    "VerificationStatus",
+    "ReportFormat",
+    
+    # Timeline
+    "TimelineService",
+    "TimelineEvent",
+    "TimelineFilter",
+    "TimelineSummary",
+    "TimelineEventType",
+    "format_timeline_event",
 ]
 
 

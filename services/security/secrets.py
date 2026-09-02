@@ -15,8 +15,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
-from cryptography.fernet import Fernet
-from pydantic import BaseModel
+from cryptography.fernet import InvalidToken, Fernet
+from pydantic import BaseModel, ValidationError
 
 
 class SecretBackend(str, Enum):
@@ -101,7 +101,7 @@ class LocalSecretsBackend(SecretsBackend):
             encrypted_data = secret_path.read_bytes()
             decrypted_data = self.fernet.decrypt(encrypted_data)
             return decrypted_data.decode("utf-8")
-        except Exception:
+        except (InvalidToken, OSError, ValueError):
             return None
     
     def set_secret(self, name: str, value: str, metadata: Optional[SecretMetadata] = None) -> bool:
@@ -121,7 +121,7 @@ class LocalSecretsBackend(SecretsBackend):
             metadata_path.write_text(json.dumps(metadata.model_dump(), indent=2))
             
             return True
-        except Exception:
+        except (OSError, ValueError):
             return False
     
     def delete_secret(self, name: str) -> bool:
@@ -136,7 +136,7 @@ class LocalSecretsBackend(SecretsBackend):
                 metadata_path.unlink()
             
             return True
-        except Exception:
+        except OSError:
             return False
     
     def list_secrets(self) -> list[str]:
@@ -167,7 +167,7 @@ class LocalSecretsBackend(SecretsBackend):
         try:
             metadata_json = json.loads(metadata_path.read_text())
             return SecretMetadata(**metadata_json)
-        except Exception:
+        except (ValueError, ValidationError, OSError):
             return None
 
 
