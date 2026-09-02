@@ -56,3 +56,7 @@ docs
 data
 *.pyc
 .kiro
+
+!data/
+!data/reference/
+!data/reference/banks.json
