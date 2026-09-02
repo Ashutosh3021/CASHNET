@@ -6,8 +6,8 @@ communication with Virtual Asset Service Providers (VASPs).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 import httpx
@@ -20,7 +20,7 @@ from .base import (
 )
 
 
-class VASPRequestType(str, Enum):
+class VASPRequestType(StrEnum):
     """VASP request types."""
 
     FREEZE = "freeze"
@@ -30,7 +30,7 @@ class VASPRequestType(str, Enum):
     INFORMATION = "information"
 
 
-class VASPRequestStatus(str, Enum):
+class VASPRequestStatus(StrEnum):
     """VASP request status."""
 
     DRAFT = "draft"
@@ -139,7 +139,7 @@ class VASPConnector(IntegrationAdapter):
                         "message": "Request queued for sending",
                         "request_id": request_id,
                     },
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
 
         except (httpx.RequestError, ValueError, KeyError) as e:
@@ -172,7 +172,7 @@ class VASPConnector(IntegrationAdapter):
                 request_id=external_id,
                 status=self._map_vasp_status(request.get("status")),
                 response_data=request.get("response_data", {}),
-                processed_at=datetime.now(timezone.utc),
+                processed_at=datetime.now(UTC),
             )
 
         except (httpx.RequestError, ValueError, KeyError) as e:
@@ -289,7 +289,7 @@ class VASPConnector(IntegrationAdapter):
             # Update request
             request["status"] = VASPRequestStatus.APPROVED.value
             request["approved_by"] = approver_id
-            request["approved_at"] = datetime.now(timezone.utc).isoformat()
+            request["approved_at"] = datetime.now(UTC).isoformat()
             request["approval_comments"] = comments
 
             return IntegrationResponse(
@@ -299,7 +299,7 @@ class VASPConnector(IntegrationAdapter):
                     "status": "approved",
                     "approved_by": approver_id,
                 },
-                processed_at=datetime.now(timezone.utc),
+                processed_at=datetime.now(UTC),
             )
 
         except (httpx.RequestError, ValueError, KeyError) as e:
@@ -327,7 +327,7 @@ class VASPConnector(IntegrationAdapter):
 
             request["status"] = VASPRequestStatus.REJECTED.value
             request["rejected_by"] = rejector_id
-            request["rejected_at"] = datetime.now(timezone.utc).isoformat()
+            request["rejected_at"] = datetime.now(UTC).isoformat()
             request["rejection_reason"] = reason
 
             return IntegrationResponse(
@@ -338,7 +338,7 @@ class VASPConnector(IntegrationAdapter):
                     "rejected_by": rejector_id,
                     "reason": reason,
                 },
-                processed_at=datetime.now(timezone.utc),
+                processed_at=datetime.now(UTC),
             )
 
         except (httpx.RequestError, ValueError, KeyError) as e:
@@ -362,7 +362,7 @@ class VASPConnector(IntegrationAdapter):
             "reason": case_data.get("reason"),
             "evidence_package_id": case_data.get("evidence_package_id"),
             "status": VASPRequestStatus.PENDING_APPROVAL.value,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "expires_at": case_data.get("expires_at", self._calculate_expiry()),
             "response_data": {},
         }
@@ -396,7 +396,7 @@ class VASPConnector(IntegrationAdapter):
                     request_id=request_data["request_id"],
                     status=IntegrationStatus.COMPLETED,
                     response_data=response.json(),
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
             else:
                 return IntegrationResponse(
@@ -434,14 +434,14 @@ class VASPConnector(IntegrationAdapter):
             "request_id": response_data.get("reference"),
             "status": response_data.get("status"),
             "response_data": response_data.get("data", {}),
-            "processed_at": datetime.now(timezone.utc).isoformat(),
+            "processed_at": datetime.now(UTC).isoformat(),
         }
 
     def _calculate_expiry(self) -> str:
         """Calculate request expiry date."""
         from datetime import timedelta
 
-        expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
+        expiry = datetime.now(UTC) + timedelta(days=self.default_expiry_days)
         return expiry.isoformat()
 
     def _map_vasp_status(self, status: str | None) -> IntegrationStatus:

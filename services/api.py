@@ -7,7 +7,7 @@ for case management, blockchain operations, ML/intelligence, and integrations.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 class HealthResponse(BaseModel):
     status: str = "healthy"
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     version: str = "0.1.0"
 
 
@@ -241,7 +241,7 @@ async def create_case(case: CaseInput) -> dict[str, Any]:
         "currency": case.currency,
         "priority": case.priority,
         "status": "NEW",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "created_by": case.created_by,
     }
 
@@ -287,7 +287,7 @@ async def assign_case(case_id: str, payload: CaseAssign) -> dict[str, Any]:
         "case_id": case_id,
         "assigned_to": payload.assigned_to,
         "reason": payload.reason,
-        "assigned_at": datetime.now(timezone.utc).isoformat(),
+        "assigned_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -304,7 +304,7 @@ async def start_analysis(request: AnalysisRequest) -> dict[str, Any]:
         "case_id": request.case_id,
         "analysis_type": request.analysis_type,
         "status": "RUNNING",
-        "started_at": datetime.now(timezone.utc).isoformat(),
+        "started_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -359,7 +359,7 @@ async def create_adjudication(
         "decision": payload.decision,
         "decided_by": payload.decided_by,
         "comments": payload.comments,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -522,7 +522,7 @@ async def send_action_request(request_id: str) -> dict[str, Any]:
     _ = ServiceRegistry.get("vasp")
     return {
         "request_id": request_id,
-        "sent_at": datetime.now(timezone.utc).isoformat(),
+        "sent_at": datetime.now(UTC).isoformat(),
         "status": "SENT",
     }
 
@@ -539,7 +539,7 @@ async def create_tag(payload: TagInput) -> dict[str, Any]:
         "name": payload.name,
         "category": payload.category,
         "color": payload.color,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -567,7 +567,7 @@ async def create_cluster(payload: ClusterInput) -> dict[str, Any]:
         "name": payload.name,
         "cluster_type": payload.cluster_type,
         "member_count": len(payload.address_ids),
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -601,7 +601,7 @@ async def acknowledge_alert(alert_id: str, payload: AlertAcknowledge) -> dict[st
     return {
         "alert_id": alert_id,
         "acknowledged_by": payload.acknowledged_by,
-        "acknowledged_at": datetime.now(timezone.utc).isoformat(),
+        "acknowledged_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -621,7 +621,7 @@ async def sahyog_webhook(payload: WebhookPayload) -> dict[str, Any]:
         "received": True,
         "source": payload.source,
         "event_type": payload.event_type,
-        "received_at": datetime.now(timezone.utc).isoformat(),
+        "received_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -631,7 +631,7 @@ async def ncrp_webhook(payload: WebhookPayload) -> dict[str, Any]:
         "received": True,
         "source": payload.source,
         "event_type": payload.event_type,
-        "received_at": datetime.now(timezone.utc).isoformat(),
+        "received_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -641,7 +641,7 @@ async def vasp_webhook(payload: WebhookPayload) -> dict[str, Any]:
         "received": True,
         "source": payload.source,
         "event_type": payload.event_type,
-        "received_at": datetime.now(timezone.utc).isoformat(),
+        "received_at": datetime.now(UTC).isoformat(),
     }
 
 

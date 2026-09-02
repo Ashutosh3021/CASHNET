@@ -1,0 +1,4790 @@
+(.venv) PS C:\Users\ashut\Downloads\CASHNET> Get-ChildItem dist
+
+
+    Directory: C:\Users\ashut\Downloads\CASHNET\dist
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        02-09-2026     21:11         167544 cashnet-0.1.0-py3-none-an
+                                                  y.whl
+-a----        02-09-2026     21:11         138243 cashnet-0.1.0.tar.gz
+
+
+(.venv) PS C:\Users\ashut\Downloads\CASHNET> ruff check lib/ services/ scripts/ tests/
+UP017 [*] Use `datetime.UTC` alias
+  --> lib\model_manager.py:68:44
+   |
+66 |             provenance={
+67 |                 "model_id": model_id,
+68 |                 "created_at": datetime.now(timezone.utc).isoformat(),
+   |                                            ^^^^^^^^^^^^
+69 |                 "version": "1.0",
+70 |                 "type": "illicit_classifier",
+   |
+help: Convert to `datetime.UTC` alias
+   |
+12 | import logging
+   - from datetime import datetime, timezone
+13 + from datetime import datetime, timezone, UTC
+14 | from typing import Any
+--------------------------------------------------------------------------------
+67 |                 "model_id": model_id,
+   -                 "created_at": datetime.now(timezone.utc).isoformat(),
+68 +                 "created_at": datetime.now(UTC).isoformat(),
+69 |                 "version": "1.0",
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> lib\model_manager.py:142:39
+    |
+140 |             "features": len(X[0]),
+141 |             "accuracy": float(model.score(X, y)),
+142 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+143 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+12  | import logging
+    - from datetime import datetime, timezone
+13  + from datetime import datetime, timezone, UTC
+14  | from typing import Any
+--------------------------------------------------------------------------------
+141 |             "accuracy": float(model.score(X, y)),
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+142 +             "timestamp": datetime.now(UTC).isoformat(),
+143 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> lib\model_manager.py:197:39
+    |
+195 |             "features": len(X[0]),
+196 |             "accuracy": float(model.score(X, y)),
+197 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+198 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+12  | import logging
+    - from datetime import datetime, timezone
+13  + from datetime import datetime, timezone, UTC
+14  | from typing import Any
+--------------------------------------------------------------------------------
+196 |             "accuracy": float(model.score(X, y)),
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+197 +             "timestamp": datetime.now(UTC).isoformat(),
+198 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> lib\model_manager.py:254:39
+    |
+252 |             "features": len(X[0]),
+253 |             "accuracy": float(model.score(X, y)),
+254 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+255 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+12  | import logging
+    - from datetime import datetime, timezone
+13  + from datetime import datetime, timezone, UTC
+14  | from typing import Any
+--------------------------------------------------------------------------------
+253 |             "accuracy": float(model.score(X, y)),
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+254 +             "timestamp": datetime.now(UTC).isoformat(),
+255 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> lib\model_manager.py:313:39
+    |
+311 |             "prediction": int(prediction),
+312 |             "confidence": probability,
+313 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+314 |             "metadata": metadata,
+315 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+12  | import logging
+    - from datetime import datetime, timezone
+13  + from datetime import datetime, timezone, UTC
+14  | from typing import Any
+--------------------------------------------------------------------------------
+312 |             "confidence": probability,
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+313 +             "timestamp": datetime.now(UTC).isoformat(),
+314 |             "metadata": metadata,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> lib\model_manager.py:321:39
+    |
+319 |             "model_id": model_id,
+320 |             "error": str(e),
+321 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+322 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+12  | import logging
+    - from datetime import datetime, timezone
+13  + from datetime import datetime, timezone, UTC
+14  | from typing import Any
+--------------------------------------------------------------------------------
+320 |             "error": str(e),
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+321 +             "timestamp": datetime.now(UTC).isoformat(),
+322 |         }
+    |
+
+W292 [*] No newline at end of file
+ --> services\__init__.py:1:32
+  |
+1 | """CASHNET services package."""
+  |                                ^
+help: Add trailing newline
+  |
+  - """CASHNET services package."""
+1 + """CASHNET services package."""
+  |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\api.py:21:70
+   |
+19 | class HealthResponse(BaseModel):
+20 |     status: str = "healthy"
+21 |     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                      ^^^^^^^^^^^^
+22 |     version: str = "0.1.0"
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import uuid
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+20 |     status: str = "healthy"
+   -     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+21 +     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+22 |     version: str = "0.1.0"
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:244:36
+    |
+242 |         "priority": case.priority,
+243 |         "status": "NEW",
+244 |         "created_at": datetime.now(timezone.utc).isoformat(),
+    |                                    ^^^^^^^^^^^^
+245 |         "created_by": case.created_by,
+246 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+243 |         "status": "NEW",
+    -         "created_at": datetime.now(timezone.utc).isoformat(),
+244 +         "created_at": datetime.now(UTC).isoformat(),
+245 |         "created_by": case.created_by,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:290:37
+    |
+288 |         "assigned_to": payload.assigned_to,
+289 |         "reason": payload.reason,
+290 |         "assigned_at": datetime.now(timezone.utc).isoformat(),
+    |                                     ^^^^^^^^^^^^
+291 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+289 |         "reason": payload.reason,
+    -         "assigned_at": datetime.now(timezone.utc).isoformat(),
+290 +         "assigned_at": datetime.now(UTC).isoformat(),
+291 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:307:36
+    |
+305 |         "analysis_type": request.analysis_type,
+306 |         "status": "RUNNING",
+307 |         "started_at": datetime.now(timezone.utc).isoformat(),
+    |                                    ^^^^^^^^^^^^
+308 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+306 |         "status": "RUNNING",
+    -         "started_at": datetime.now(timezone.utc).isoformat(),
+307 +         "started_at": datetime.now(UTC).isoformat(),
+308 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:362:36
+    |
+360 |         "decided_by": payload.decided_by,
+361 |         "comments": payload.comments,
+362 |         "created_at": datetime.now(timezone.utc).isoformat(),
+    |                                    ^^^^^^^^^^^^
+363 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+361 |         "comments": payload.comments,
+    -         "created_at": datetime.now(timezone.utc).isoformat(),
+362 +         "created_at": datetime.now(UTC).isoformat(),
+363 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:525:33
+    |
+523 |     return {
+524 |         "request_id": request_id,
+525 |         "sent_at": datetime.now(timezone.utc).isoformat(),
+    |                                 ^^^^^^^^^^^^
+526 |         "status": "SENT",
+527 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+524 |         "request_id": request_id,
+    -         "sent_at": datetime.now(timezone.utc).isoformat(),
+525 +         "sent_at": datetime.now(UTC).isoformat(),
+526 |         "status": "SENT",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:542:36
+    |
+540 |         "category": payload.category,
+541 |         "color": payload.color,
+542 |         "created_at": datetime.now(timezone.utc).isoformat(),
+    |                                    ^^^^^^^^^^^^
+543 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+541 |         "color": payload.color,
+    -         "created_at": datetime.now(timezone.utc).isoformat(),
+542 +         "created_at": datetime.now(UTC).isoformat(),
+543 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:570:36
+    |
+568 |         "cluster_type": payload.cluster_type,
+569 |         "member_count": len(payload.address_ids),
+570 |         "created_at": datetime.now(timezone.utc).isoformat(),
+    |                                    ^^^^^^^^^^^^
+571 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+569 |         "member_count": len(payload.address_ids),
+    -         "created_at": datetime.now(timezone.utc).isoformat(),
+570 +         "created_at": datetime.now(UTC).isoformat(),
+571 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:604:41
+    |
+602 |         "alert_id": alert_id,
+603 |         "acknowledged_by": payload.acknowledged_by,
+604 |         "acknowledged_at": datetime.now(timezone.utc).isoformat(),
+    |                                         ^^^^^^^^^^^^
+605 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+603 |         "acknowledged_by": payload.acknowledged_by,
+    -         "acknowledged_at": datetime.now(timezone.utc).isoformat(),
+604 +         "acknowledged_at": datetime.now(UTC).isoformat(),
+605 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:624:37
+    |
+622 |         "source": payload.source,
+623 |         "event_type": payload.event_type,
+624 |         "received_at": datetime.now(timezone.utc).isoformat(),
+    |                                     ^^^^^^^^^^^^
+625 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+623 |         "event_type": payload.event_type,
+    -         "received_at": datetime.now(timezone.utc).isoformat(),
+624 +         "received_at": datetime.now(UTC).isoformat(),
+625 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:634:37
+    |
+632 |         "source": payload.source,
+633 |         "event_type": payload.event_type,
+634 |         "received_at": datetime.now(timezone.utc).isoformat(),
+    |                                     ^^^^^^^^^^^^
+635 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+633 |         "event_type": payload.event_type,
+    -         "received_at": datetime.now(timezone.utc).isoformat(),
+634 +         "received_at": datetime.now(UTC).isoformat(),
+635 |     }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\api.py:644:37
+    |
+642 |         "source": payload.source,
+643 |         "event_type": payload.event_type,
+644 |         "received_at": datetime.now(timezone.utc).isoformat(),
+    |                                     ^^^^^^^^^^^^
+645 |     }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from typing import Any, ClassVar
+--------------------------------------------------------------------------------
+643 |         "event_type": payload.event_type,
+    -         "received_at": datetime.now(timezone.utc).isoformat(),
+644 +         "received_at": datetime.now(UTC).isoformat(),
+645 |     }
+    |
+
+UP042 Class ResourceType inherits from both `str` and `enum.Enum`
+  --> services\auth\authorization.py:18:7
+   |
+18 | class ResourceType(str, Enum):
+   |       ^^^^^^^^^^^^
+19 |     """Resource types in the system."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class Action inherits from both `str` and `enum.Enum`
+  --> services\auth\authorization.py:32:7
+   |
+32 | class Action(str, Enum):
+   |       ^^^^^^
+33 |     """Actions that can be performed on resources."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\auth\authorization.py:65:40
+   |
+63 |     department: str | None = None
+64 |     ip_address: str | None = None
+65 |     timestamp: datetime = datetime.now(timezone.utc)
+   |                                        ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+   |
+8  | from collections.abc import Callable
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+64 |     ip_address: str | None = None
+   -     timestamp: datetime = datetime.now(timezone.utc)
+65 +     timestamp: datetime = datetime.now(UTC)
+66 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\auth\authorization.py:74:43
+   |
+72 |     reason: str
+73 |     conditions: list[str] = []
+74 |     evaluated_at: datetime = datetime.now(timezone.utc)
+   |                                           ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+   |
+8  | from collections.abc import Callable
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+73 |     conditions: list[str] = []
+   -     evaluated_at: datetime = datetime.now(timezone.utc)
+74 +     evaluated_at: datetime = datetime.now(UTC)
+75 |
+   |
+
+UP042 Class UserRole inherits from both `str` and `enum.Enum`
+  --> services\auth\models.py:15:7
+   |
+15 | class UserRole(str, Enum):
+   |       ^^^^^^^^
+16 |     """User roles in the system."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class Permission inherits from both `str` and `enum.Enum`
+  --> services\auth\models.py:25:7
+   |
+25 | class Permission(str, Enum):
+   |       ^^^^^^^^^^
+26 |     """Granular permissions."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\auth\service.py:74:31
+   |
+72 |             expires_delta = timedelta(minutes=self.access_token_expire_minutes)
+73 |
+74 |         expire = datetime.now(timezone.utc) + expires_delta
+   |                               ^^^^^^^^^^^^
+75 |         permissions = [p.value for p in ROLE_PERMISSIONS.get(user.role, [])]
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import uuid
+   - from datetime import datetime, timedelta, timezone
+10 + from datetime import datetime, timedelta, timezone, UTC
+11 |
+--------------------------------------------------------------------------------
+73 |
+   -         expire = datetime.now(timezone.utc) + expires_delta
+74 +         expire = datetime.now(UTC) + expires_delta
+75 |         permissions = [p.value for p in ROLE_PERMISSIONS.get(user.role, [])]
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\auth\service.py:83:33
+   |
+81 |             "permissions": permissions,
+82 |             "exp": expire,
+83 |             "iat": datetime.now(timezone.utc),
+   |                                 ^^^^^^^^^^^^
+84 |             "jti": str(uuid.uuid4()),
+85 |         }
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import uuid
+   - from datetime import datetime, timedelta, timezone
+10 + from datetime import datetime, timedelta, timezone, UTC
+11 |
+--------------------------------------------------------------------------------
+82 |             "exp": expire,
+   -             "iat": datetime.now(timezone.utc),
+83 +             "iat": datetime.now(UTC),
+84 |             "jti": str(uuid.uuid4()),
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\auth\service.py:91:31
+   |
+89 |     def create_refresh_token(self, user: User) -> str:
+90 |         """Create a refresh token for a user."""
+91 |         expire = datetime.now(timezone.utc) + timedelta(
+   |                               ^^^^^^^^^^^^
+92 |             days=self.refresh_token_expire_days
+93 |         )
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import uuid
+   - from datetime import datetime, timedelta, timezone
+10 + from datetime import datetime, timedelta, timezone, UTC
+11 |
+--------------------------------------------------------------------------------
+90 |         """Create a refresh token for a user."""
+   -         expire = datetime.now(timezone.utc) + timedelta(
+91 +         expire = datetime.now(UTC) + timedelta(
+92 |             days=self.refresh_token_expire_days
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:100:33
+    |
+ 98 |             "type": "refresh",
+ 99 |             "exp": expire,
+100 |             "iat": datetime.now(timezone.utc),
+    |                                 ^^^^^^^^^^^^
+101 |             "jti": str(uuid.uuid4()),
+102 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+99  |             "exp": expire,
+    -             "iat": datetime.now(timezone.utc),
+100 +             "iat": datetime.now(UTC),
+101 |             "jti": str(uuid.uuid4()),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:137:63
+    |
+135 |                 role=UserRole(payload["role"]),
+136 |                 permissions=payload.get("permissions", []),
+137 |                 exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+    |                                                               ^^^^^^^^^^^^
+138 |                 iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+139 |                 jti=jti or str(uuid.uuid4()),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+136 |                 permissions=payload.get("permissions", []),
+    -                 exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+137 +                 exp=datetime.fromtimestamp(payload["exp"], tz=UTC),
+138 |                 iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:138:63
+    |
+136 |                 permissions=payload.get("permissions", []),
+137 |                 exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+138 |                 iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+    |                                                               ^^^^^^^^^^^^
+139 |                 jti=jti or str(uuid.uuid4()),
+140 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+137 |                 exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+    -                 iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+138 +                 iat=datetime.fromtimestamp(payload["iat"], tz=UTC),
+139 |                 jti=jti or str(uuid.uuid4()),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:223:40
+    |
+222 |         # Update last login
+223 |         user.last_login = datetime.now(timezone.utc)
+    |                                        ^^^^^^^^^^^^
+224 |
+225 |         return user
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+222 |         # Update last login
+    -         user.last_login = datetime.now(timezone.utc)
+223 +         user.last_login = datetime.now(UTC)
+224 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:249:40
+    |
+247 |             "ip_address": ip_address,
+248 |             "user_agent": user_agent,
+249 |             "created_at": datetime.now(timezone.utc),
+    |                                        ^^^^^^^^^^^^
+250 |             "expires_at": datetime.now(timezone.utc)
+251 |             + timedelta(minutes=self.access_token_expire_minutes),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+248 |             "user_agent": user_agent,
+    -             "created_at": datetime.now(timezone.utc),
+249 +             "created_at": datetime.now(UTC),
+250 |             "expires_at": datetime.now(timezone.utc)
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:250:40
+    |
+248 |             "user_agent": user_agent,
+249 |             "created_at": datetime.now(timezone.utc),
+250 |             "expires_at": datetime.now(timezone.utc)
+    |                                        ^^^^^^^^^^^^
+251 |             + timedelta(minutes=self.access_token_expire_minutes),
+252 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+249 |             "created_at": datetime.now(timezone.utc),
+    -             "expires_at": datetime.now(timezone.utc)
+250 +             "expires_at": datetime.now(UTC)
+251 |             + timedelta(minutes=self.access_token_expire_minutes),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:312:40
+    |
+310 |                 setattr(user, key, value)
+311 |
+312 |         user.updated_at = datetime.now(timezone.utc)
+    |                                        ^^^^^^^^^^^^
+313 |         return user
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+311 |
+    -         user.updated_at = datetime.now(timezone.utc)
+312 +         user.updated_at = datetime.now(UTC)
+313 |         return user
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:323:40
+    |
+321 |         user.is_mfa_enabled = True
+322 |         user.mfa_secret = secret
+323 |         user.updated_at = datetime.now(timezone.utc)
+    |                                        ^^^^^^^^^^^^
+324 |         return True
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+322 |         user.mfa_secret = secret
+    -         user.updated_at = datetime.now(timezone.utc)
+323 +         user.updated_at = datetime.now(UTC)
+324 |         return True
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\auth\service.py:334:40
+    |
+332 |         user.is_mfa_enabled = False
+333 |         user.mfa_secret = None
+334 |         user.updated_at = datetime.now(timezone.utc)
+    |                                        ^^^^^^^^^^^^
+335 |         return True
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import uuid
+    - from datetime import datetime, timedelta, timezone
+10  + from datetime import datetime, timedelta, timezone, UTC
+11  |
+--------------------------------------------------------------------------------
+333 |         user.mfa_secret = None
+    -         user.updated_at = datetime.now(timezone.utc)
+334 +         user.updated_at = datetime.now(UTC)
+335 |         return True
+    |
+
+UP042 Class EntityRiskCategory inherits from both `str` and `enum.Enum`
+  --> services\blockchain\attribution.py:18:7
+   |
+18 | class EntityRiskCategory(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^
+19 |     """Entity risk categories."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class AttributionStatus inherits from both `str` and `enum.Enum`
+  --> services\blockchain\attribution.py:28:7
+   |
+28 | class AttributionStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^
+29 |     """Attribution status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\attribution.py:60:71
+   |
+58 |     source: str = "manual"  # "manual", "verified", "community", "ml"
+59 |     tags: list[str] = []
+60 |     first_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+61 |     last_verified: datetime | None = None
+62 |     version: int = 1
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+59 |     tags: list[str] = []
+   -     first_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+60 +     first_seen: datetime = Field(default_factory=lambda: datetime.now(UTC))
+61 |     last_verified: datetime | None = None
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\attribution.py:80:71
+   |
+78 |     creation_method: str = "manual"  # "manual", "graph_analysis", "behavioral"
+79 |     version: int = 1
+80 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+81 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+79 |     version: int = 1
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+80 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+81 |     metadata: dict[str, Any] = {}
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\attribution.py:97:71
+   |
+95 |     status: AttributionStatus = AttributionStatus.PENDING
+96 |     rank: int = 0
+97 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+98 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+96 |     rank: int = 0
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+97 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+98 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\attribution.py:98:71
+   |
+96 |     rank: int = 0
+97 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+98 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+97 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   -     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+98 +     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+99 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\attribution.py:112:71
+    |
+110 |     reason: str
+111 |     confidence_override: float | None = None
+112 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+113 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+111 |     confidence_override: float | None = None
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+112 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+113 |     metadata: dict[str, Any] = {}
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\attribution.py:505:45
+    |
+503 |         # Update candidate status
+504 |         candidate.status = decision
+505 |         candidate.updated_at = datetime.now(timezone.utc)
+    |                                             ^^^^^^^^^^^^
+506 |
+507 |         if confidence_override is not None:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+504 |         candidate.status = decision
+    -         candidate.updated_at = datetime.now(timezone.utc)
+505 +         candidate.updated_at = datetime.now(UTC)
+506 |
+    |
+
+UP042 Class ChainType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\base.py:16:7
+   |
+16 | class ChainType(str, Enum):
+   |       ^^^^^^^^^
+17 |     """Supported blockchain types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class TransactionType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\base.py:27:7
+   |
+27 | class TransactionType(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+28 |     """Normalized transaction types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class AddressType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\base.py:39:7
+   |
+39 | class AddressType(str, Enum):
+   |       ^^^^^^^^^^^
+40 |     """Address classification types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\bitcoin.py:81:52
+   |
+80 |             block_timestamp = datetime.fromtimestamp(
+81 |                 block_data.get("timestamp", 0), tz=timezone.utc
+   |                                                    ^^^^^^^^^^^^
+82 |             )
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+80 |             block_timestamp = datetime.fromtimestamp(
+   -                 block_data.get("timestamp", 0), tz=timezone.utc
+81 +                 block_data.get("timestamp", 0), tz=UTC
+82 |             )
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\bitcoin.py:85:32
+   |
+84 |             # Calculate lag
+85 |             now = datetime.now(timezone.utc)
+   |                                ^^^^^^^^^^^^
+86 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+84 |             # Calculate lag
+   -             now = datetime.now(timezone.utc)
+85 +             now = datetime.now(UTC)
+86 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:110:46
+    |
+108 |                 is_healthy=False,
+109 |                 block_height=0,
+110 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+111 |                 sync_status="error",
+112 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+109 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+110 +                 block_timestamp=datetime.now(UTC),
+111 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:131:44
+    |
+129 |             # Get block timestamp
+130 |             block_height = tx_data.get("block_height")
+131 |             block_timestamp = datetime.now(timezone.utc)
+    |                                            ^^^^^^^^^^^^
+132 |
+133 |             if block_height:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+130 |             block_height = tx_data.get("block_height")
+    -             block_timestamp = datetime.now(timezone.utc)
+131 +             block_timestamp = datetime.now(UTC)
+132 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:138:60
+    |
+136 |                     block_data = block_response.json()
+137 |                     block_timestamp = datetime.fromtimestamp(
+138 |                         block_data.get("timestamp", 0), tz=timezone.utc
+    |                                                            ^^^^^^^^^^^^
+139 |                     )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+137 |                     block_timestamp = datetime.fromtimestamp(
+    -                         block_data.get("timestamp", 0), tz=timezone.utc
+138 +                         block_data.get("timestamp", 0), tz=UTC
+139 |                     )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:227:48
+    |
+225 |                 # Get block info
+226 |                 block_height = tx_data.get("block_height")
+227 |                 block_timestamp = datetime.now(timezone.utc)
+    |                                                ^^^^^^^^^^^^
+228 |
+229 |                 if block_height:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+226 |                 block_height = tx_data.get("block_height")
+    -                 block_timestamp = datetime.now(timezone.utc)
+227 +                 block_timestamp = datetime.now(UTC)
+228 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:237:68
+    |
+235 |                             block_data = block_response.json()
+236 |                             block_timestamp = datetime.fromtimestamp(
+237 |                                 block_data.get("timestamp", 0), tz=timezone.utc
+    |                                                                    ^^^^^^^^^^^^
+238 |                             )
+239 |                     except Exception:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+236 |                             block_timestamp = datetime.fromtimestamp(
+    -                                 block_data.get("timestamp", 0), tz=timezone.utc
+237 +                                 block_data.get("timestamp", 0), tz=UTC
+238 |                             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bitcoin.py:327:52
+    |
+325 |             txs_data = txs_response.json()
+326 |             block_timestamp = datetime.fromtimestamp(
+327 |                 block_data.get("timestamp", 0), tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+328 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+326 |             block_timestamp = datetime.fromtimestamp(
+    -                 block_data.get("timestamp", 0), tz=timezone.utc
+327 +                 block_data.get("timestamp", 0), tz=UTC
+328 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\bnb.py:84:40
+   |
+82 |             block = await self.get_block_by_number(block_number)
+83 |             block_timestamp = datetime.fromtimestamp(
+84 |                 block["timestamp"], tz=timezone.utc
+   |                                        ^^^^^^^^^^^^
+85 |             )
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+83 |             block_timestamp = datetime.fromtimestamp(
+   -                 block["timestamp"], tz=timezone.utc
+84 +                 block["timestamp"], tz=UTC
+85 |             )
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\bnb.py:87:32
+   |
+85 |             )
+86 |
+87 |             now = datetime.now(timezone.utc)
+   |                                ^^^^^^^^^^^^
+88 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+86 |
+   -             now = datetime.now(timezone.utc)
+87 +             now = datetime.now(UTC)
+88 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bnb.py:112:46
+    |
+110 |                 is_healthy=False,
+111 |                 block_height=0,
+112 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+113 |                 sync_status="error",
+114 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+111 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+112 +                 block_timestamp=datetime.now(UTC),
+113 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bnb.py:161:44
+    |
+159 |                 block_number=tx["blockNumber"],
+160 |                 block_timestamp=datetime.fromtimestamp(
+161 |                     block["timestamp"], tz=timezone.utc
+    |                                            ^^^^^^^^^^^^
+162 |                 ),
+163 |                 from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+160 |                 block_timestamp=datetime.fromtimestamp(
+    -                     block["timestamp"], tz=timezone.utc
+161 +                     block["timestamp"], tz=UTC
+162 |                 ),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bnb.py:243:52
+    |
+241 |                         block_number=block_number,
+242 |                         block_timestamp=datetime.fromtimestamp(
+243 |                             block["timestamp"], tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+244 |                         ),
+245 |                         from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+242 |                         block_timestamp=datetime.fromtimestamp(
+    -                             block["timestamp"], tz=timezone.utc
+243 +                             block["timestamp"], tz=UTC
+244 |                         ),
+    |
+
+UP042 Class BridgeType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\bridge.py:17:7
+   |
+17 | class BridgeType(str, Enum):
+   |       ^^^^^^^^^^
+18 |     """Supported bridge types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\bridge.py:237:56
+    |
+235 |             event.destination_chain = destination_chain
+236 |             event.destination_block_number = destination_block_number
+237 |             event.destination_timestamp = datetime.now(timezone.utc)
+    |                                                        ^^^^^^^^^^^^
+238 |             event.destination_address = destination_address
+239 |             event.status = "completed"
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+236 |             event.destination_block_number = destination_block_number
+    -             event.destination_timestamp = datetime.now(timezone.utc)
+237 +             event.destination_timestamp = datetime.now(UTC)
+238 |             event.destination_address = destination_address
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\ethereum.py:91:40
+   |
+89 |             block = await self.get_block_by_number(block_number)
+90 |             block_timestamp = datetime.fromtimestamp(
+91 |                 block["timestamp"], tz=timezone.utc
+   |                                        ^^^^^^^^^^^^
+92 |             )
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+90 |             block_timestamp = datetime.fromtimestamp(
+   -                 block["timestamp"], tz=timezone.utc
+91 +                 block["timestamp"], tz=UTC
+92 |             )
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\ethereum.py:95:32
+   |
+94 |             # Calculate lag
+95 |             now = datetime.now(timezone.utc)
+   |                                ^^^^^^^^^^^^
+96 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+94 |             # Calculate lag
+   -             now = datetime.now(timezone.utc)
+95 +             now = datetime.now(UTC)
+96 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\ethereum.py:120:46
+    |
+118 |                 is_healthy=False,
+119 |                 block_height=0,
+120 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+121 |                 sync_status="error",
+122 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+119 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+120 +                 block_timestamp=datetime.now(UTC),
+121 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\ethereum.py:171:44
+    |
+169 |                 block_number=tx["blockNumber"],
+170 |                 block_timestamp=datetime.fromtimestamp(
+171 |                     block["timestamp"], tz=timezone.utc
+    |                                            ^^^^^^^^^^^^
+172 |                 ),
+173 |                 from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+170 |                 block_timestamp=datetime.fromtimestamp(
+    -                     block["timestamp"], tz=timezone.utc
+171 +                     block["timestamp"], tz=UTC
+172 |                 ),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\ethereum.py:269:52
+    |
+267 |                         block_number=block_number,
+268 |                         block_timestamp=datetime.fromtimestamp(
+269 |                             block["timestamp"], tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+270 |                         ),
+271 |                         from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+268 |                         block_timestamp=datetime.fromtimestamp(
+    -                             block["timestamp"], tz=timezone.utc
+269 +                             block["timestamp"], tz=UTC
+270 |                         ),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\ethereum.py:391:56
+    |
+389 | …                     block_number=log["blockNumber"],
+390 | …                     block_timestamp=datetime.fromtimestamp(
+391 | …                         block["timestamp"], tz=timezone.utc
+    |                                                  ^^^^^^^^^^^^
+392 | …                     ),
+393 | …                     from_address=from_addr.lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+390 |                             block_timestamp=datetime.fromtimestamp(
+    -                                 block["timestamp"], tz=timezone.utc
+391 +                                 block["timestamp"], tz=UTC
+392 |                             ),
+    |
+
+UP042 Class PackageType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\evidence.py:19:7
+   |
+19 | class PackageType(str, Enum):
+   |       ^^^^^^^^^^^
+20 |     """Evidence package types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ItemType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\evidence.py:30:7
+   |
+30 | class ItemType(str, Enum):
+   |       ^^^^^^^^
+31 |     """Evidence item types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class VerificationStatus inherits from both `str` and `enum.Enum`
+  --> services\blockchain\evidence.py:43:7
+   |
+43 | class VerificationStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^
+44 |     """Evidence verification status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\evidence.py:61:71
+   |
+59 |     storage_key: str | None = None  # S3/object storage path
+60 |     description: str | None = None
+61 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+62 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import json
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+60 |     description: str | None = None
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+61 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+62 |     metadata: dict[str, Any] = {}
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\evidence.py:91:71
+   |
+89 |     # Chain of custody
+90 |     created_by: str = ""
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import json
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+90 |     created_by: str = ""
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+91 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\evidence.py:92:71
+   |
+90 |     created_by: str = ""
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+93 |
+94 |     # Metadata
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | import json
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   -     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+92 +     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+93 |
+   |
+
+UP042 Class ReportFormat inherits from both `str` and `enum.Enum`
+   --> services\blockchain\evidence.py:101:7
+    |
+101 | class ReportFormat(str, Enum):
+    |       ^^^^^^^^^^^^
+102 |     """Report export formats."""
+    |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\evidence.py:190:43
+    |
+189 |         package.items.append(item)
+190 |         package.updated_at = datetime.now(timezone.utc)
+    |                                           ^^^^^^^^^^^^
+191 |
+192 |         # Recalculate package hash
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+189 |         package.items.append(item)
+    -         package.updated_at = datetime.now(timezone.utc)
+190 +         package.updated_at = datetime.now(UTC)
+191 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\evidence.py:273:42
+    |
+271 |         # Seal
+272 |         package.is_sealed = True
+273 |         package.sealed_at = datetime.now(timezone.utc)
+    |                                          ^^^^^^^^^^^^
+274 |         package.updated_at = datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+272 |         package.is_sealed = True
+    -         package.sealed_at = datetime.now(timezone.utc)
+273 +         package.sealed_at = datetime.now(UTC)
+274 |         package.updated_at = datetime.now(timezone.utc)
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\evidence.py:274:43
+    |
+272 |         package.is_sealed = True
+273 |         package.sealed_at = datetime.now(timezone.utc)
+274 |         package.updated_at = datetime.now(timezone.utc)
+    |                                           ^^^^^^^^^^^^
+275 |
+276 |         # Add to hash chain
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+273 |         package.sealed_at = datetime.now(timezone.utc)
+    -         package.updated_at = datetime.now(timezone.utc)
+274 +         package.updated_at = datetime.now(UTC)
+275 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\evidence.py:321:48
+    |
+319 |             verification_result["overall_status"] = VerificationStatus.VERIFIED
+320 |             package.verification_status = VerificationStatus.VERIFIED
+321 |             package.verified_at = datetime.now(timezone.utc)
+    |                                                ^^^^^^^^^^^^
+322 |         elif (
+323 |             verification_result["items_failed"] > 0
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+320 |             package.verification_status = VerificationStatus.VERIFIED
+    -             package.verified_at = datetime.now(timezone.utc)
+321 +             package.verified_at = datetime.now(UTC)
+322 |         elif (
+    |
+
+UP042 Class AlertSeverity inherits from both `str` and `enum.Enum`
+  --> services\blockchain\monitoring.py:19:7
+   |
+19 | class AlertSeverity(str, Enum):
+   |       ^^^^^^^^^^^^^
+20 |     """Alert severity levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\monitoring.py:33:70
+   |
+31 |     severity: AlertSeverity
+32 |     message: str
+33 |     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                      ^^^^^^^^^^^^
+34 |     details: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | from collections.abc import Callable
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+32 |     message: str
+   -     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+33 +     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+34 |     details: dict[str, Any] = {}
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\monitoring.py:41:70
+   |
+40 |     chain: ChainType
+41 |     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                      ^^^^^^^^^^^^
+42 |
+43 |     # Block metrics
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | from collections.abc import Callable
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+40 |     chain: ChainType
+   -     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+41 +     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+42 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\monitoring.py:95:46
+   |
+93 |                 is_healthy=False,
+94 |                 block_height=0,
+95 |                 block_timestamp=datetime.now(timezone.utc),
+   |                                              ^^^^^^^^^^^^
+96 |                 sync_status="error",
+97 |                 lag_seconds=-1,
+   |
+help: Convert to `datetime.UTC` alias
+   |
+9  | from collections.abc import Callable
+   - from datetime import datetime, timezone
+10 + from datetime import datetime, timezone, UTC
+11 | from enum import Enum
+--------------------------------------------------------------------------------
+94 |                 block_height=0,
+   -                 block_timestamp=datetime.now(timezone.utc),
+95 +                 block_timestamp=datetime.now(UTC),
+96 |                 sync_status="error",
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\monitoring.py:131:46
+    |
+129 |                 is_healthy=False,
+130 |                 block_height=0,
+131 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+132 |                 sync_status="error",
+133 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | from collections.abc import Callable
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+130 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+131 +                 block_timestamp=datetime.now(UTC),
+132 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\monitoring.py:245:39
+    |
+243 |                 ),
+244 |             },
+245 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+246 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | from collections.abc import Callable
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+244 |             },
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+245 +             "timestamp": datetime.now(UTC).isoformat(),
+246 |         }
+    |
+
+UP042 Class PathFindingStrategy inherits from both `str` and `enum.Enum`
+  --> services\blockchain\pathfinder.py:17:7
+   |
+17 | class PathFindingStrategy(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^^
+18 |     """Path finding strategies."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\polygon.py:83:40
+   |
+81 |             block = await self.get_block_by_number(block_number)
+82 |             block_timestamp = datetime.fromtimestamp(
+83 |                 block["timestamp"], tz=timezone.utc
+   |                                        ^^^^^^^^^^^^
+84 |             )
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+82 |             block_timestamp = datetime.fromtimestamp(
+   -                 block["timestamp"], tz=timezone.utc
+83 +                 block["timestamp"], tz=UTC
+84 |             )
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\blockchain\polygon.py:86:32
+   |
+84 |             )
+85 |
+86 |             now = datetime.now(timezone.utc)
+   |                                ^^^^^^^^^^^^
+87 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+85 |
+   -             now = datetime.now(timezone.utc)
+86 +             now = datetime.now(UTC)
+87 |             lag_seconds = int((now - block_timestamp).total_seconds())
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\polygon.py:111:46
+    |
+109 |                 is_healthy=False,
+110 |                 block_height=0,
+111 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+112 |                 sync_status="error",
+113 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+110 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+111 +                 block_timestamp=datetime.now(UTC),
+112 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\polygon.py:160:44
+    |
+158 |                 block_number=tx["blockNumber"],
+159 |                 block_timestamp=datetime.fromtimestamp(
+160 |                     block["timestamp"], tz=timezone.utc
+    |                                            ^^^^^^^^^^^^
+161 |                 ),
+162 |                 from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+159 |                 block_timestamp=datetime.fromtimestamp(
+    -                     block["timestamp"], tz=timezone.utc
+160 +                     block["timestamp"], tz=UTC
+161 |                 ),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\polygon.py:240:52
+    |
+238 |                         block_number=block_number,
+239 |                         block_timestamp=datetime.fromtimestamp(
+240 |                             block["timestamp"], tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+241 |                         ),
+242 |                         from_address=tx["from"].lower(),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+239 |                         block_timestamp=datetime.fromtimestamp(
+    -                             block["timestamp"], tz=timezone.utc
+240 +                             block["timestamp"], tz=UTC
+241 |                         ),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:113:60
+    |
+111 |             block_time_unix = block_time_response.get("result", 0)
+112 |             block_timestamp = (
+113 |                 datetime.fromtimestamp(block_time_unix, tz=timezone.utc)
+    |                                                            ^^^^^^^^^^^^
+114 |                 if block_time_unix
+115 |                 else datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+112 |             block_timestamp = (
+    -                 datetime.fromtimestamp(block_time_unix, tz=timezone.utc)
+113 +                 datetime.fromtimestamp(block_time_unix, tz=UTC)
+114 |                 if block_time_unix
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:115:35
+    |
+113 |                 datetime.fromtimestamp(block_time_unix, tz=timezone.utc)
+114 |                 if block_time_unix
+115 |                 else datetime.now(timezone.utc)
+    |                                   ^^^^^^^^^^^^
+116 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+114 |                 if block_time_unix
+    -                 else datetime.now(timezone.utc)
+115 +                 else datetime.now(UTC)
+116 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:119:32
+    |
+118 |             # Calculate lag
+119 |             now = datetime.now(timezone.utc)
+    |                                ^^^^^^^^^^^^
+120 |             lag_seconds = int((now - block_timestamp).total_seconds())
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+118 |             # Calculate lag
+    -             now = datetime.now(timezone.utc)
+119 +             now = datetime.now(UTC)
+120 |             lag_seconds = int((now - block_timestamp).total_seconds())
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:144:46
+    |
+142 |                 is_healthy=False,
+143 |                 block_height=0,
+144 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+145 |                 sync_status="error",
+146 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+143 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+144 +                 block_timestamp=datetime.now(UTC),
+145 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:172:55
+    |
+170 |             block_time = tx_data.get("blockTime", 0)
+171 |             block_timestamp = (
+172 |                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+    |                                                       ^^^^^^^^^^^^
+173 |                 if block_time
+174 |                 else datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+171 |             block_timestamp = (
+    -                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+172 +                 datetime.fromtimestamp(block_time, tz=UTC)
+173 |                 if block_time
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:174:35
+    |
+172 |                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+173 |                 if block_time
+174 |                 else datetime.now(timezone.utc)
+    |                                   ^^^^^^^^^^^^
+175 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+173 |                 if block_time
+    -                 else datetime.now(timezone.utc)
+174 +                 else datetime.now(UTC)
+175 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:279:59
+    |
+278 |                 block_timestamp = (
+279 |                     datetime.fromtimestamp(block_time, tz=timezone.utc)
+    |                                                           ^^^^^^^^^^^^
+280 |                     if block_time
+281 |                     else datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+278 |                 block_timestamp = (
+    -                     datetime.fromtimestamp(block_time, tz=timezone.utc)
+279 +                     datetime.fromtimestamp(block_time, tz=UTC)
+280 |                     if block_time
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:281:39
+    |
+279 |                     datetime.fromtimestamp(block_time, tz=timezone.utc)
+280 |                     if block_time
+281 |                     else datetime.now(timezone.utc)
+    |                                       ^^^^^^^^^^^^
+282 |                 )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+280 |                     if block_time
+    -                     else datetime.now(timezone.utc)
+281 +                     else datetime.now(UTC)
+282 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:339:55
+    |
+337 |             block_time = block_data.get("blockTime", 0)
+338 |             block_timestamp = (
+339 |                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+    |                                                       ^^^^^^^^^^^^
+340 |                 if block_time
+341 |                 else datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+338 |             block_timestamp = (
+    -                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+339 +                 datetime.fromtimestamp(block_time, tz=UTC)
+340 |                 if block_time
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\solana.py:341:35
+    |
+339 |                 datetime.fromtimestamp(block_time, tz=timezone.utc)
+340 |                 if block_time
+341 |                 else datetime.now(timezone.utc)
+    |                                   ^^^^^^^^^^^^
+342 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+340 |                 if block_time
+    -                 else datetime.now(timezone.utc)
+341 +                 else datetime.now(UTC)
+342 |             )
+    |
+
+UP042 Class TimelineEventType inherits from both `str` and `enum.Enum`
+  --> services\blockchain\timeline.py:17:7
+   |
+17 | class TimelineEventType(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^
+18 |     """Timeline event types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\timeline.py:200:49
+    |
+198 |             event_id=str(uuid.uuid4()),
+199 |             event_type=TimelineEventType.ADDRESS_DISCOVERY,
+200 |             timestamp=timestamp or datetime.now(timezone.utc),
+    |                                                 ^^^^^^^^^^^^
+201 |             case_id=case_id,
+202 |             address=address,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+199 |             event_type=TimelineEventType.ADDRESS_DISCOVERY,
+    -             timestamp=timestamp or datetime.now(timezone.utc),
+200 +             timestamp=timestamp or datetime.now(UTC),
+201 |             case_id=case_id,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\timeline.py:228:36
+    |
+226 |             event_id=str(uuid.uuid4()),
+227 |             event_type=TimelineEventType.VASP_ATTRIBUTION,
+228 |             timestamp=datetime.now(timezone.utc),
+    |                                    ^^^^^^^^^^^^
+229 |             case_id=case_id,
+230 |             address=address,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+227 |             event_type=TimelineEventType.VASP_ATTRIBUTION,
+    -             timestamp=datetime.now(timezone.utc),
+228 +             timestamp=datetime.now(UTC),
+229 |             case_id=case_id,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\timeline.py:257:36
+    |
+255 |             event_id=str(uuid.uuid4()),
+256 |             event_type=TimelineEventType.FINDING,
+257 |             timestamp=datetime.now(timezone.utc),
+    |                                    ^^^^^^^^^^^^
+258 |             case_id=case_id,
+259 |             title=f"Finding: {finding_type}",
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+256 |             event_type=TimelineEventType.FINDING,
+    -             timestamp=datetime.now(timezone.utc),
+257 +             timestamp=datetime.now(UTC),
+258 |             case_id=case_id,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\timeline.py:285:36
+    |
+283 |             event_id=str(uuid.uuid4()),
+284 |             event_type=TimelineEventType.INVESTIGATION_NOTE,
+285 |             timestamp=datetime.now(timezone.utc),
+    |                                    ^^^^^^^^^^^^
+286 |             case_id=case_id,
+287 |             title=title,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+284 |             event_type=TimelineEventType.INVESTIGATION_NOTE,
+    -             timestamp=datetime.now(timezone.utc),
+285 +             timestamp=datetime.now(UTC),
+286 |             case_id=case_id,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:98:76
+    |
+ 96 |             block_height = raw_data.get("number", 0)
+ 97 |             block_timestamp = raw_data.get("timestamp", 0)
+ 98 |             block_time = datetime.fromtimestamp(block_timestamp / 1000, tz=timezone.utc)
+    |                                                                            ^^^^^^^^^^^^
+ 99 |
+100 |             # Calculate lag
+    |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from typing import Any
+--------------------------------------------------------------------------------
+97 |             block_timestamp = raw_data.get("timestamp", 0)
+   -             block_time = datetime.fromtimestamp(block_timestamp / 1000, tz=timezone.utc)
+98 +             block_time = datetime.fromtimestamp(block_timestamp / 1000, tz=UTC)
+99 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:101:32
+    |
+100 |             # Calculate lag
+101 |             now = datetime.now(timezone.utc)
+    |                                ^^^^^^^^^^^^
+102 |             lag_seconds = int((now - block_time).total_seconds())
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+100 |             # Calculate lag
+    -             now = datetime.now(timezone.utc)
+101 +             now = datetime.now(UTC)
+102 |             lag_seconds = int((now - block_time).total_seconds())
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:126:46
+    |
+124 |                 is_healthy=False,
+125 |                 block_height=0,
+126 |                 block_timestamp=datetime.now(timezone.utc),
+    |                                              ^^^^^^^^^^^^
+127 |                 sync_status="error",
+128 |                 lag_seconds=-1,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+125 |                 block_height=0,
+    -                 block_timestamp=datetime.now(timezone.utc),
+126 +                 block_timestamp=datetime.now(UTC),
+127 |                 sync_status="error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:155:48
+    |
+153 |             block_timestamp_raw = tx_data.get("raw_data", {}).get("timestamp", 0)
+154 |             block_timestamp = datetime.fromtimestamp(
+155 |                 block_timestamp_raw / 1000, tz=timezone.utc
+    |                                                ^^^^^^^^^^^^
+156 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+154 |             block_timestamp = datetime.fromtimestamp(
+    -                 block_timestamp_raw / 1000, tz=timezone.utc
+155 +                 block_timestamp_raw / 1000, tz=UTC
+156 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:260:52
+    |
+258 |                 block_timestamp_raw = tx_data.get("raw_data", {}).get("timestamp", 0)
+259 |                 block_timestamp = datetime.fromtimestamp(
+260 |                     block_timestamp_raw / 1000, tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+261 |                 )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+259 |                 block_timestamp = datetime.fromtimestamp(
+    -                     block_timestamp_raw / 1000, tz=timezone.utc
+260 +                     block_timestamp_raw / 1000, tz=UTC
+261 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:324:48
+    |
+322 |             )
+323 |             block_timestamp = datetime.fromtimestamp(
+324 |                 block_timestamp_raw / 1000, tz=timezone.utc
+    |                                                ^^^^^^^^^^^^
+325 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+323 |             block_timestamp = datetime.fromtimestamp(
+    -                 block_timestamp_raw / 1000, tz=timezone.utc
+324 +                 block_timestamp_raw / 1000, tz=UTC
+325 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\blockchain\tron.py:457:52
+    |
+455 |                 block_timestamp_raw = raw_data.get("timestamp", 0)
+456 |                 block_timestamp = datetime.fromtimestamp(
+457 |                     block_timestamp_raw / 1000, tz=timezone.utc
+    |                                                    ^^^^^^^^^^^^
+458 |                 )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from typing import Any
+--------------------------------------------------------------------------------
+456 |                 block_timestamp = datetime.fromtimestamp(
+    -                     block_timestamp_raw / 1000, tz=timezone.utc
+457 +                     block_timestamp_raw / 1000, tz=UTC
+458 |                 )
+    |
+
+UP042 Class ApprovalStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\approval.py:15:7
+   |
+15 | class ApprovalStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^
+16 |     """Approval status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ApprovalLevel inherits from both `str` and `enum.Enum`
+  --> services\integrations\approval.py:25:7
+   |
+25 | class ApprovalLevel(str, Enum):
+   |       ^^^^^^^^^^^^^
+26 |     """Approval levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\approval.py:41:73
+   |
+39 |     case_id: str
+40 |     requested_by: str
+41 |     requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                         ^^^^^^^^^^^^
+42 |
+43 |     # Request details
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from enum import Enum
+--------------------------------------------------------------------------------
+40 |     requested_by: str
+   -     requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+41 +     requested_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+42 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\approval.py:76:71
+   |
+74 |     level: ApprovalLevel
+75 |     comments: str | None = None
+76 |     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from enum import Enum
+--------------------------------------------------------------------------------
+75 |     comments: str | None = None
+   -     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+76 +     decided_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+77 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\approval.py:291:57
+    |
+289 |         request.status = ApprovalStatus.ESCALATED
+290 |         request.metadata["escalation_reason"] = reason
+291 |         request.metadata["escalated_at"] = datetime.now(timezone.utc).isoformat()
+    |                                                         ^^^^^^^^^^^^
+292 |
+293 |         return request
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+290 |         request.metadata["escalation_reason"] = reason
+    -         request.metadata["escalated_at"] = datetime.now(timezone.utc).isoformat()
+291 +         request.metadata["escalated_at"] = datetime.now(UTC).isoformat()
+292 |
+    |
+
+UP042 Class IntegrationStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\base.py:16:7
+   |
+16 | class IntegrationStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^
+17 |     """Integration status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class IntegrationType inherits from both `str` and `enum.Enum`
+  --> services\integrations\base.py:27:7
+   |
+27 | class IntegrationType(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+28 |     """Integration types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\base.py:43:71
+   |
+41 |     integration_type: IntegrationType
+42 |     case_id: str
+43 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+44 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  | from abc import ABC, abstractmethod
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+42 |     case_id: str
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+43 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+44 |     metadata: dict[str, Any] = {}
+   |
+
+UP042 Class SLAStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\escalation.py:15:7
+   |
+15 | class SLAStatus(str, Enum):
+   |       ^^^^^^^^^
+16 |     """SLA status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class EscalationLevel inherits from both `str` and `enum.Enum`
+  --> services\integrations\escalation.py:24:7
+   |
+24 | class EscalationLevel(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+25 |     """Escalation levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\escalation.py:215:35
+    |
+214 |         # Calculate deadlines
+215 |         started_at = datetime.now(timezone.utc)
+    |                                   ^^^^^^^^^^^^
+216 |
+217 |         response_deadline = self._calculate_deadline(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+214 |         # Calculate deadlines
+    -         started_at = datetime.now(timezone.utc)
+215 +         started_at = datetime.now(UTC)
+216 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\escalation.py:261:28
+    |
+259 |             raise ValueError(f"Tracking not found: {tracking_id}")
+260 |
+261 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+262 |
+263 |         if first_response and not tracking.first_response_at:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+260 |
+    -         now = datetime.now(timezone.utc)
+261 +         now = datetime.now(UTC)
+262 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\escalation.py:292:28
+    |
+290 |         escalations_needed = []
+291 |
+292 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+293 |
+294 |         for tracking in self._sla_tracking.values():
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+291 |
+    -         now = datetime.now(timezone.utc)
+292 +         now = datetime.now(UTC)
+293 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\escalation.py:345:42
+    |
+343 |             "escalated_by": escalated_by,
+344 |             "reason": reason,
+345 |             "escalated_at": datetime.now(timezone.utc).isoformat(),
+    |                                          ^^^^^^^^^^^^
+346 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+344 |             "reason": reason,
+    -             "escalated_at": datetime.now(timezone.utc).isoformat(),
+345 +             "escalated_at": datetime.now(UTC).isoformat(),
+346 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\escalation.py:482:33
+    |
+480 |                 cooldown_end = last_escalated + timedelta(hours=rule.cooldown_hours)
+481 |
+482 |                 if datetime.now(timezone.utc) < cooldown_end:
+    |                                 ^^^^^^^^^^^^
+483 |                     return True
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timedelta, timezone
+8   + from datetime import datetime, timedelta, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+481 |
+    -                 if datetime.now(timezone.utc) < cooldown_end:
+482 +                 if datetime.now(UTC) < cooldown_end:
+483 |                     return True
+    |
+
+UP042 Class FreshnessStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\freshness.py:19:7
+   |
+19 | class FreshnessStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+20 |     """Data freshness status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DataSourceType inherits from both `str` and `enum.Enum`
+  --> services\integrations\freshness.py:29:7
+   |
+29 | class DataSourceType(str, Enum):
+   |       ^^^^^^^^^^^^^^
+30 |     """Data source types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\freshness.py:78:70
+   |
+76 |     message: str
+77 |     lag_seconds: int
+78 |     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                      ^^^^^^^^^^^^
+79 |     acknowledged: bool = False
+80 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+77 |     lag_seconds: int
+   -     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+78 +     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+79 |     acknowledged: bool = False
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\freshness.py:141:39
+    |
+139 |             source_type=source_type,
+140 |             chain=chain,
+141 |             last_updated=datetime.now(timezone.utc),
+    |                                       ^^^^^^^^^^^^
+142 |             fresh_threshold=thresholds.get("fresh", 300),
+143 |             acceptable_threshold=thresholds.get("acceptable", 3600),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+140 |             chain=chain,
+    -             last_updated=datetime.now(timezone.utc),
+141 +             last_updated=datetime.now(UTC),
+142 |             fresh_threshold=thresholds.get("fresh", 300),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\freshness.py:161:28
+    |
+159 |             raise ValueError(f"Source not found: {source_id}")
+160 |
+161 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+162 |         metric.last_updated = now
+163 |         metric.last_successful_sync = now
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+160 |
+    -         now = datetime.now(timezone.utc)
+161 +         now = datetime.now(UTC)
+162 |         metric.last_updated = now
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\freshness.py:206:28
+    |
+205 |         # Calculate time-based lag
+206 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+207 |         metric.lag_seconds = int((now - last_updated).total_seconds())
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+205 |         # Calculate time-based lag
+    -         now = datetime.now(timezone.utc)
+206 +         now = datetime.now(UTC)
+207 |         metric.lag_seconds = int((now - last_updated).total_seconds())
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\freshness.py:297:39
+    |
+295 |             },
+296 |             "alerts_count": len([a for a in self._alerts if not a.acknowledged]),
+297 |             "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                       ^^^^^^^^^^^^
+298 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+296 |             "alerts_count": len([a for a in self._alerts if not a.acknowledged]),
+    -             "timestamp": datetime.now(timezone.utc).isoformat(),
+297 +             "timestamp": datetime.now(UTC).isoformat(),
+298 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\ncrp.py:109:47
+    |
+107 |                         "submitted_at": result.get("submitted_at"),
+108 |                     },
+109 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+110 |                 )
+111 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+108 |                     },
+    -                     processed_at=datetime.now(timezone.utc),
+109 +                     processed_at=datetime.now(UTC),
+110 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\ncrp.py:149:47
+    |
+147 |                         "remarks": result.get("remarks"),
+148 |                     },
+149 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+150 |                 )
+151 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+148 |                     },
+    -                     processed_at=datetime.now(timezone.utc),
+149 +                     processed_at=datetime.now(UTC),
+150 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\ncrp.py:201:47
+    |
+199 |                     status=IntegrationStatus.COMPLETED,
+200 |                     response_data=response.json(),
+201 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+202 |                 )
+203 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+200 |                     response_data=response.json(),
+    -                     processed_at=datetime.now(timezone.utc),
+201 +                     processed_at=datetime.now(UTC),
+202 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\ncrp.py:237:47
+    |
+235 |                     status=IntegrationStatus.COMPLETED,
+236 |                     response_data=response.json(),
+237 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+238 |                 )
+239 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+236 |                     response_data=response.json(),
+    -                     processed_at=datetime.now(timezone.utc),
+237 +                     processed_at=datetime.now(UTC),
+238 |                 )
+    |
+
+UP042 Class NotificationType inherits from both `str` and `enum.Enum`
+  --> services\integrations\notification.py:16:7
+   |
+16 | class NotificationType(str, Enum):
+   |       ^^^^^^^^^^^^^^^^
+17 |     """Notification types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class NotificationPriority inherits from both `str` and `enum.Enum`
+  --> services\integrations\notification.py:28:7
+   |
+28 | class NotificationPriority(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^^^
+29 |     """Notification priority levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class NotificationChannel inherits from both `str` and `enum.Enum`
+  --> services\integrations\notification.py:38:7
+   |
+38 | class NotificationChannel(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^^
+39 |     """Notification delivery channels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class NotificationStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\notification.py:48:7
+   |
+48 | class NotificationStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^
+49 |     """Notification delivery status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\notification.py:87:71
+   |
+86 |     # Timestamps
+87 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+88 |     sent_at: datetime | None = None
+89 |     delivered_at: datetime | None = None
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+86 |     # Timestamps
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+87 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+88 |     sent_at: datetime | None = None
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\notification.py:114:71
+    |
+112 |     notification_preferences: dict[str, Any] = {}
+113 |     is_active: bool = True
+114 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+113 |     is_active: bool = True
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+114 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+115 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\notification.py:380:28
+    |
+378 |             notification.external_id = external_id
+379 |
+380 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+381 |         if status == NotificationStatus.SENT:
+382 |             notification.sent_at = now
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+379 |
+    -         now = datetime.now(timezone.utc)
+380 +         now = datetime.now(UTC)
+381 |         if status == NotificationStatus.SENT:
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\sahyog.py:111:47
+    |
+109 |                         "submitted_at": result.get("submitted_at"),
+110 |                     },
+111 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+112 |                 )
+113 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+110 |                     },
+    -                     processed_at=datetime.now(timezone.utc),
+111 +                     processed_at=datetime.now(UTC),
+112 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\sahyog.py:149:47
+    |
+147 |                         "remarks": result.get("remarks"),
+148 |                     },
+149 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+150 |                 )
+151 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+148 |                     },
+    -                     processed_at=datetime.now(timezone.utc),
+149 +                     processed_at=datetime.now(UTC),
+150 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\sahyog.py:207:47
+    |
+205 |                     status=IntegrationStatus.COMPLETED,
+206 |                     response_data=response.json(),
+207 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+208 |                 )
+209 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from typing import Any
+--------------------------------------------------------------------------------
+206 |                     response_data=response.json(),
+    -                     processed_at=datetime.now(timezone.utc),
+207 +                     processed_at=datetime.now(UTC),
+208 |                 )
+    |
+
+UP042 Class TrackingStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\tracking.py:15:7
+   |
+15 | class TrackingStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^
+16 |     """Tracking status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class PartnerType inherits from both `str` and `enum.Enum`
+  --> services\integrations\tracking.py:29:7
+   |
+29 | class PartnerType(str, Enum):
+   |       ^^^^^^^^^^^
+30 |     """Partner types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\integrations\tracking.py:58:71
+   |
+57 |     # Timestamps
+58 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+59 |     sent_at: datetime | None = None
+60 |     acknowledged_at: datetime | None = None
+   |
+help: Convert to `datetime.UTC` alias
+   |
+7  |
+   - from datetime import datetime, timezone
+8  + from datetime import datetime, timezone, UTC
+9  | from enum import Enum
+--------------------------------------------------------------------------------
+57 |     # Timestamps
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+58 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+59 |     sent_at: datetime | None = None
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\tracking.py:105:41
+    |
+103 |             from datetime import timedelta
+104 |
+105 |             sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
+    |                                         ^^^^^^^^^^^^
+106 |
+107 |         record = TrackingRecord(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+104 |
+    -             sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
+105 +             sla_deadline = datetime.now(UTC) + timedelta(hours=sla_hours)
+106 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\tracking.py:122:43
+    |
+120 |             {
+121 |                 "status": TrackingStatus.QUEUED.value,
+122 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+123 |             }
+124 |         )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+121 |                 "status": TrackingStatus.QUEUED.value,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+122 +                 "timestamp": datetime.now(UTC).isoformat(),
+123 |             }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\tracking.py:157:43
+    |
+155 |             {
+156 |                 "status": status.value,
+157 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+158 |                 "response_data": response_data,
+159 |                 "error_message": error_message,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+156 |                 "status": status.value,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+157 +                 "timestamp": datetime.now(UTC).isoformat(),
+158 |                 "response_data": response_data,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\tracking.py:164:28
+    |
+163 |         # Update timestamps
+164 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+165 |         if status == TrackingStatus.SENT:
+166 |             record.sent_at = now
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+163 |         # Update timestamps
+    -         now = datetime.now(timezone.utc)
+164 +         now = datetime.now(UTC)
+165 |         if status == TrackingStatus.SENT:
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\tracking.py:256:43
+    |
+254 |             {
+255 |                 "status": "retry",
+256 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+257 |                 "retry_count": record.retry_count,
+258 |             }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+7   |
+    - from datetime import datetime, timezone
+8   + from datetime import datetime, timezone, UTC
+9   | from enum import Enum
+--------------------------------------------------------------------------------
+255 |                 "status": "retry",
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+256 +                 "timestamp": datetime.now(UTC).isoformat(),
+257 |                 "retry_count": record.retry_count,
+    |
+
+UP042 Class VASPRequestType inherits from both `str` and `enum.Enum`
+  --> services\integrations\vasp.py:23:7
+   |
+23 | class VASPRequestType(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+24 |     """VASP request types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class VASPRequestStatus inherits from both `str` and `enum.Enum`
+  --> services\integrations\vasp.py:33:7
+   |
+33 | class VASPRequestStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^
+34 |     """VASP request status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:142:47
+    |
+140 |                         "request_id": request_id,
+141 |                     },
+142 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+143 |                 )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+141 |                     },
+    -                     processed_at=datetime.now(timezone.utc),
+142 +                     processed_at=datetime.now(UTC),
+143 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:175:43
+    |
+173 |                 status=self._map_vasp_status(request.get("status")),
+174 |                 response_data=request.get("response_data", {}),
+175 |                 processed_at=datetime.now(timezone.utc),
+    |                                           ^^^^^^^^^^^^
+176 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+174 |                 response_data=request.get("response_data", {}),
+    -                 processed_at=datetime.now(timezone.utc),
+175 +                 processed_at=datetime.now(UTC),
+176 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:292:51
+    |
+290 |             request["status"] = VASPRequestStatus.APPROVED.value
+291 |             request["approved_by"] = approver_id
+292 |             request["approved_at"] = datetime.now(timezone.utc).isoformat()
+    |                                                   ^^^^^^^^^^^^
+293 |             request["approval_comments"] = comments
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+291 |             request["approved_by"] = approver_id
+    -             request["approved_at"] = datetime.now(timezone.utc).isoformat()
+292 +             request["approved_at"] = datetime.now(UTC).isoformat()
+293 |             request["approval_comments"] = comments
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:302:43
+    |
+300 |                     "approved_by": approver_id,
+301 |                 },
+302 |                 processed_at=datetime.now(timezone.utc),
+    |                                           ^^^^^^^^^^^^
+303 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+301 |                 },
+    -                 processed_at=datetime.now(timezone.utc),
+302 +                 processed_at=datetime.now(UTC),
+303 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:330:51
+    |
+328 |             request["status"] = VASPRequestStatus.REJECTED.value
+329 |             request["rejected_by"] = rejector_id
+330 |             request["rejected_at"] = datetime.now(timezone.utc).isoformat()
+    |                                                   ^^^^^^^^^^^^
+331 |             request["rejection_reason"] = reason
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+329 |             request["rejected_by"] = rejector_id
+    -             request["rejected_at"] = datetime.now(timezone.utc).isoformat()
+330 +             request["rejected_at"] = datetime.now(UTC).isoformat()
+331 |             request["rejection_reason"] = reason
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:341:43
+    |
+339 |                     "reason": reason,
+340 |                 },
+341 |                 processed_at=datetime.now(timezone.utc),
+    |                                           ^^^^^^^^^^^^
+342 |             )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+340 |                 },
+    -                 processed_at=datetime.now(timezone.utc),
+341 +                 processed_at=datetime.now(UTC),
+342 |             )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:365:40
+    |
+363 |             "evidence_package_id": case_data.get("evidence_package_id"),
+364 |             "status": VASPRequestStatus.PENDING_APPROVAL.value,
+365 |             "created_at": datetime.now(timezone.utc).isoformat(),
+    |                                        ^^^^^^^^^^^^
+366 |             "expires_at": case_data.get("expires_at", self._calculate_expiry()),
+367 |             "response_data": {},
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+364 |             "status": VASPRequestStatus.PENDING_APPROVAL.value,
+    -             "created_at": datetime.now(timezone.utc).isoformat(),
+365 +             "created_at": datetime.now(UTC).isoformat(),
+366 |             "expires_at": case_data.get("expires_at", self._calculate_expiry()),
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:399:47
+    |
+397 |                     status=IntegrationStatus.COMPLETED,
+398 |                     response_data=response.json(),
+399 |                     processed_at=datetime.now(timezone.utc),
+    |                                               ^^^^^^^^^^^^
+400 |                 )
+401 |             else:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+398 |                     response_data=response.json(),
+    -                     processed_at=datetime.now(timezone.utc),
+399 +                     processed_at=datetime.now(UTC),
+400 |                 )
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:437:42
+    |
+435 |             "status": response_data.get("status"),
+436 |             "response_data": response_data.get("data", {}),
+437 |             "processed_at": datetime.now(timezone.utc).isoformat(),
+    |                                          ^^^^^^^^^^^^
+438 |         }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+436 |             "response_data": response_data.get("data", {}),
+    -             "processed_at": datetime.now(timezone.utc).isoformat(),
+437 +             "processed_at": datetime.now(UTC).isoformat(),
+438 |         }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\integrations\vasp.py:444:31
+    |
+442 |         from datetime import timedelta
+443 |
+444 |         expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
+    |                               ^^^^^^^^^^^^
+445 |         return expiry.isoformat()
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+443 |
+    -         expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
+444 +         expiry = datetime.now(UTC) + timedelta(days=self.default_expiry_days)
+445 |         return expiry.isoformat()
+    |
+
+UP042 Class BridgeProtocol inherits from both `str` and `enum.Enum`
+  --> services\ml\enhanced_bridge.py:16:7
+   |
+16 | class BridgeProtocol(str, Enum):
+   |       ^^^^^^^^^^^^^^
+17 |     """Supported bridge protocols."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class SwapProtocol inherits from both `str` and `enum.Enum`
+  --> services\ml\enhanced_bridge.py:49:7
+   |
+49 | class SwapProtocol(str, Enum):
+   |       ^^^^^^^^^^^^
+50 |     """Supported DEX/swap protocols."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class PatternType inherits from both `str` and `enum.Enum`
+  --> services\ml\enhanced_bridge.py:82:7
+   |
+82 | class PatternType(str, Enum):
+   |       ^^^^^^^^^^^
+83 |     """Pattern types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class RiskIndicator inherits from both `str` and `enum.Enum`
+  --> services\ml\enhanced_bridge.py:93:7
+   |
+93 | class RiskIndicator(str, Enum):
+   |       ^^^^^^^^^^^^^
+94 |     """Risk indicators for bridge/swap activity."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\enhanced_bridge.py:151:72
+    |
+150 |     # Metadata
+151 |     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                        ^^^^^^^^^^^^
+152 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+150 |     # Metadata
+    -     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+151 +     detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+152 |     metadata: dict[str, Any] = {}
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\enhanced_bridge.py:202:72
+    |
+201 |     # Metadata
+202 |     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                        ^^^^^^^^^^^^
+203 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+201 |     # Metadata
+    -     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+202 +     detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+203 |     metadata: dict[str, Any] = {}
+    |
+
+UP042 Class SharingScope inherits from both `str` and `enum.Enum`
+  --> services\ml\intelligence_sharing.py:18:7
+   |
+18 | class SharingScope(str, Enum):
+   |       ^^^^^^^^^^^^
+19 |     """Scope of intelligence sharing."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ClassificationLevel inherits from both `str` and `enum.Enum`
+  --> services\ml\intelligence_sharing.py:28:7
+   |
+28 | class ClassificationLevel(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^^^
+29 |     """Classification levels for shared intelligence."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ShareStatus inherits from both `str` and `enum.Enum`
+  --> services\ml\intelligence_sharing.py:38:7
+   |
+38 | class ShareStatus(str, Enum):
+   |       ^^^^^^^^^^^
+39 |     """Status of a shared intelligence package."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class RedactionAction inherits from both `str` and `enum.Enum`
+  --> services\ml\intelligence_sharing.py:50:7
+   |
+50 | class RedactionAction(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+51 |     """Types of redaction."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\intelligence_sharing.py:91:71
+   |
+90 |     # Metadata
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+92 |     created_by: str = ""
+93 |     active: bool = True
+   |
+help: Convert to `datetime.UTC` alias
+   |
+10 | import json as json_module
+   - from datetime import datetime, timezone
+11 + from datetime import datetime, timezone, UTC
+12 | from enum import Enum
+--------------------------------------------------------------------------------
+90 |     # Metadata
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+91 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+92 |     created_by: str = ""
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:135:71
+    |
+134 |     # Timestamps
+135 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+136 |     shared_at: datetime | None = None
+137 |     acknowledged_at: datetime | None = None
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+134 |     # Timestamps
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+135 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+136 |     shared_at: datetime | None = None
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:173:71
+    |
+172 |     # Metadata
+173 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+174 |     last_shared: datetime | None = None
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+172 |     # Metadata
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+173 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+174 |     last_shared: datetime | None = None
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:185:70
+    |
+183 |     action: str  # "view", "download", "acknowledge", "search"
+184 |     actor: str
+185 |     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                      ^^^^^^^^^^^^
+186 |     ip_address: str | None = None
+187 |     user_agent: str | None = None
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+184 |     actor: str
+    -     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+185 +     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+186 |     ip_address: str | None = None
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:283:28
+    |
+281 |                 raise ValueError(f"Agency not eligible for sharing: {recipient}")
+282 |
+283 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+284 |         package = IntelligencePackage(
+285 |             package_id=str(uuid.uuid4()),
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+282 |
+    -         now = datetime.now(timezone.utc)
+283 +         now = datetime.now(UTC)
+284 |         package = IntelligencePackage(
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:362:44
+    |
+361 |         package.approved_by = approver_id
+362 |         package.approved_at = datetime.now(timezone.utc)
+    |                                            ^^^^^^^^^^^^
+363 |         package.approval_comments = comments
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+361 |         package.approved_by = approver_id
+    -         package.approved_at = datetime.now(timezone.utc)
+362 +         package.approved_at = datetime.now(UTC)
+363 |         package.approval_comments = comments
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:429:28
+    |
+428 |     def _share_with_agencies(self, package: IntelligencePackage) -> None:
+429 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+430 |         package.status = ShareStatus.SHARED
+431 |         package.shared_at = now
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+428 |     def _share_with_agencies(self, package: IntelligencePackage) -> None:
+    -         now = datetime.now(timezone.utc)
+429 +         now = datetime.now(UTC)
+430 |         package.status = ShareStatus.SHARED
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:457:47
+    |
+456 |         record = records[0]
+457 |         record.acknowledged_at = datetime.now(timezone.utc)
+    |                                               ^^^^^^^^^^^^
+458 |         record.status = ShareStatus.ACKNOWLEDGED
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+456 |         record = records[0]
+    -         record.acknowledged_at = datetime.now(timezone.utc)
+457 +         record.acknowledged_at = datetime.now(UTC)
+458 |         record.status = ShareStatus.ACKNOWLEDGED
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:477:55
+    |
+475 |         package.metadata["revoked_by"] = revoked_by
+476 |         package.metadata["revocation_reason"] = reason
+477 |         package.metadata["revoked_at"] = datetime.now(timezone.utc).isoformat()
+    |                                                       ^^^^^^^^^^^^
+478 |
+479 |         for record_id in self._package_index.get(package_id, []):
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+476 |         package.metadata["revocation_reason"] = reason
+    -         package.metadata["revoked_at"] = datetime.now(timezone.utc).isoformat()
+477 +         package.metadata["revoked_at"] = datetime.now(UTC).isoformat()
+478 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:483:50
+    |
+481 |             if record:
+482 |                 record.revoked = True
+483 |                 record.revoked_at = datetime.now(timezone.utc)
+    |                                                  ^^^^^^^^^^^^
+484 |                 record.revocation_reason = reason
+485 |                 record.status = ShareStatus.REVOKED
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+482 |                 record.revoked = True
+    -                 record.revoked_at = datetime.now(timezone.utc)
+483 +                 record.revoked_at = datetime.now(UTC)
+484 |                 record.revocation_reason = reason
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\intelligence_sharing.py:506:28
+    |
+505 |     def check_expired(self) -> list[IntelligencePackage]:
+506 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+507 |         expired = []
+    |
+help: Convert to `datetime.UTC` alias
+    |
+10  | import json as json_module
+    - from datetime import datetime, timezone
+11  + from datetime import datetime, timezone, UTC
+12  | from enum import Enum
+--------------------------------------------------------------------------------
+505 |     def check_expired(self) -> list[IntelligencePackage]:
+    -         now = datetime.now(timezone.utc)
+506 +         now = datetime.now(UTC)
+507 |         expired = []
+    |
+
+UP042 Class MixerType inherits from both `str` and `enum.Enum`
+  --> services\ml\mixer_detection.py:16:7
+   |
+16 | class MixerType(str, Enum):
+   |       ^^^^^^^^^
+17 |     """Types of mixers/tumblers."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class MixerRiskLevel inherits from both `str` and `enum.Enum`
+  --> services\ml\mixer_detection.py:30:7
+   |
+30 | class MixerRiskLevel(str, Enum):
+   |       ^^^^^^^^^^^^^^
+31 |     """Mixer risk levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DetectionMethod inherits from both `str` and `enum.Enum`
+  --> services\ml\mixer_detection.py:39:7
+   |
+39 | class DetectionMethod(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+40 |     """Detection methods."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\mixer_detection.py:78:72
+   |
+77 |     # Metadata
+78 |     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                        ^^^^^^^^^^^^
+79 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+77 |     # Metadata
+   -     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+78 +     detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+79 |     metadata: dict[str, Any] = {}
+   |
+
+UP042 Class ModelStatus inherits from both `str` and `enum.Enum`
+  --> services\ml\model_registry.py:16:7
+   |
+16 | class ModelStatus(str, Enum):
+   |       ^^^^^^^^^^^
+17 |     """Model lifecycle status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DeploymentStage inherits from both `str` and `enum.Enum`
+  --> services\ml\model_registry.py:29:7
+   |
+29 | class DeploymentStage(str, Enum):
+   |       ^^^^^^^^^^^^^^^
+30 |     """Deployment stages."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ModelType inherits from both `str` and `enum.Enum`
+  --> services\ml\model_registry.py:39:7
+   |
+39 | class ModelType(str, Enum):
+   |       ^^^^^^^^^
+40 |     """Model types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class ArtifactType inherits from both `str` and `enum.Enum`
+  --> services\ml\model_registry.py:52:7
+   |
+52 | class ArtifactType(str, Enum):
+   |       ^^^^^^^^^^^^
+53 |     """Model artifact types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\model_registry.py:80:71
+   |
+78 |     # Metadata
+79 |     mime_type: str | None = None
+80 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+81 |     metadata: dict[str, Any] = {}
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+79 |     mime_type: str | None = None
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+80 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+81 |     metadata: dict[str, Any] = {}
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\model_registry.py:92:71
+   |
+90 |     decision: str  # "approved", "rejected", "changes_requested"
+91 |     comments: str | None = None
+92 |     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+93 |     checklist: dict[str, bool] = {}  # Review checklist items
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+91 |     comments: str | None = None
+   -     decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+92 +     decided_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+93 |     checklist: dict[str, bool] = {}  # Review checklist items
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:138:71
+    |
+137 |     # Timestamps
+138 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+139 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+140 |     created_by: str = ""
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+137 |     # Timestamps
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+138 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+139 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:139:71
+    |
+137 |     # Timestamps
+138 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+139 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+140 |     created_by: str = ""
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+138 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    -     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+139 +     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+140 |     created_by: str = ""
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:202:43
+    |
+200 |                 "action": "registered",
+201 |                 "actor": created_by,
+202 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+203 |             }
+204 |         )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+201 |                 "actor": created_by,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+202 +                 "timestamp": datetime.now(UTC).isoformat(),
+203 |             }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:243:41
+    |
+242 |         model.status = ModelStatus.PENDING_REVIEW
+243 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+244 |
+245 |         model.audit_trail.append(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+242 |         model.status = ModelStatus.PENDING_REVIEW
+    -         model.updated_at = datetime.now(timezone.utc)
+243 +         model.updated_at = datetime.now(UTC)
+244 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:249:43
+    |
+247 |                 "action": "submitted_for_review",
+248 |                 "actor": submitted_by,
+249 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+250 |             }
+251 |         )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+248 |                 "actor": submitted_by,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+249 +                 "timestamp": datetime.now(UTC).isoformat(),
+250 |             }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:292:46
+    |
+290 |             model.status = ModelStatus.APPROVED
+291 |             model.approved_by = reviewer_id
+292 |             model.approved_at = datetime.now(timezone.utc)
+    |                                              ^^^^^^^^^^^^
+293 |         elif decision == "rejected":
+294 |             model.status = ModelStatus.REJECTED
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+291 |             model.approved_by = reviewer_id
+    -             model.approved_at = datetime.now(timezone.utc)
+292 +             model.approved_at = datetime.now(UTC)
+293 |         elif decision == "rejected":
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:298:41
+    |
+296 |             model.status = ModelStatus.DRAFT
+297 |
+298 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+299 |
+300 |         model.audit_trail.append(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+297 |
+    -         model.updated_at = datetime.now(timezone.utc)
+298 +         model.updated_at = datetime.now(UTC)
+299 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:305:43
+    |
+303 |                 "actor": reviewer_id,
+304 |                 "role": reviewer_role,
+305 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+306 |                 "comments": comments,
+307 |             }
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+304 |                 "role": reviewer_role,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+305 +                 "timestamp": datetime.now(UTC).isoformat(),
+306 |                 "comments": comments,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:329:42
+    |
+327 |         model.status = ModelStatus.DEPLOYED
+328 |         model.deployment_stage = stage
+329 |         model.deployed_at = datetime.now(timezone.utc)
+    |                                          ^^^^^^^^^^^^
+330 |         model.endpoint_url = endpoint_url
+331 |         model.updated_at = datetime.now(timezone.utc)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+328 |         model.deployment_stage = stage
+    -         model.deployed_at = datetime.now(timezone.utc)
+329 +         model.deployed_at = datetime.now(UTC)
+330 |         model.endpoint_url = endpoint_url
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:331:41
+    |
+329 |         model.deployed_at = datetime.now(timezone.utc)
+330 |         model.endpoint_url = endpoint_url
+331 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+332 |
+333 |         model.audit_trail.append(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+330 |         model.endpoint_url = endpoint_url
+    -         model.updated_at = datetime.now(timezone.utc)
+331 +         model.updated_at = datetime.now(UTC)
+332 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:338:43
+    |
+336 |                 "actor": deployed_by,
+337 |                 "stage": stage.value,
+338 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+339 |             }
+340 |         )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+337 |                 "stage": stage.value,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+338 +                 "timestamp": datetime.now(UTC).isoformat(),
+339 |             }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:353:41
+    |
+352 |         model.status = ModelStatus.ARCHIVED
+353 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+354 |
+355 |         model.audit_trail.append(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+352 |         model.status = ModelStatus.ARCHIVED
+    -         model.updated_at = datetime.now(timezone.utc)
+353 +         model.updated_at = datetime.now(UTC)
+354 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:360:43
+    |
+358 |                 "actor": archived_by,
+359 |                 "reason": reason,
+360 |                 "timestamp": datetime.now(timezone.utc).isoformat(),
+    |                                           ^^^^^^^^^^^^
+361 |             }
+362 |         )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+359 |                 "reason": reason,
+    -                 "timestamp": datetime.now(timezone.utc).isoformat(),
+360 +                 "timestamp": datetime.now(UTC).isoformat(),
+361 |             }
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:394:41
+    |
+393 |         model.artifacts.append(artifact)
+394 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+395 |
+396 |         return artifact
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+393 |         model.artifacts.append(artifact)
+    -         model.updated_at = datetime.now(timezone.utc)
+394 +         model.updated_at = datetime.now(UTC)
+395 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_registry.py:413:41
+    |
+411 |             model.benchmark_results.update(benchmark_results)
+412 |
+413 |         model.updated_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+414 |
+415 |         return model
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+412 |
+    -         model.updated_at = datetime.now(timezone.utc)
+413 +         model.updated_at = datetime.now(UTC)
+414 |
+    |
+
+UP042 Class ValidationStatus inherits from both `str` and `enum.Enum`
+  --> services\ml\model_validation.py:16:7
+   |
+16 | class ValidationStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^^^
+17 |     """Validation status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class MetricType inherits from both `str` and `enum.Enum`
+  --> services\ml\model_validation.py:27:7
+   |
+27 | class MetricType(str, Enum):
+   |       ^^^^^^^^^^
+28 |     """Metric types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_validation.py:129:71
+    |
+127 |     started_at: datetime | None = None
+128 |     completed_at: datetime | None = None
+129 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+130 |
+131 |     # Metadata
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+128 |     completed_at: datetime | None = None
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+129 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+130 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_validation.py:271:37
+    |
+269 |             model_id=model_id,
+270 |             model_version=model_version,
+271 |             started_at=datetime.now(timezone.utc),
+    |                                     ^^^^^^^^^^^^
+272 |             created_by=created_by,
+273 |             baseline_model_id=baseline_model_id,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+270 |             model_version=model_version,
+    -             started_at=datetime.now(timezone.utc),
+271 +             started_at=datetime.now(UTC),
+272 |             created_by=created_by,
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\model_validation.py:349:44
+    |
+347 |             else ValidationStatus.FAILED
+348 |         )
+349 |         report.completed_at = datetime.now(timezone.utc)
+    |                                            ^^^^^^^^^^^^
+350 |
+351 |         # Store report
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+348 |         )
+    -         report.completed_at = datetime.now(timezone.utc)
+349 +         report.completed_at = datetime.now(UTC)
+350 |
+    |
+
+UP042 Class AlertType inherits from both `str` and `enum.Enum`
+  --> services\ml\notifications.py:17:7
+   |
+17 | class AlertType(str, Enum):
+   |       ^^^^^^^^^
+18 |     """Alert types for real-time notifications."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class MessageChannel inherits from both `str` and `enum.Enum`
+  --> services\ml\notifications.py:34:7
+   |
+34 | class MessageChannel(str, Enum):
+   |       ^^^^^^^^^^^^^^
+35 |     """Delivery channels for real-time notifications."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DeliveryStatus inherits from both `str` and `enum.Enum`
+  --> services\ml\notifications.py:45:7
+   |
+45 | class DeliveryStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^
+46 |     """Notification delivery status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:139:71
+    |
+138 |     # Timestamps
+139 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+140 |     sent_at: datetime | None = None
+141 |     delivered_at: datetime | None = None
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+138 |     # Timestamps
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+139 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+140 |     sent_at: datetime | None = None
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:245:28
+    |
+243 |         import uuid
+244 |
+245 |         now = datetime.now(timezone.utc)
+    |                            ^^^^^^^^^^^^
+246 |
+247 |         for rule in rules:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+244 |
+    -         now = datetime.now(timezone.utc)
+245 +         now = datetime.now(UTC)
+246 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:369:49
+    |
+368 |             notification.status = DeliveryStatus.SENT
+369 |             notification.sent_at = datetime.now(timezone.utc)
+    |                                                 ^^^^^^^^^^^^
+370 |         except Exception as e:
+371 |             notification.status = DeliveryStatus.FAILED
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+368 |             notification.status = DeliveryStatus.SENT
+    -             notification.sent_at = datetime.now(timezone.utc)
+369 +             notification.sent_at = datetime.now(UTC)
+370 |         except Exception as e:
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:391:49
+    |
+390 |             notification.status = DeliveryStatus.SENT
+391 |             notification.sent_at = datetime.now(timezone.utc)
+    |                                                 ^^^^^^^^^^^^
+392 |             notification.external_id = message.sid
+393 |         except ImportError:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+390 |             notification.status = DeliveryStatus.SENT
+    -             notification.sent_at = datetime.now(timezone.utc)
+391 +             notification.sent_at = datetime.now(UTC)
+392 |             notification.external_id = message.sid
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:429:49
+    |
+428 |             notification.status = DeliveryStatus.SENT
+429 |             notification.sent_at = datetime.now(timezone.utc)
+    |                                                 ^^^^^^^^^^^^
+430 |             notification.external_id = response.headers.get("x-notification-id")
+431 |         except Exception as e:
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+428 |             notification.status = DeliveryStatus.SENT
+    -             notification.sent_at = datetime.now(timezone.utc)
+429 +             notification.sent_at = datetime.now(UTC)
+430 |             notification.external_id = response.headers.get("x-notification-id")
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\notifications.py:518:54
+    |
+516 |             notification.external_id = external_id
+517 |         if delivered:
+518 |             notification.delivered_at = datetime.now(timezone.utc)
+    |                                                      ^^^^^^^^^^^^
+519 |
+520 |         return notification
+    |
+help: Convert to `datetime.UTC` alias
+    |
+9   | import json as json_module
+    - from datetime import datetime, timezone
+10  + from datetime import datetime, timezone, UTC
+11  | from enum import Enum
+--------------------------------------------------------------------------------
+517 |         if delivered:
+    -             notification.delivered_at = datetime.now(timezone.utc)
+518 +             notification.delivered_at = datetime.now(UTC)
+519 |
+    |
+
+UP042 Class TrainingStatus inherits from both `str` and `enum.Enum`
+  --> services\ml\training.py:16:7
+   |
+16 | class TrainingStatus(str, Enum):
+   |       ^^^^^^^^^^^^^^
+17 |     """Training run status."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DatasetSplit inherits from both `str` and `enum.Enum`
+  --> services\ml\training.py:28:7
+   |
+28 | class DatasetSplit(str, Enum):
+   |       ^^^^^^^^^^^^
+29 |     """Dataset split types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class DataType inherits from both `str` and `enum.Enum`
+  --> services\ml\training.py:36:7
+   |
+36 | class DataType(str, Enum):
+   |       ^^^^^^^^
+37 |     """Data source types."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\training.py:119:71
+    |
+117 |     data_hash: str = ""
+118 |
+119 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+120 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+118 |
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+119 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+120 |     metadata: dict[str, Any] = {}
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\training.py:204:71
+    |
+202 |     # Metadata
+203 |     created_by: str = ""
+204 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                       ^^^^^^^^^^^^
+205 |     tags: list[str] = []
+206 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+203 |     created_by: str = ""
+    -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+204 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+205 |     tags: list[str] = []
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\training.py:265:39
+    |
+264 |         run.status = TrainingStatus.PREPARING_DATA
+265 |         run.started_at = datetime.now(timezone.utc)
+    |                                       ^^^^^^^^^^^^
+266 |
+267 |         # Simulate data preparation (in production, this would load and process data)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+264 |         run.status = TrainingStatus.PREPARING_DATA
+    -         run.started_at = datetime.now(timezone.utc)
+265 +         run.started_at = datetime.now(UTC)
+266 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\training.py:392:41
+    |
+390 |         run.evaluation_results = results
+391 |         run.status = TrainingStatus.COMPLETED
+392 |         run.completed_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+393 |
+394 |         return results
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+391 |         run.status = TrainingStatus.COMPLETED
+    -         run.completed_at = datetime.now(timezone.utc)
+392 +         run.completed_at = datetime.now(UTC)
+393 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\training.py:445:41
+    |
+444 |         run.status = TrainingStatus.CANCELLED
+445 |         run.completed_at = datetime.now(timezone.utc)
+    |                                         ^^^^^^^^^^^^
+446 |
+447 |         return run
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+444 |         run.status = TrainingStatus.CANCELLED
+    -         run.completed_at = datetime.now(timezone.utc)
+445 +         run.completed_at = datetime.now(UTC)
+446 |
+    |
+
+UP042 Class TypologyCategory inherits from both `str` and `enum.Enum`
+  --> services\ml\typology.py:16:7
+   |
+16 | class TypologyCategory(str, Enum):
+   |       ^^^^^^^^^^^^^^^^
+17 |     """Fraud typology categories."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class MatchSeverity inherits from both `str` and `enum.Enum`
+  --> services\ml\typology.py:35:7
+   |
+35 | class MatchSeverity(str, Enum):
+   |       ^^^^^^^^^^^^^
+36 |     """Match severity levels."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class RuleConditionType inherits from both `str` and `enum.Enum`
+  --> services\ml\typology.py:44:7
+   |
+44 | class RuleConditionType(str, Enum):
+   |       ^^^^^^^^^^^^^^^^^
+45 |     """Types of rule conditions."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\typology.py:91:71
+   |
+89 |     version: int = 1
+90 |     is_active: bool = True
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+93 |     source: str = "manual"  # "manual", "ml_generated", "community"
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+90 |     is_active: bool = True
+   -     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+91 +     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\ml\typology.py:92:71
+   |
+90 |     is_active: bool = True
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+92 |     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   |                                                                       ^^^^^^^^^^^^
+93 |     source: str = "manual"  # "manual", "ml_generated", "community"
+94 |     tags: list[str] = []
+   |
+help: Convert to `datetime.UTC` alias
+   |
+8  |
+   - from datetime import datetime, timezone
+9  + from datetime import datetime, timezone, UTC
+10 | from enum import Enum
+--------------------------------------------------------------------------------
+91 |     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   -     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+92 +     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+93 |     source: str = "manual"  # "manual", "ml_generated", "community"
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\ml\typology.py:122:72
+    |
+121 |     # Metadata
+122 |     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    |                                                                        ^^^^^^^^^^^^
+123 |     model_version: str | None = None
+124 |     metadata: dict[str, Any] = {}
+    |
+help: Convert to `datetime.UTC` alias
+    |
+8   |
+    - from datetime import datetime, timezone
+9   + from datetime import datetime, timezone, UTC
+10  | from enum import Enum
+--------------------------------------------------------------------------------
+121 |     # Metadata
+    -     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+122 +     detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+123 |     model_version: str | None = None
+    |
+
+UP042 Class AuditAction inherits from both `str` and `enum.Enum`
+  --> services\security\audit.py:18:7
+   |
+18 | class AuditAction(str, Enum):
+   |       ^^^^^^^^^^^
+19 |     """Audit actions that can be logged."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class AuditOutcome inherits from both `str` and `enum.Enum`
+  --> services\security\audit.py:75:7
+   |
+75 | class AuditOutcome(str, Enum):
+   |       ^^^^^^^^^^^^
+76 |     """Outcome of the audited action."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP042 Class SecretBackend inherits from both `str` and `enum.Enum`
+  --> services\security\secrets.py:22:7
+   |
+22 | class SecretBackend(str, Enum):
+   |       ^^^^^^^^^^^^^
+23 |     """Supported secret backends."""
+   |
+help: Inherit from `enum.StrEnum`
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\security\secrets.py:35:41
+   |
+33 |     name: str
+34 |     version: int = 1
+35 |     created_at: datetime = datetime.now(timezone.utc)
+   |                                         ^^^^^^^^^^^^
+36 |     updated_at: datetime = datetime.now(timezone.utc)
+37 |     expires_at: datetime | None = None
+   |
+help: Convert to `datetime.UTC` alias
+   |
+13 | from abc import ABC, abstractmethod
+   - from datetime import datetime, timezone
+14 + from datetime import datetime, timezone, UTC
+15 | from enum import Enum
+--------------------------------------------------------------------------------
+34 |     version: int = 1
+   -     created_at: datetime = datetime.now(timezone.utc)
+35 +     created_at: datetime = datetime.now(UTC)
+36 |     updated_at: datetime = datetime.now(timezone.utc)
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> services\security\secrets.py:36:41
+   |
+34 |     version: int = 1
+35 |     created_at: datetime = datetime.now(timezone.utc)
+36 |     updated_at: datetime = datetime.now(timezone.utc)
+   |                                         ^^^^^^^^^^^^
+37 |     expires_at: datetime | None = None
+38 |     rotation_enabled: bool = False
+   |
+help: Convert to `datetime.UTC` alias
+   |
+13 | from abc import ABC, abstractmethod
+   - from datetime import datetime, timezone
+14 + from datetime import datetime, timezone, UTC
+15 | from enum import Enum
+--------------------------------------------------------------------------------
+35 |     created_at: datetime = datetime.now(timezone.utc)
+   -     updated_at: datetime = datetime.now(timezone.utc)
+36 +     updated_at: datetime = datetime.now(UTC)
+37 |     expires_at: datetime | None = None
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\security\secrets.py:123:48
+    |
+121 |             if metadata is None:
+122 |                 metadata = SecretMetadata(name=name)
+123 |             metadata.updated_at = datetime.now(timezone.utc)
+    |                                                ^^^^^^^^^^^^
+124 |
+125 |             metadata_path = self._get_metadata_path(name)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+13  | from abc import ABC, abstractmethod
+    - from datetime import datetime, timezone
+14  + from datetime import datetime, timezone, UTC
+15  | from enum import Enum
+--------------------------------------------------------------------------------
+122 |                 metadata = SecretMetadata(name=name)
+    -             metadata.updated_at = datetime.now(timezone.utc)
+123 +             metadata.updated_at = datetime.now(UTC)
+124 |
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> services\security\secrets.py:160:48
+    |
+158 |         if metadata:
+159 |             metadata.version += 1
+160 |             metadata.updated_at = datetime.now(timezone.utc)
+    |                                                ^^^^^^^^^^^^
+161 |         else:
+162 |             metadata = SecretMetadata(name=name, version=1)
+    |
+help: Convert to `datetime.UTC` alias
+    |
+13  | from abc import ABC, abstractmethod
+    - from datetime import datetime, timezone
+14  + from datetime import datetime, timezone, UTC
+15  | from enum import Enum
+--------------------------------------------------------------------------------
+159 |             metadata.version += 1
+    -             metadata.updated_at = datetime.now(timezone.utc)
+160 +             metadata.updated_at = datetime.now(UTC)
+161 |         else:
+    |
+
+Found 251 errors.
+[*] 189 fixable with the `--fix` option (62 hidden fixes can be enabled with the `--unsafe-fixes` option).
+(.venv) PS C:\Users\ashut\Downloads\CASHNET>

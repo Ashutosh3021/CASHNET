@@ -5,14 +5,14 @@ Manages escalation rules, SLA tracking, and deadline monitoring.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from enum import Enum
+from datetime import datetime, timedelta, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel
 
 
-class SLAStatus(str, Enum):
+class SLAStatus(StrEnum):
     """SLA status."""
 
     ON_TRACK = "on_track"
@@ -21,7 +21,7 @@ class SLAStatus(str, Enum):
     COMPLETED = "completed"
 
 
-class EscalationLevel(str, Enum):
+class EscalationLevel(StrEnum):
     """Escalation levels."""
 
     LEVEL_1 = "level_1"  # Supervisor
@@ -212,7 +212,7 @@ class EscalationManager:
             sla = self._sla_definitions.get("general_request")
 
         # Calculate deadlines
-        started_at = datetime.now(timezone.utc)
+        started_at = datetime.now(UTC)
 
         response_deadline = self._calculate_deadline(
             started_at,
@@ -258,7 +258,7 @@ class EscalationManager:
         if not tracking:
             raise ValueError(f"Tracking not found: {tracking_id}")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         if first_response and not tracking.first_response_at:
             tracking.first_response_at = now
@@ -289,7 +289,7 @@ class EscalationManager:
         """Check for items that need escalation."""
         escalations_needed = []
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         for tracking in self._sla_tracking.values():
             if case_id and tracking.case_id != case_id:
@@ -342,7 +342,7 @@ class EscalationManager:
             "rule_id": rule_id,
             "escalated_by": escalated_by,
             "reason": reason,
-            "escalated_at": datetime.now(timezone.utc).isoformat(),
+            "escalated_at": datetime.now(UTC).isoformat(),
         }
 
         if tracking_id not in self._escalation_history:
@@ -479,7 +479,7 @@ class EscalationManager:
                 last_escalated = datetime.fromisoformat(record["escalated_at"])
                 cooldown_end = last_escalated + timedelta(hours=rule.cooldown_hours)
 
-                if datetime.now(timezone.utc) < cooldown_end:
+                if datetime.now(UTC) < cooldown_end:
                     return True
 
         return False

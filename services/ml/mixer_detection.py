@@ -6,14 +6,14 @@ using heuristic analysis and known address lists.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class MixerType(str, Enum):
+class MixerType(StrEnum):
     """Types of mixers/tumblers."""
 
     TORNADO_CASH = "tornado_cash"
@@ -27,7 +27,7 @@ class MixerType(str, Enum):
     other = "other"
 
 
-class MixerRiskLevel(str, Enum):
+class MixerRiskLevel(StrEnum):
     """Mixer risk levels."""
 
     LOW = "low"
@@ -36,7 +36,7 @@ class MixerRiskLevel(str, Enum):
     CRITICAL = "critical"
 
 
-class DetectionMethod(str, Enum):
+class DetectionMethod(StrEnum):
     """Detection methods."""
 
     KNOWN_ADDRESS = "known_address"
@@ -75,7 +75,7 @@ class MixerSignal(BaseModel):
     case_id: str | None = None
 
     # Metadata
-    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 

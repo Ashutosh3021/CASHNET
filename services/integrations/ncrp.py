@@ -6,7 +6,7 @@ for case intake and status tracking.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import httpx
@@ -106,7 +106,7 @@ class NCRPConnector(IntegrationAdapter):
                         "station_code": result.get("station_code"),
                         "submitted_at": result.get("submitted_at"),
                     },
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
             else:
                 error_data = response.json() if response.content else {}
@@ -146,7 +146,7 @@ class NCRPConnector(IntegrationAdapter):
                         "last_updated": result.get("last_updated"),
                         "remarks": result.get("remarks"),
                     },
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
             else:
                 return IntegrationResponse(
@@ -198,7 +198,7 @@ class NCRPConnector(IntegrationAdapter):
                     request_id=ncrp_complaint_id,
                     status=IntegrationStatus.COMPLETED,
                     response_data=response.json(),
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
             else:
                 return IntegrationResponse(
@@ -234,7 +234,7 @@ class NCRPConnector(IntegrationAdapter):
                     request_id=ncrp_complaint_id,
                     status=IntegrationStatus.COMPLETED,
                     response_data=response.json(),
-                    processed_at=datetime.now(timezone.utc),
+                    processed_at=datetime.now(UTC),
                 )
             else:
                 return IntegrationResponse(

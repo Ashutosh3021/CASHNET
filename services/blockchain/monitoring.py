@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Callable
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from .base import ChainAdapter, ChainHealth, ChainType
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity levels."""
 
     INFO = "info"
@@ -30,7 +30,7 @@ class ChainAlert(BaseModel):
     chain: ChainType
     severity: AlertSeverity
     message: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     details: dict[str, Any] = {}
 
 
@@ -38,7 +38,7 @@ class ChainMetrics(BaseModel):
     """Chain performance metrics."""
 
     chain: ChainType
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Block metrics
     current_block: int = 0
@@ -92,7 +92,7 @@ class ChainMonitor:
                 chain=chain,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=f"No adapter registered for {chain.value}",
@@ -128,7 +128,7 @@ class ChainMonitor:
                 chain=chain,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -242,7 +242,7 @@ class ChainMonitor:
                     [a for a in self._alerts if a.severity == AlertSeverity.INFO]
                 ),
             },
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         for chain, history in self._metrics_history.items():

@@ -6,14 +6,14 @@ evaluation, and experiment tracking capabilities.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class TrainingStatus(str, Enum):
+class TrainingStatus(StrEnum):
     """Training run status."""
 
     PENDING = "pending"
@@ -25,7 +25,7 @@ class TrainingStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class DatasetSplit(str, Enum):
+class DatasetSplit(StrEnum):
     """Dataset split types."""
 
     TRAIN = "train"
@@ -33,7 +33,7 @@ class DatasetSplit(str, Enum):
     TEST = "test"
 
 
-class DataType(str, Enum):
+class DataType(StrEnum):
     """Data source types."""
 
     TRANSACTIONS = "transactions"
@@ -116,7 +116,7 @@ class DatasetInfo(BaseModel):
     # Hash
     data_hash: str = ""
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -201,7 +201,7 @@ class TrainingRun(BaseModel):
 
     # Metadata
     created_by: str = ""
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     tags: list[str] = []
     metadata: dict[str, Any] = {}
 
@@ -262,7 +262,7 @@ class TrainingPipeline:
             raise ValueError(f"Run not found: {run_id}")
 
         run.status = TrainingStatus.PREPARING_DATA
-        run.started_at = datetime.now(timezone.utc)
+        run.started_at = datetime.now(UTC)
 
         # Simulate data preparation (in production, this would load and process data)
         dataset = DatasetInfo(
@@ -389,7 +389,7 @@ class TrainingPipeline:
 
         run.evaluation_results = results
         run.status = TrainingStatus.COMPLETED
-        run.completed_at = datetime.now(timezone.utc)
+        run.completed_at = datetime.now(UTC)
 
         return results
 
@@ -442,7 +442,7 @@ class TrainingPipeline:
             raise ValueError(f"Cannot cancel run in status: {run.status}")
 
         run.status = TrainingStatus.CANCELLED
-        run.completed_at = datetime.now(timezone.utc)
+        run.completed_at = datetime.now(UTC)
 
         return run
 

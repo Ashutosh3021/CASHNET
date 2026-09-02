@@ -6,14 +6,14 @@ transaction analysis, and behavioral signals.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class TypologyCategory(str, Enum):
+class TypologyCategory(StrEnum):
     """Fraud typology categories."""
 
     RANSOMWARE = "ransomware"
@@ -32,7 +32,7 @@ class TypologyCategory(str, Enum):
     OTHER = "other"
 
 
-class MatchSeverity(str, Enum):
+class MatchSeverity(StrEnum):
     """Match severity levels."""
 
     LOW = "low"
@@ -41,7 +41,7 @@ class MatchSeverity(str, Enum):
     CRITICAL = "critical"
 
 
-class RuleConditionType(str, Enum):
+class RuleConditionType(StrEnum):
     """Types of rule conditions."""
 
     VALUE_THRESHOLD = "value_threshold"
@@ -88,8 +88,8 @@ class TypologyRule(BaseModel):
     # Metadata
     version: int = 1
     is_active: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     source: str = "manual"  # "manual", "ml_generated", "community"
     tags: list[str] = []
 
@@ -119,7 +119,7 @@ class TypologyMatch(BaseModel):
     case_id: str | None = None
 
     # Metadata
-    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     model_version: str | None = None
     metadata: dict[str, Any] = {}
 

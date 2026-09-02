@@ -5,7 +5,7 @@ Provides integration with BNB Smart Chain via BscScan API.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from web3 import Web3
@@ -80,11 +80,9 @@ class BNBAdapter(ChainAdapter):
 
             block_number = await self.get_block_number()
             block = await self.get_block_by_number(block_number)
-            block_timestamp = datetime.fromtimestamp(
-                block["timestamp"], tz=timezone.utc
-            )
+            block_timestamp = datetime.fromtimestamp(block["timestamp"], tz=UTC)
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             lag_seconds = int((now - block_timestamp).total_seconds())
 
             # BSC blocks ~3 seconds
@@ -109,7 +107,7 @@ class BNBAdapter(ChainAdapter):
                 chain=ChainType.BNB,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -157,9 +155,7 @@ class BNBAdapter(ChainAdapter):
                 tx_hash=tx_hash,
                 chain=ChainType.BNB,
                 block_number=tx["blockNumber"],
-                block_timestamp=datetime.fromtimestamp(
-                    block["timestamp"], tz=timezone.utc
-                ),
+                block_timestamp=datetime.fromtimestamp(block["timestamp"], tz=UTC),
                 from_address=tx["from"].lower(),
                 from_address_type=from_type,
                 to_address=tx.get("to", "").lower() if tx.get("to") else "",
@@ -240,7 +236,7 @@ class BNBAdapter(ChainAdapter):
                         chain=ChainType.BNB,
                         block_number=block_number,
                         block_timestamp=datetime.fromtimestamp(
-                            block["timestamp"], tz=timezone.utc
+                            block["timestamp"], tz=UTC
                         ),
                         from_address=tx["from"].lower(),
                         from_address_type=from_type,

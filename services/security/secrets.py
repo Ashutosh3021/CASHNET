@@ -11,15 +11,15 @@ import hashlib
 import json
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
 from pydantic import BaseModel, ValidationError
 
 
-class SecretBackend(str, Enum):
+class SecretBackend(StrEnum):
     """Supported secret backends."""
 
     VAULT = "vault"
@@ -32,8 +32,8 @@ class SecretMetadata(BaseModel):
 
     name: str
     version: int = 1
-    created_at: datetime = datetime.now(timezone.utc)
-    updated_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime = datetime.now(UTC)
+    updated_at: datetime = datetime.now(UTC)
     expires_at: datetime | None = None
     rotation_enabled: bool = False
     rotation_interval_days: int = 90
@@ -120,7 +120,7 @@ class LocalSecretsBackend(SecretsBackend):
             # Save metadata
             if metadata is None:
                 metadata = SecretMetadata(name=name)
-            metadata.updated_at = datetime.now(timezone.utc)
+            metadata.updated_at = datetime.now(UTC)
 
             metadata_path = self._get_metadata_path(name)
             metadata_path.write_text(json.dumps(metadata.model_dump(), indent=2))
@@ -157,7 +157,7 @@ class LocalSecretsBackend(SecretsBackend):
         metadata = self.get_metadata(name)
         if metadata:
             metadata.version += 1
-            metadata.updated_at = datetime.now(timezone.utc)
+            metadata.updated_at = datetime.now(UTC)
         else:
             metadata = SecretMetadata(name=name, version=1)
 

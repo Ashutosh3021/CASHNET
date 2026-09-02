@@ -6,14 +6,14 @@ regarding fraud cases, freeze requests, and investigation updates.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     """Notification types."""
 
     FRAUD_ALERT = "fraud_alert"
@@ -25,7 +25,7 @@ class NotificationType(str, Enum):
     STATUS_UPDATE = "status_update"
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     """Notification priority levels."""
 
     LOW = "low"
@@ -35,7 +35,7 @@ class NotificationPriority(str, Enum):
     CRITICAL = "critical"
 
 
-class NotificationChannel(str, Enum):
+class NotificationChannel(StrEnum):
     """Notification delivery channels."""
 
     EMAIL = "email"
@@ -45,7 +45,7 @@ class NotificationChannel(str, Enum):
     SECURE_PORTAL = "secure_portal"
 
 
-class NotificationStatus(str, Enum):
+class NotificationStatus(StrEnum):
     """Notification delivery status."""
 
     PENDING = "pending"
@@ -84,7 +84,7 @@ class NotificationRecord(BaseModel):
     status: NotificationStatus = NotificationStatus.PENDING
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     sent_at: datetime | None = None
     delivered_at: datetime | None = None
 
@@ -111,7 +111,7 @@ class FinancialInstitution(BaseModel):
     api_key: str | None = None
     notification_preferences: dict[str, Any] = {}
     is_active: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class NotificationService:
@@ -377,7 +377,7 @@ class NotificationService:
         if external_id:
             notification.external_id = external_id
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if status == NotificationStatus.SENT:
             notification.sent_at = now
         elif status == NotificationStatus.DELIVERED:

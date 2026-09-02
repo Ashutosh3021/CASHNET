@@ -9,13 +9,13 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class AuditAction(str, Enum):
+class AuditAction(StrEnum):
     """Audit actions that can be logged."""
 
     # Authentication
@@ -72,7 +72,7 @@ class AuditAction(str, Enum):
     RATE_LIMIT_EXCEEDED = "rate_limit_exceeded"
 
 
-class AuditOutcome(str, Enum):
+class AuditOutcome(StrEnum):
     """Outcome of the audited action."""
 
     SUCCESS = "success"

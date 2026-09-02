@@ -5,8 +5,8 @@ Detects and tracks bridge events for cross-chain transfers.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any, ClassVar
 
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from .base import ChainType, NormalizedTransaction
 
 
-class BridgeType(str, Enum):
+class BridgeType(StrEnum):
     """Supported bridge types."""
 
     WORMHOLE = "wormhole"
@@ -234,7 +234,7 @@ class BridgeDetector:
             event.destination_tx_hash = destination_tx_hash
             event.destination_chain = destination_chain
             event.destination_block_number = destination_block_number
-            event.destination_timestamp = datetime.now(timezone.utc)
+            event.destination_timestamp = datetime.now(UTC)
             event.destination_address = destination_address
             event.status = "completed"
             return True

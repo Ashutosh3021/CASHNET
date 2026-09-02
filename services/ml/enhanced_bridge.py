@@ -6,14 +6,14 @@ cross-chain analysis, and advanced pattern matching.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class BridgeProtocol(str, Enum):
+class BridgeProtocol(StrEnum):
     """Supported bridge protocols."""
 
     # Layer 0
@@ -46,7 +46,7 @@ class BridgeProtocol(str, Enum):
     UNKNOWN = "unknown"
 
 
-class SwapProtocol(str, Enum):
+class SwapProtocol(StrEnum):
     """Supported DEX/swap protocols."""
 
     # Uniswap
@@ -79,7 +79,7 @@ class SwapProtocol(str, Enum):
     OTHER = "other"
 
 
-class PatternType(str, Enum):
+class PatternType(StrEnum):
     """Pattern types."""
 
     BRIDGE = "bridge"
@@ -90,7 +90,7 @@ class PatternType(str, Enum):
     MEV = "mev"
 
 
-class RiskIndicator(str, Enum):
+class RiskIndicator(StrEnum):
     """Risk indicators for bridge/swap activity."""
 
     HIGH_VALUE = "high_value"
@@ -148,7 +148,7 @@ class BridgePattern(BaseModel):
     status: str = "pending"  # pending, completed, failed
 
     # Metadata
-    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -199,7 +199,7 @@ class SwapPattern(BaseModel):
     is_back_run: bool = False
 
     # Metadata
-    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 

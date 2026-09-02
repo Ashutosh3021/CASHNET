@@ -6,14 +6,14 @@ and model comparison capabilities.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ValidationStatus(str, Enum):
+class ValidationStatus(StrEnum):
     """Validation status."""
 
     PENDING = "pending"
@@ -24,7 +24,7 @@ class ValidationStatus(str, Enum):
     ERROR = "error"
 
 
-class MetricType(str, Enum):
+class MetricType(StrEnum):
     """Metric types."""
 
     ACCURACY = "accuracy"
@@ -126,7 +126,7 @@ class ValidationReport(BaseModel):
     # Timestamps
     started_at: datetime | None = None
     completed_at: datetime | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Metadata
     created_by: str = "system"
@@ -268,7 +268,7 @@ class ModelValidationPipeline:
             report_id=str(uuid.uuid4()),
             model_id=model_id,
             model_version=model_version,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
             created_by=created_by,
             baseline_model_id=baseline_model_id,
         )
@@ -346,7 +346,7 @@ class ModelValidationPipeline:
             if report.checks_failed == 0
             else ValidationStatus.FAILED
         )
-        report.completed_at = datetime.now(timezone.utc)
+        report.completed_at = datetime.now(UTC)
 
         # Store report
         self._reports[report.report_id] = report

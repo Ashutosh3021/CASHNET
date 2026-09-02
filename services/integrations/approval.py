@@ -5,14 +5,14 @@ Provides policy-based approval workflow for action requests.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ApprovalStatus(str, Enum):
+class ApprovalStatus(StrEnum):
     """Approval status."""
 
     PENDING = "pending"
@@ -22,7 +22,7 @@ class ApprovalStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class ApprovalLevel(str, Enum):
+class ApprovalLevel(StrEnum):
     """Approval levels."""
 
     L1 = "l1"  # Supervisor
@@ -38,7 +38,7 @@ class ApprovalRequest(BaseModel):
     action_type: str
     case_id: str
     requested_by: str
-    requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    requested_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Request details
     target_entity: str | None = None
@@ -73,7 +73,7 @@ class ApprovalDecision(BaseModel):
     decision: ApprovalStatus
     level: ApprovalLevel
     comments: str | None = None
-    decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    decided_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class PolicyRule(BaseModel):
@@ -288,7 +288,7 @@ class ApprovalWorkflow:
         request.current_level = next_level
         request.status = ApprovalStatus.ESCALATED
         request.metadata["escalation_reason"] = reason
-        request.metadata["escalated_at"] = datetime.now(timezone.utc).isoformat()
+        request.metadata["escalated_at"] = datetime.now(UTC).isoformat()
 
         return request
 

@@ -6,8 +6,8 @@ alerts for operations dashboard.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -16,7 +16,7 @@ from ..blockchain.base import ChainType
 import contextlib
 
 
-class FreshnessStatus(str, Enum):
+class FreshnessStatus(StrEnum):
     """Data freshness status."""
 
     FRESH = "fresh"
@@ -26,7 +26,7 @@ class FreshnessStatus(str, Enum):
     UNKNOWN = "unknown"
 
 
-class DataSourceType(str, Enum):
+class DataSourceType(StrEnum):
     """Data source types."""
 
     BLOCKCHAIN_NODE = "blockchain_node"
@@ -75,7 +75,7 @@ class FreshnessAlert(BaseModel):
     status: FreshnessStatus
     message: str
     lag_seconds: int
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     acknowledged: bool = False
     metadata: dict[str, Any] = {}
 
@@ -138,7 +138,7 @@ class FreshnessMonitor:
             source_id=source_id,
             source_type=source_type,
             chain=chain,
-            last_updated=datetime.now(timezone.utc),
+            last_updated=datetime.now(UTC),
             fresh_threshold=thresholds.get("fresh", 300),
             acceptable_threshold=thresholds.get("acceptable", 3600),
             stale_threshold=thresholds.get("stale", 86400),
@@ -158,7 +158,7 @@ class FreshnessMonitor:
         if not metric:
             raise ValueError(f"Source not found: {source_id}")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         metric.last_updated = now
         metric.last_successful_sync = now
         metric.current_block = current_block
@@ -203,7 +203,7 @@ class FreshnessMonitor:
         metric.last_successful_sync = last_updated
 
         # Calculate time-based lag
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         metric.lag_seconds = int((now - last_updated).total_seconds())
 
         # Determine status based on time lag
@@ -294,7 +294,7 @@ class FreshnessMonitor:
                 chain: self.get_chain_overview(ChainType(chain)) for chain in chains
             },
             "alerts_count": len([a for a in self._alerts if not a.acknowledged]),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def get_alerts(

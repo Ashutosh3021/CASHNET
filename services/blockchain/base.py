@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ChainType(str, Enum):
+class ChainType(StrEnum):
     """Supported blockchain types."""
 
     ETHEREUM = "ethereum"
@@ -24,7 +24,7 @@ class ChainType(str, Enum):
     POLYGON = "polygon"
 
 
-class TransactionType(str, Enum):
+class TransactionType(StrEnum):
     """Normalized transaction types."""
 
     TRANSFER = "transfer"
@@ -36,7 +36,7 @@ class TransactionType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class AddressType(str, Enum):
+class AddressType(StrEnum):
     """Address classification types."""
 
     EOA = "eoa"  # Externally Owned Account

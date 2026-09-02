@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from .base import ChainType, NormalizedTransaction
 
 
-class PackageType(str, Enum):
+class PackageType(StrEnum):
     """Evidence package types."""
 
     TRANSACTION_TRACE = "transaction_trace"
@@ -27,7 +27,7 @@ class PackageType(str, Enum):
     OTHER = "other"
 
 
-class ItemType(str, Enum):
+class ItemType(StrEnum):
     """Evidence item types."""
 
     TRANSACTION = "transaction"
@@ -40,7 +40,7 @@ class ItemType(str, Enum):
     OTHER = "other"
 
 
-class VerificationStatus(str, Enum):
+class VerificationStatus(StrEnum):
     """Evidence verification status."""
 
     UNVERIFIED = "unverified"
@@ -58,7 +58,7 @@ class EvidenceItem(BaseModel):
     content_hash: str  # SHA-256 of content
     storage_key: str | None = None  # S3/object storage path
     description: str | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -88,8 +88,8 @@ class EvidencePackage(BaseModel):
 
     # Chain of custody
     created_by: str = ""
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Metadata
     title: str | None = None
@@ -98,7 +98,7 @@ class EvidencePackage(BaseModel):
     metadata: dict[str, Any] = {}
 
 
-class ReportFormat(str, Enum):
+class ReportFormat(StrEnum):
     """Report export formats."""
 
     JSON = "json"
@@ -187,7 +187,7 @@ class EvidenceService:
         )
 
         package.items.append(item)
-        package.updated_at = datetime.now(timezone.utc)
+        package.updated_at = datetime.now(UTC)
 
         # Recalculate package hash
         package.content_hash = self._calculate_package_hash(package)
@@ -270,8 +270,8 @@ class EvidenceService:
 
         # Seal
         package.is_sealed = True
-        package.sealed_at = datetime.now(timezone.utc)
-        package.updated_at = datetime.now(timezone.utc)
+        package.sealed_at = datetime.now(UTC)
+        package.updated_at = datetime.now(UTC)
 
         # Add to hash chain
         self._hash_chain.append(package.content_hash)
@@ -318,7 +318,7 @@ class EvidenceService:
         ):
             verification_result["overall_status"] = VerificationStatus.VERIFIED
             package.verification_status = VerificationStatus.VERIFIED
-            package.verified_at = datetime.now(timezone.utc)
+            package.verified_at = datetime.now(UTC)
         elif (
             verification_result["items_failed"] > 0
             or not verification_result["package_hash_valid"]

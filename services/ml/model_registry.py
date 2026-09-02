@@ -6,14 +6,14 @@ and governance tracking for ML models.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ModelStatus(str, Enum):
+class ModelStatus(StrEnum):
     """Model lifecycle status."""
 
     DRAFT = "draft"
@@ -26,7 +26,7 @@ class ModelStatus(str, Enum):
     DEPRECATED = "deprecated"
 
 
-class DeploymentStage(str, Enum):
+class DeploymentStage(StrEnum):
     """Deployment stages."""
 
     DEVELOPMENT = "development"
@@ -36,7 +36,7 @@ class DeploymentStage(str, Enum):
     SHADOW = "shadow"
 
 
-class ModelType(str, Enum):
+class ModelType(StrEnum):
     """Model types."""
 
     CLASSIFICATION = "classification"
@@ -49,7 +49,7 @@ class ModelType(str, Enum):
     OTHER = "other"
 
 
-class ArtifactType(str, Enum):
+class ArtifactType(StrEnum):
     """Model artifact types."""
 
     MODEL_WEIGHTS = "model_weights"
@@ -77,7 +77,7 @@ class ModelArtifact(BaseModel):
 
     # Metadata
     mime_type: str | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -89,7 +89,7 @@ class ApprovalRecord(BaseModel):
     reviewer_role: str
     decision: str  # "approved", "rejected", "changes_requested"
     comments: str | None = None
-    decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    decided_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     checklist: dict[str, bool] = {}  # Review checklist items
 
 
@@ -135,8 +135,8 @@ class ModelVersion(BaseModel):
     audit_trail: list[dict[str, Any]] = []
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     created_by: str = ""
 
     # Dependencies
@@ -199,7 +199,7 @@ class ModelRegistry:
             {
                 "action": "registered",
                 "actor": created_by,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -240,13 +240,13 @@ class ModelRegistry:
             raise ValueError(f"Model must be in DRAFT status, got: {model.status}")
 
         model.status = ModelStatus.PENDING_REVIEW
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         model.audit_trail.append(
             {
                 "action": "submitted_for_review",
                 "actor": submitted_by,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -289,20 +289,20 @@ class ModelRegistry:
         if decision == "approved":
             model.status = ModelStatus.APPROVED
             model.approved_by = reviewer_id
-            model.approved_at = datetime.now(timezone.utc)
+            model.approved_at = datetime.now(UTC)
         elif decision == "rejected":
             model.status = ModelStatus.REJECTED
         elif decision == "changes_requested":
             model.status = ModelStatus.DRAFT
 
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         model.audit_trail.append(
             {
                 "action": f"review_{decision}",
                 "actor": reviewer_id,
                 "role": reviewer_role,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "comments": comments,
             }
         )
@@ -326,16 +326,16 @@ class ModelRegistry:
 
         model.status = ModelStatus.DEPLOYED
         model.deployment_stage = stage
-        model.deployed_at = datetime.now(timezone.utc)
+        model.deployed_at = datetime.now(UTC)
         model.endpoint_url = endpoint_url
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         model.audit_trail.append(
             {
                 "action": "deployed",
                 "actor": deployed_by,
                 "stage": stage.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -350,14 +350,14 @@ class ModelRegistry:
             raise ValueError(f"Model not found: {model_id}")
 
         model.status = ModelStatus.ARCHIVED
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         model.audit_trail.append(
             {
                 "action": "archived",
                 "actor": archived_by,
                 "reason": reason,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -391,7 +391,7 @@ class ModelRegistry:
         )
 
         model.artifacts.append(artifact)
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         return artifact
 
@@ -410,7 +410,7 @@ class ModelRegistry:
         if benchmark_results:
             model.benchmark_results.update(benchmark_results)
 
-        model.updated_at = datetime.now(timezone.utc)
+        model.updated_at = datetime.now(UTC)
 
         return model
 

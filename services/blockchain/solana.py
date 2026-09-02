@@ -5,7 +5,7 @@ Provides integration with Solana blockchain via JSON-RPC.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import httpx
@@ -110,13 +110,13 @@ class SolanaAdapter(ChainAdapter):
             block_time_response = await self._rpc_call("getBlockTime", [block_height])
             block_time_unix = block_time_response.get("result", 0)
             block_timestamp = (
-                datetime.fromtimestamp(block_time_unix, tz=timezone.utc)
+                datetime.fromtimestamp(block_time_unix, tz=UTC)
                 if block_time_unix
-                else datetime.now(timezone.utc)
+                else datetime.now(UTC)
             )
 
             # Calculate lag
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             lag_seconds = int((now - block_timestamp).total_seconds())
 
             # Solana blocks ~400ms
@@ -141,7 +141,7 @@ class SolanaAdapter(ChainAdapter):
                 chain=ChainType.SOLANA,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -169,9 +169,9 @@ class SolanaAdapter(ChainAdapter):
             # Get block time
             block_time = tx_data.get("blockTime", 0)
             block_timestamp = (
-                datetime.fromtimestamp(block_time, tz=timezone.utc)
+                datetime.fromtimestamp(block_time, tz=UTC)
                 if block_time
-                else datetime.now(timezone.utc)
+                else datetime.now(UTC)
             )
 
             # Get slot
@@ -276,9 +276,9 @@ class SolanaAdapter(ChainAdapter):
                 slot = tx_data.get("slot", 0)
 
                 block_timestamp = (
-                    datetime.fromtimestamp(block_time, tz=timezone.utc)
+                    datetime.fromtimestamp(block_time, tz=UTC)
                     if block_time
-                    else datetime.now(timezone.utc)
+                    else datetime.now(UTC)
                 )
 
                 fee_lamports = meta.get("fee", 0)
@@ -336,9 +336,9 @@ class SolanaAdapter(ChainAdapter):
 
             block_time = block_data.get("blockTime", 0)
             block_timestamp = (
-                datetime.fromtimestamp(block_time, tz=timezone.utc)
+                datetime.fromtimestamp(block_time, tz=UTC)
                 if block_time
-                else datetime.now(timezone.utc)
+                else datetime.now(UTC)
             )
 
             txs = block_data.get("transactions", [])

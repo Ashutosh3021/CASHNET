@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import hashlib
 import json as json_module
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class SharingScope(str, Enum):
+class SharingScope(StrEnum):
     """Scope of intelligence sharing."""
 
     AGENCY = "agency"
@@ -25,7 +25,7 @@ class SharingScope(str, Enum):
     TASK_FORCE = "task_force"
 
 
-class ClassificationLevel(str, Enum):
+class ClassificationLevel(StrEnum):
     """Classification levels for shared intelligence."""
 
     UNCLASSIFIED = "unclassified"
@@ -35,7 +35,7 @@ class ClassificationLevel(str, Enum):
     TOP_SECRET = "top_secret"
 
 
-class ShareStatus(str, Enum):
+class ShareStatus(StrEnum):
     """Status of a shared intelligence package."""
 
     PENDING_APPROVAL = "pending_approval"
@@ -47,7 +47,7 @@ class ShareStatus(str, Enum):
     REVOKED = "revoked"
 
 
-class RedactionAction(str, Enum):
+class RedactionAction(StrEnum):
     """Types of redaction."""
 
     REMOVE_FIELD = "remove_field"
@@ -88,7 +88,7 @@ class SharingPolicy(BaseModel):
     access_log_retention_days: int = 365
 
     # Metadata
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     created_by: str = ""
     active: bool = True
 
@@ -132,7 +132,7 @@ class IntelligencePackage(BaseModel):
     pii_removed: bool = False
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     shared_at: datetime | None = None
     acknowledged_at: datetime | None = None
     expires_at: datetime | None = None
@@ -170,7 +170,7 @@ class Agency(BaseModel):
     encryption_key: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     last_shared: datetime | None = None
 
 
@@ -182,7 +182,7 @@ class AccessLogEntry(BaseModel):
     agency_id: str
     action: str  # "view", "download", "acknowledge", "search"
     actor: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     ip_address: str | None = None
     user_agent: str | None = None
     metadata: dict[str, Any] = {}
@@ -280,7 +280,7 @@ class CrossAgencySharingService:
             if not agency.sharing_enabled or not agency.active:
                 raise ValueError(f"Agency not eligible for sharing: {recipient}")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         package = IntelligencePackage(
             package_id=str(uuid.uuid4()),
             case_id=case_id,
@@ -359,7 +359,7 @@ class CrossAgencySharingService:
         policy = self._policies.get(package.policy_id)
 
         package.approved_by = approver_id
-        package.approved_at = datetime.now(timezone.utc)
+        package.approved_at = datetime.now(UTC)
         package.approval_comments = comments
 
         if policy and policy.auto_redact_pii:
@@ -426,7 +426,7 @@ class CrossAgencySharingService:
         return package
 
     def _share_with_agencies(self, package: IntelligencePackage) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         package.status = ShareStatus.SHARED
         package.shared_at = now
 
@@ -454,7 +454,7 @@ class CrossAgencySharingService:
             )
 
         record = records[0]
-        record.acknowledged_at = datetime.now(timezone.utc)
+        record.acknowledged_at = datetime.now(UTC)
         record.status = ShareStatus.ACKNOWLEDGED
 
         self._log_access(package_id, agency_id, actor, "acknowledge")
@@ -474,13 +474,13 @@ class CrossAgencySharingService:
         package.status = ShareStatus.REVOKED
         package.metadata["revoked_by"] = revoked_by
         package.metadata["revocation_reason"] = reason
-        package.metadata["revoked_at"] = datetime.now(timezone.utc).isoformat()
+        package.metadata["revoked_at"] = datetime.now(UTC).isoformat()
 
         for record_id in self._package_index.get(package_id, []):
             record = self._records.get(record_id)
             if record:
                 record.revoked = True
-                record.revoked_at = datetime.now(timezone.utc)
+                record.revoked_at = datetime.now(UTC)
                 record.revocation_reason = reason
                 record.status = ShareStatus.REVOKED
 
@@ -503,7 +503,7 @@ class CrossAgencySharingService:
         ]
 
     def check_expired(self) -> list[IntelligencePackage]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expired = []
 
         for package in self._packages.values():

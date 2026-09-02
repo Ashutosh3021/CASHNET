@@ -6,8 +6,8 @@ Provides role-based and attribute-based access control for all resources.
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from .models import ROLE_PERMISSIONS, Permission, UserRole
 
 
-class ResourceType(str, Enum):
+class ResourceType(StrEnum):
     """Resource types in the system."""
 
     CASE = "case"
@@ -29,7 +29,7 @@ class ResourceType(str, Enum):
     TAG = "tag"
 
 
-class Action(str, Enum):
+class Action(StrEnum):
     """Actions that can be performed on resources."""
 
     CREATE = "create"
@@ -62,7 +62,7 @@ class AccessContext(BaseModel):
     permissions: list[str]
     department: str | None = None
     ip_address: str | None = None
-    timestamp: datetime = datetime.now(timezone.utc)
+    timestamp: datetime = datetime.now(UTC)
 
 
 class AccessDecision(BaseModel):
@@ -71,7 +71,7 @@ class AccessDecision(BaseModel):
     allowed: bool
     reason: str
     conditions: list[str] = []
-    evaluated_at: datetime = datetime.now(timezone.utc)
+    evaluated_at: datetime = datetime.now(UTC)
 
 
 class Policy(BaseModel):

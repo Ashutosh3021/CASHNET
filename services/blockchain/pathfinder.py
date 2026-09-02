@@ -8,13 +8,13 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from .base import ChainType, NormalizedTransaction
 
 
-class PathFindingStrategy(str, Enum):
+class PathFindingStrategy(StrEnum):
     """Path finding strategies."""
 
     BFS = "bfs"  # Breadth-First Search (shortest paths)

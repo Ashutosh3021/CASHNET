@@ -5,7 +5,7 @@ Provides integration with Tron blockchain via Trongrid API.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import httpx
@@ -95,10 +95,10 @@ class TronAdapter(ChainAdapter):
 
             block_height = raw_data.get("number", 0)
             block_timestamp = raw_data.get("timestamp", 0)
-            block_time = datetime.fromtimestamp(block_timestamp / 1000, tz=timezone.utc)
+            block_time = datetime.fromtimestamp(block_timestamp / 1000, tz=UTC)
 
             # Calculate lag
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             lag_seconds = int((now - block_time).total_seconds())
 
             # Determine sync status (Tron blocks ~3 seconds)
@@ -123,7 +123,7 @@ class TronAdapter(ChainAdapter):
                 chain=ChainType.TRON,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -151,9 +151,7 @@ class TronAdapter(ChainAdapter):
             # Get block timestamp
             block_height = tx_data.get("blockNumber", 0)
             block_timestamp_raw = tx_data.get("raw_data", {}).get("timestamp", 0)
-            block_timestamp = datetime.fromtimestamp(
-                block_timestamp_raw / 1000, tz=timezone.utc
-            )
+            block_timestamp = datetime.fromtimestamp(block_timestamp_raw / 1000, tz=UTC)
 
             # Parse transaction
             raw_data = tx_data.get("raw_data", {})
@@ -257,7 +255,7 @@ class TronAdapter(ChainAdapter):
                 block_height = tx_data.get("blockNumber", 0)
                 block_timestamp_raw = tx_data.get("raw_data", {}).get("timestamp", 0)
                 block_timestamp = datetime.fromtimestamp(
-                    block_timestamp_raw / 1000, tz=timezone.utc
+                    block_timestamp_raw / 1000, tz=UTC
                 )
 
                 # Parse contract
@@ -320,9 +318,7 @@ class TronAdapter(ChainAdapter):
                 .get("raw_data", {})
                 .get("timestamp", 0)
             )
-            block_timestamp = datetime.fromtimestamp(
-                block_timestamp_raw / 1000, tz=timezone.utc
-            )
+            block_timestamp = datetime.fromtimestamp(block_timestamp_raw / 1000, tz=UTC)
 
             txs = block_data.get("transactions", [])
 
@@ -454,7 +450,7 @@ class TronAdapter(ChainAdapter):
                 # Get block timestamp
                 block_timestamp_raw = raw_data.get("timestamp", 0)
                 block_timestamp = datetime.fromtimestamp(
-                    block_timestamp_raw / 1000, tz=timezone.utc
+                    block_timestamp_raw / 1000, tz=UTC
                 )
 
                 transfers.append(

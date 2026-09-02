@@ -6,14 +6,14 @@ Defines common interface for all external integrations.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class IntegrationStatus(str, Enum):
+class IntegrationStatus(StrEnum):
     """Integration status."""
 
     PENDING = "pending"
@@ -24,7 +24,7 @@ class IntegrationStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class IntegrationType(str, Enum):
+class IntegrationType(StrEnum):
     """Integration types."""
 
     SAHYOG = "sahyog"
@@ -40,7 +40,7 @@ class IntegrationRequest(BaseModel):
     request_id: str
     integration_type: IntegrationType
     case_id: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 

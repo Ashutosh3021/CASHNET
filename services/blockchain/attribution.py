@@ -6,8 +6,8 @@ with confidence scoring, and adjudication feedback loop.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from .base import ChainType
 
 
-class EntityRiskCategory(str, Enum):
+class EntityRiskCategory(StrEnum):
     """Entity risk categories."""
 
     LOW = "low"
@@ -25,7 +25,7 @@ class EntityRiskCategory(str, Enum):
     UNKNOWN = "unknown"
 
 
-class AttributionStatus(str, Enum):
+class AttributionStatus(StrEnum):
     """Attribution status."""
 
     PENDING = "pending"
@@ -57,7 +57,7 @@ class KnownAddress(BaseModel):
     confidence: float = 1.0  # How confident we are in this attribution
     source: str = "manual"  # "manual", "verified", "community", "ml"
     tags: list[str] = []
-    first_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    first_seen: datetime = Field(default_factory=lambda: datetime.now(UTC))
     last_verified: datetime | None = None
     version: int = 1
     is_active: bool = True
@@ -77,7 +77,7 @@ class AddressCluster(BaseModel):
     confidence: float = 0.0
     creation_method: str = "manual"  # "manual", "graph_analysis", "behavioral"
     version: int = 1
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -94,8 +94,8 @@ class VASPCandidate(BaseModel):
     supporting_evidence: list[str] = []
     status: AttributionStatus = AttributionStatus.PENDING
     rank: int = 0
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class AdjudicationRecord(BaseModel):
@@ -109,7 +109,7 @@ class AdjudicationRecord(BaseModel):
     decided_by: str  # user_id or "system"
     reason: str
     confidence_override: float | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -502,7 +502,7 @@ class AdjudicationEngine:
 
         # Update candidate status
         candidate.status = decision
-        candidate.updated_at = datetime.now(timezone.utc)
+        candidate.updated_at = datetime.now(UTC)
 
         if confidence_override is not None:
             candidate.confidence = confidence_override

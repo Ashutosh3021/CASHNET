@@ -7,14 +7,14 @@ via email, SMS, and webhook delivery channels.
 from __future__ import annotations
 
 import json as json_module
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """Alert types for real-time notifications."""
 
     NEW_CASE = "new_case"
@@ -31,7 +31,7 @@ class AlertType(str, Enum):
     SYSTEM_ALERT = "system_alert"
 
 
-class MessageChannel(str, Enum):
+class MessageChannel(StrEnum):
     """Delivery channels for real-time notifications."""
 
     EMAIL = "email"
@@ -42,7 +42,7 @@ class MessageChannel(str, Enum):
     TEAMS = "teams"
 
 
-class DeliveryStatus(str, Enum):
+class DeliveryStatus(StrEnum):
     """Notification delivery status."""
 
     PENDING = "pending"
@@ -136,7 +136,7 @@ class RealtimeNotification(BaseModel):
     chain: str | None = None
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     sent_at: datetime | None = None
     delivered_at: datetime | None = None
     retry_count: int = 0
@@ -242,7 +242,7 @@ class RealtimeNotificationService:
         notifications: list[RealtimeNotification] = []
         import uuid
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         for rule in rules:
             if not rule.enabled:
@@ -366,7 +366,7 @@ class RealtimeNotificationService:
             server.quit()
 
             notification.status = DeliveryStatus.SENT
-            notification.sent_at = datetime.now(timezone.utc)
+            notification.sent_at = datetime.now(UTC)
         except Exception as e:
             notification.status = DeliveryStatus.FAILED
             notification.error_message = str(e)
@@ -388,7 +388,7 @@ class RealtimeNotificationService:
             )
 
             notification.status = DeliveryStatus.SENT
-            notification.sent_at = datetime.now(timezone.utc)
+            notification.sent_at = datetime.now(UTC)
             notification.external_id = message.sid
         except ImportError:
             notification.status = DeliveryStatus.FAILED
@@ -426,7 +426,7 @@ class RealtimeNotificationService:
             )
 
             notification.status = DeliveryStatus.SENT
-            notification.sent_at = datetime.now(timezone.utc)
+            notification.sent_at = datetime.now(UTC)
             notification.external_id = response.headers.get("x-notification-id")
         except Exception as e:
             notification.status = DeliveryStatus.FAILED
@@ -515,7 +515,7 @@ class RealtimeNotificationService:
         if external_id:
             notification.external_id = external_id
         if delivered:
-            notification.delivered_at = datetime.now(timezone.utc)
+            notification.delivered_at = datetime.now(UTC)
 
         return notification
 

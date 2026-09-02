@@ -5,14 +5,14 @@ Tracks the status of requests sent to external partners.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class TrackingStatus(str, Enum):
+class TrackingStatus(StrEnum):
     """Tracking status."""
 
     QUEUED = "queued"
@@ -26,7 +26,7 @@ class TrackingStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class PartnerType(str, Enum):
+class PartnerType(StrEnum):
     """Partner types."""
 
     SAHYOG = "sahyog"
@@ -55,7 +55,7 @@ class TrackingRecord(BaseModel):
     status_history: list[dict[str, Any]] = []
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     sent_at: datetime | None = None
     acknowledged_at: datetime | None = None
     completed_at: datetime | None = None
@@ -102,7 +102,7 @@ class PartnerTracker:
         if sla_hours:
             from datetime import timedelta
 
-            sla_deadline = datetime.now(timezone.utc) + timedelta(hours=sla_hours)
+            sla_deadline = datetime.now(UTC) + timedelta(hours=sla_hours)
 
         record = TrackingRecord(
             tracking_id=tracking_id,
@@ -119,7 +119,7 @@ class PartnerTracker:
         record.status_history.append(
             {
                 "status": TrackingStatus.QUEUED.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -154,14 +154,14 @@ class PartnerTracker:
         record.status_history.append(
             {
                 "status": status.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "response_data": response_data,
                 "error_message": error_message,
             }
         )
 
         # Update timestamps
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if status == TrackingStatus.SENT:
             record.sent_at = now
         elif status == TrackingStatus.ACKNOWLEDGED:
@@ -253,7 +253,7 @@ class PartnerTracker:
         record.status_history.append(
             {
                 "status": "retry",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "retry_count": record.retry_count,
             }
         )

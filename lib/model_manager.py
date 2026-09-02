@@ -10,7 +10,7 @@ This module manages model lifecycle:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import numpy as np
@@ -65,7 +65,7 @@ def load_or_train_model(
             model_path,
             provenance={
                 "model_id": model_id,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "version": "1.0",
                 "type": "illicit_classifier",
             },
@@ -139,7 +139,7 @@ def _train_model_182() -> tuple[Any, dict[str, Any]]:
             "training_samples": len(X),
             "features": len(X[0]),
             "accuracy": float(model.score(X, y)),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         logger.info(f"Model 182 trained: {metadata}")
@@ -194,7 +194,7 @@ def _train_model_183() -> tuple[Any, dict[str, Any]]:
             "training_samples": len(X),
             "features": len(X[0]),
             "accuracy": float(model.score(X, y)),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         logger.info(f"Model 183 trained: {metadata}")
@@ -251,7 +251,7 @@ def _train_model_184() -> tuple[Any, dict[str, Any]]:
             "training_samples": len(X),
             "features": len(X[0]),
             "accuracy": float(model.score(X, y)),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         logger.info(f"Model 184 trained: {metadata}")
@@ -310,7 +310,7 @@ def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
             "model_id": model_id,
             "prediction": int(prediction),
             "confidence": probability,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "metadata": metadata,
         }
     except (ValueError, AttributeError) as e:
@@ -318,7 +318,7 @@ def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
         return {
             "model_id": model_id,
             "error": str(e),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 

@@ -5,7 +5,7 @@ Provides integration with Bitcoin blockchain via Blockstream API.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import httpx
@@ -78,11 +78,11 @@ class BitcoinAdapter(ChainAdapter):
             block_data = block_info.json()
 
             block_timestamp = datetime.fromtimestamp(
-                block_data.get("timestamp", 0), tz=timezone.utc
+                block_data.get("timestamp", 0), tz=UTC
             )
 
             # Calculate lag
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             lag_seconds = int((now - block_timestamp).total_seconds())
 
             # Determine sync status (Bitcoin blocks ~10 min)
@@ -107,7 +107,7 @@ class BitcoinAdapter(ChainAdapter):
                 chain=ChainType.BITCOIN,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -128,14 +128,14 @@ class BitcoinAdapter(ChainAdapter):
 
             # Get block timestamp
             block_height = tx_data.get("block_height")
-            block_timestamp = datetime.now(timezone.utc)
+            block_timestamp = datetime.now(UTC)
 
             if block_height:
                 block_response = await self._client.get(f"/blocks/{block_height}")
                 if block_response.status_code == 200:
                     block_data = block_response.json()
                     block_timestamp = datetime.fromtimestamp(
-                        block_data.get("timestamp", 0), tz=timezone.utc
+                        block_data.get("timestamp", 0), tz=UTC
                     )
 
             # Parse inputs and outputs
@@ -224,7 +224,7 @@ class BitcoinAdapter(ChainAdapter):
 
                 # Get block info
                 block_height = tx_data.get("block_height")
-                block_timestamp = datetime.now(timezone.utc)
+                block_timestamp = datetime.now(UTC)
 
                 if block_height:
                     try:
@@ -234,7 +234,7 @@ class BitcoinAdapter(ChainAdapter):
                         if block_response.status_code == 200:
                             block_data = block_response.json()
                             block_timestamp = datetime.fromtimestamp(
-                                block_data.get("timestamp", 0), tz=timezone.utc
+                                block_data.get("timestamp", 0), tz=UTC
                             )
                     except Exception:
                         pass
@@ -324,7 +324,7 @@ class BitcoinAdapter(ChainAdapter):
 
             txs_data = txs_response.json()
             block_timestamp = datetime.fromtimestamp(
-                block_data.get("timestamp", 0), tz=timezone.utc
+                block_data.get("timestamp", 0), tz=UTC
             )
 
             for tx_data in txs_data:

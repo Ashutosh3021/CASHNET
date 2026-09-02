@@ -5,7 +5,7 @@ Provides integration with Polygon PoS via Web3.py.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from web3 import Web3
@@ -79,11 +79,9 @@ class PolygonAdapter(ChainAdapter):
 
             block_number = await self.get_block_number()
             block = await self.get_block_by_number(block_number)
-            block_timestamp = datetime.fromtimestamp(
-                block["timestamp"], tz=timezone.utc
-            )
+            block_timestamp = datetime.fromtimestamp(block["timestamp"], tz=UTC)
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             lag_seconds = int((now - block_timestamp).total_seconds())
 
             # Polygon blocks ~2 seconds
@@ -108,7 +106,7 @@ class PolygonAdapter(ChainAdapter):
                 chain=ChainType.POLYGON,
                 is_healthy=False,
                 block_height=0,
-                block_timestamp=datetime.now(timezone.utc),
+                block_timestamp=datetime.now(UTC),
                 sync_status="error",
                 lag_seconds=-1,
                 error_message=str(e),
@@ -156,9 +154,7 @@ class PolygonAdapter(ChainAdapter):
                 tx_hash=tx_hash,
                 chain=ChainType.POLYGON,
                 block_number=tx["blockNumber"],
-                block_timestamp=datetime.fromtimestamp(
-                    block["timestamp"], tz=timezone.utc
-                ),
+                block_timestamp=datetime.fromtimestamp(block["timestamp"], tz=UTC),
                 from_address=tx["from"].lower(),
                 from_address_type=from_type,
                 to_address=tx.get("to", "").lower() if tx.get("to") else "",
@@ -237,7 +233,7 @@ class PolygonAdapter(ChainAdapter):
                         chain=ChainType.POLYGON,
                         block_number=block_number,
                         block_timestamp=datetime.fromtimestamp(
-                            block["timestamp"], tz=timezone.utc
+                            block["timestamp"], tz=UTC
                         ),
                         from_address=tx["from"].lower(),
                         from_address_type=from_type,

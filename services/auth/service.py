@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pyotp
@@ -71,7 +71,7 @@ class AuthService:
         if expires_delta is None:
             expires_delta = timedelta(minutes=self.access_token_expire_minutes)
 
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
         permissions = [p.value for p in ROLE_PERMISSIONS.get(user.role, [])]
 
         payload = {
@@ -80,7 +80,7 @@ class AuthService:
             "role": user.role.value,
             "permissions": permissions,
             "exp": expire,
-            "iat": datetime.now(timezone.utc),
+            "iat": datetime.now(UTC),
             "jti": str(uuid.uuid4()),
         }
 
@@ -88,16 +88,14 @@ class AuthService:
 
     def create_refresh_token(self, user: User) -> str:
         """Create a refresh token for a user."""
-        expire = datetime.now(timezone.utc) + timedelta(
-            days=self.refresh_token_expire_days
-        )
+        expire = datetime.now(UTC) + timedelta(days=self.refresh_token_expire_days)
 
         payload = {
             "sub": str(user.id),
             "email": user.email,
             "type": "refresh",
             "exp": expire,
-            "iat": datetime.now(timezone.utc),
+            "iat": datetime.now(UTC),
             "jti": str(uuid.uuid4()),
         }
 
@@ -134,8 +132,8 @@ class AuthService:
                 email=payload["email"],
                 role=UserRole(payload["role"]),
                 permissions=payload.get("permissions", []),
-                exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
-                iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+                exp=datetime.fromtimestamp(payload["exp"], tz=UTC),
+                iat=datetime.fromtimestamp(payload["iat"], tz=UTC),
                 jti=jti or str(uuid.uuid4()),
             )
         except jwt.ExpiredSignatureError:
@@ -220,7 +218,7 @@ class AuthService:
                 return None
 
         # Update last login
-        user.last_login = datetime.now(timezone.utc)
+        user.last_login = datetime.now(UTC)
 
         return user
 
@@ -246,8 +244,8 @@ class AuthService:
             "token_jti": token.access_token.split(".")[-1],  # Simplified
             "ip_address": ip_address,
             "user_agent": user_agent,
-            "created_at": datetime.now(timezone.utc),
-            "expires_at": datetime.now(timezone.utc)
+            "created_at": datetime.now(UTC),
+            "expires_at": datetime.now(UTC)
             + timedelta(minutes=self.access_token_expire_minutes),
         }
 
@@ -309,7 +307,7 @@ class AuthService:
             if hasattr(user, key) and value is not None:
                 setattr(user, key, value)
 
-        user.updated_at = datetime.now(timezone.utc)
+        user.updated_at = datetime.now(UTC)
         return user
 
     def enable_mfa(self, user_id: str, secret: str) -> bool:
@@ -320,7 +318,7 @@ class AuthService:
 
         user.is_mfa_enabled = True
         user.mfa_secret = secret
-        user.updated_at = datetime.now(timezone.utc)
+        user.updated_at = datetime.now(UTC)
         return True
 
     def disable_mfa(self, user_id: str) -> bool:
@@ -331,7 +329,7 @@ class AuthService:
 
         user.is_mfa_enabled = False
         user.mfa_secret = None
-        user.updated_at = datetime.now(timezone.utc)
+        user.updated_at = datetime.now(UTC)
         return True
 
 

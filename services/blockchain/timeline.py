@@ -5,8 +5,8 @@ Generates chronological timelines from transaction traces and investigation even
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from .base import ChainType, NormalizedTransaction
 
 
-class TimelineEventType(str, Enum):
+class TimelineEventType(StrEnum):
     """Timeline event types."""
 
     TRANSACTION = "transaction"
@@ -197,7 +197,7 @@ class TimelineService:
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.ADDRESS_DISCOVERY,
-            timestamp=timestamp or datetime.now(timezone.utc),
+            timestamp=timestamp or datetime.now(UTC),
             case_id=case_id,
             address=address,
             chain=chain,
@@ -225,7 +225,7 @@ class TimelineService:
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.VASP_ATTRIBUTION,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             case_id=case_id,
             address=address,
             chain=chain,
@@ -254,7 +254,7 @@ class TimelineService:
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.FINDING,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             case_id=case_id,
             title=f"Finding: {finding_type}",
             description=description,
@@ -282,7 +282,7 @@ class TimelineService:
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.INVESTIGATION_NOTE,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             case_id=case_id,
             title=title,
             description=content,

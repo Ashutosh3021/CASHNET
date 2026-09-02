@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, EmailStr, Field
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     """User roles in the system."""
 
     ADMIN = "admin"
@@ -22,7 +22,7 @@ class UserRole(str, Enum):
     VIEWER = "viewer"
 
 
-class Permission(str, Enum):
+class Permission(StrEnum):
     """Granular permissions."""
 
     # Case permissions
