@@ -356,7 +356,7 @@ class CrossAgencySharingService:
     def _apply_redactions(
         self, package: IntelligencePackage, policy: SharingPolicy
     ) -> IntelligencePackage:
-        original = json_module.dumps({
+        _ = json_module.dumps({
             "findings": package.findings,
             "addresses": package.addresses,
             "transactions": package.transactions,

@@ -37,26 +37,26 @@ class FreshnessMetric(BaseModel):
     source_id: str
     source_type: DataSourceType
     chain: ChainType
-    
+
     # Timestamps
     last_updated: datetime
     last_successful_sync: datetime | None = None
     next_expected_sync: datetime | None = None
-    
+
     # Status
     status: FreshnessStatus = FreshnessStatus.UNKNOWN
-    
+
     # Lag metrics
     lag_seconds: int = 0
     lag_blocks: int = 0
     current_block: int | None = None
     synced_block: int | None = None
-    
+
     # Thresholds (in seconds)
     fresh_threshold: int = 300      # 5 minutes
     acceptable_threshold: int = 3600  # 1 hour
     stale_threshold: int = 86400     # 24 hours
-    
+
     # Metadata
     metadata: dict[str, Any] = {}
 
@@ -76,12 +76,12 @@ class FreshnessAlert(BaseModel):
 
 class FreshnessMonitor:
     """Monitors data freshness across blockchain data sources."""
-    
+
     def __init__(self):
         self._metrics: dict[str, FreshnessMetric] = {}
         self._alerts: list[FreshnessAlert] = []
         self._alert_callbacks: list[Any] = []
-        
+
         # Default thresholds per chain
         self._chain_thresholds: dict[ChainType, dict[str, int]] = {
             ChainType.ETHEREUM: {
@@ -115,7 +115,7 @@ class FreshnessMonitor:
                 "stale": 1800,      # 30 min
             },
         }
-    
+
     def register_source(
         self,
         source_id: str,
@@ -127,7 +127,7 @@ class FreshnessMonitor:
         thresholds = self._chain_thresholds.get(chain, {})
         if custom_thresholds:
             thresholds.update(custom_thresholds)
-        
+
         metric = FreshnessMetric(
             source_id=source_id,
             source_type=source_type,
@@ -137,10 +137,10 @@ class FreshnessMonitor:
             acceptable_threshold=thresholds.get("acceptable", 3600),
             stale_threshold=thresholds.get("stale", 86400),
         )
-        
+
         self._metrics[source_id] = metric
         return metric
-    
+
     def update_source(
         self,
         source_id: str,
@@ -151,16 +151,16 @@ class FreshnessMonitor:
         metric = self._metrics.get(source_id)
         if not metric:
             raise ValueError(f"Source not found: {source_id}")
-        
+
         now = datetime.now(timezone.utc)
         metric.last_updated = now
         metric.last_successful_sync = now
         metric.current_block = current_block
         metric.synced_block = synced_block or current_block
-        
+
         # Calculate lag
         metric.lag_blocks = max(0, current_block - metric.synced_block)
-        
+
         # Estimate lag in seconds (simplified)
         if metric.chain == ChainType.ETHEREUM:
             metric.lag_seconds = metric.lag_blocks * 12
@@ -174,15 +174,15 @@ class FreshnessMonitor:
             metric.lag_seconds = metric.lag_blocks * 2
         else:
             metric.lag_seconds = metric.lag_blocks * 12  # Default
-        
+
         # Determine status
         metric.status = self._determine_status(metric)
-        
+
         # Check for alerts
         self._check_alerts(metric)
-        
+
         return metric
-    
+
     def update_source_timestamp(
         self,
         source_id: str,
@@ -192,14 +192,14 @@ class FreshnessMonitor:
         metric = self._metrics.get(source_id)
         if not metric:
             raise ValueError(f"Source not found: {source_id}")
-        
+
         metric.last_updated = last_updated
         metric.last_successful_sync = last_updated
-        
+
         # Calculate time-based lag
         now = datetime.now(timezone.utc)
         metric.lag_seconds = int((now - last_updated).total_seconds())
-        
+
         # Determine status based on time lag
         if metric.lag_seconds <= metric.fresh_threshold:
             metric.status = FreshnessStatus.FRESH
@@ -209,30 +209,30 @@ class FreshnessMonitor:
             metric.status = FreshnessStatus.STALE
         else:
             metric.status = FreshnessStatus.CRITICAL
-        
+
         # Check for alerts
         self._check_alerts(metric)
-        
+
         return metric
-    
+
     def get_source(self, source_id: str) -> FreshnessMetric | None:
         """Get freshness metric for a source."""
         return self._metrics.get(source_id)
-    
+
     def get_chain_overview(self, chain: ChainType) -> dict[str, Any]:
         """Get freshness overview for a chain."""
         chain_metrics = [
             m for m in self._metrics.values()
             if m.chain == chain
         ]
-        
+
         if not chain_metrics:
             return {
                 "chain": chain.value,
                 "sources": 0,
                 "overall_status": FreshnessStatus.UNKNOWN.value,
             }
-        
+
         # Determine overall status (worst status wins)
         status_order = {
             FreshnessStatus.FRESH: 0,
@@ -241,9 +241,9 @@ class FreshnessMonitor:
             FreshnessStatus.CRITICAL: 3,
             FreshnessStatus.UNKNOWN: 4,
         }
-        
+
         worst_status = max(chain_metrics, key=lambda m: status_order.get(m.status, 4))
-        
+
         return {
             "chain": chain.value,
             "sources": len(chain_metrics),
@@ -255,12 +255,12 @@ class FreshnessMonitor:
                 for status in FreshnessStatus
             },
         }
-    
+
     def get_global_overview(self) -> dict[str, Any]:
         """Get global freshness overview across all chains."""
         if not self._metrics:
             return {"total_sources": 0, "chains": {}}
-        
+
         # Group by chain
         chains = {}
         for metric in self._metrics.values():
@@ -268,12 +268,12 @@ class FreshnessMonitor:
             if chain not in chains:
                 chains[chain] = []
             chains[chain].append(metric)
-        
+
         # Calculate overall status
         all_statuses = [m.status for m in self._metrics.values()]
         critical_count = all_statuses.count(FreshnessStatus.CRITICAL)
         stale_count = all_statuses.count(FreshnessStatus.STALE)
-        
+
         if critical_count > 0:
             overall = FreshnessStatus.CRITICAL
         elif stale_count > 0:
@@ -282,7 +282,7 @@ class FreshnessMonitor:
             overall = FreshnessStatus.ACCEPTABLE
         else:
             overall = FreshnessStatus.FRESH
-        
+
         return {
             "total_sources": len(self._metrics),
             "overall_status": overall.value,
@@ -293,7 +293,7 @@ class FreshnessMonitor:
             "alerts_count": len([a for a in self._alerts if not a.acknowledged]),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-    
+
     def get_alerts(
         self,
         chain: ChainType | None = None,
@@ -303,21 +303,21 @@ class FreshnessMonitor:
     ) -> list[FreshnessAlert]:
         """Get freshness alerts."""
         alerts = self._alerts
-        
+
         if chain:
             alerts = [a for a in alerts if a.chain == chain]
-        
+
         if status:
             alerts = [a for a in alerts if a.status == status]
-        
+
         if unacknowledged_only:
             alerts = [a for a in alerts if not a.acknowledged]
-        
+
         # Sort by timestamp descending
         alerts.sort(key=lambda a: a.timestamp, reverse=True)
-        
+
         return alerts[:limit]
-    
+
     def acknowledge_alert(self, alert_id: str) -> bool:
         """Acknowledge an alert."""
         for alert in self._alerts:
@@ -325,29 +325,29 @@ class FreshnessMonitor:
                 alert.acknowledged = True
                 return True
         return False
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get freshness monitoring statistics."""
         metrics = list(self._metrics.values())
-        
+
         if not metrics:
             return {"total_sources": 0}
-        
+
         # Count by status
         by_status = {}
         for m in metrics:
             status = m.status.value
             by_status[status] = by_status.get(status, 0) + 1
-        
+
         # Count by chain
         by_chain = {}
         for m in metrics:
             chain = m.chain.value
             by_chain[chain] = by_chain.get(chain, 0) + 1
-        
+
         # Lag statistics
         lag_values = [m.lag_seconds for m in metrics]
-        
+
         return {
             "total_sources": len(metrics),
             "by_status": by_status,
@@ -357,7 +357,7 @@ class FreshnessMonitor:
             "total_alerts": len(self._alerts),
             "unacknowledged_alerts": len([a for a in self._alerts if not a.acknowledged]),
         }
-    
+
     def _determine_status(self, metric: FreshnessMetric) -> FreshnessStatus:
         """Determine freshness status based on lag."""
         if metric.lag_seconds <= metric.fresh_threshold:
@@ -368,20 +368,20 @@ class FreshnessMonitor:
             return FreshnessStatus.STALE
         else:
             return FreshnessStatus.CRITICAL
-    
+
     def _check_alerts(self, metric: FreshnessMetric) -> None:
         """Check if alerts need to be generated."""
         import uuid
-        
+
         # Only alert on status changes to STALE or CRITICAL
         if metric.status in [FreshnessStatus.STALE, FreshnessStatus.CRITICAL]:
             # Check if we already have an active alert for this source
             existing_alert = next(
-                (a for a in self._alerts 
+                (a for a in self._alerts
                  if a.source_id == metric.source_id and not a.acknowledged),
                 None,
             )
-            
+
             if not existing_alert:
                 alert = FreshnessAlert(
                     alert_id=str(uuid.uuid4()),
@@ -391,9 +391,9 @@ class FreshnessMonitor:
                     message=f"Data source {metric.source_id} is {metric.status.value}: {metric.lag_seconds}s lag",
                     lag_seconds=metric.lag_seconds,
                 )
-                
+
                 self._alerts.append(alert)
-                
+
                 # Trigger callbacks
                 for callback in self._alert_callbacks:
                     try:

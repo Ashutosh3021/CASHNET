@@ -46,7 +46,7 @@ def load_json_batches(folder: str | os.PathLike) -> list[Any]:
     records: list[Any] = []
     for fp in sorted(folder.glob("*.json")):
         try:
-            with open(fp, "r", encoding="utf-8") as fh:
+            with open(fp, encoding="utf-8") as fh:
                 data = json.load(fh)
         except (json.JSONDecodeError, OSError):
             continue
@@ -61,7 +61,7 @@ def _read_json(path: str | os.PathLike) -> Any:
     path = Path(path)
     if not path.exists():
         return None
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         return json.load(fh)
 
 
@@ -157,7 +157,7 @@ def load_183_complaints() -> list[Any]:
     # top-level generated json files
     for fp in base.glob("*_generated.json"):
         try:
-            with open(fp, "r", encoding="utf-8") as fh:
+            with open(fp, encoding="utf-8") as fh:
                 d = json.load(fh)
             recs.extend(d if isinstance(d, list) else [d])
         except (json.JSONDecodeError, OSError):

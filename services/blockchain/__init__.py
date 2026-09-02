@@ -51,7 +51,7 @@ __all__ = [
     "ChainAdapter",
     "ChainType",
     "NormalizedTransaction",
-    
+
     # Chain Adapters
     "EthereumAdapter",
     "BitcoinAdapter",
@@ -59,23 +59,23 @@ __all__ = [
     "BNBAdapter",
     "SolanaAdapter",
     "PolygonAdapter",
-    
+
     # Services
     "TransactionNormalizer",
     "GraphService",
     "PathFinder",
     "PathConstraints",
     "TransactionGraph",
-    
+
     # Monitoring
     "ChainMonitor",
     "MetricsCollector",
-    
+
     # Bridge Detection
     "BridgeDetector",
     "BridgeEvent",
     "BridgeType",
-    
+
     # Attribution
     "VASPAttributionService",
     "VersionedRegistry",
@@ -88,7 +88,7 @@ __all__ = [
     "EntityRiskCategory",
     "AttributionStatus",
     "ConfidenceFactor",
-    
+
     # Evidence
     "EvidenceService",
     "EvidencePackage",
@@ -97,7 +97,7 @@ __all__ = [
     "ItemType",
     "VerificationStatus",
     "ReportFormat",
-    
+
     # Timeline
     "TimelineService",
     "TimelineEvent",
@@ -118,9 +118,9 @@ def get_adapter(chain: ChainType, config: dict) -> ChainAdapter:
         ChainType.SOLANA: SolanaAdapter,
         ChainType.POLYGON: PolygonAdapter,
     }
-    
+
     adapter_class = adapters.get(chain)
     if not adapter_class:
         raise ValueError(f"No adapter available for chain: {chain}")
-    
+
     return adapter_class(config)

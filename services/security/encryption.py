@@ -15,7 +15,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class EncryptionService:
     """Service for encrypting and decrypting data."""
-    
+
     def __init__(self, encryption_key: str | None = None):
         """Initialize encryption service.
         
@@ -25,7 +25,7 @@ class EncryptionService:
         """
         if encryption_key is None:
             encryption_key = os.getenv("ENCRYPTION_KEY")
-        
+
         if encryption_key is None:
             # Generate a key for development (not for production!)
             self._key = Fernet.generate_key()
@@ -34,25 +34,25 @@ class EncryptionService:
             # Derive key from provided key
             self._key = self._derive_key(encryption_key)
             self._is_dev_key = False
-        
+
         self._fernet = Fernet(self._key)
-    
+
     def _derive_key(self, password: str) -> bytes:
         """Derive a Fernet key from a password."""
         # Use a fixed salt for deterministic key derivation
         # In production, use a proper key management system
         salt = b"cashnet-salt-v1"  # In production, store salt separately
-        
+
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
             iterations=100000,
         )
-        
+
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key
-    
+
     def encrypt(self, data: str) -> str:
         """Encrypt a string value.
         
@@ -64,7 +64,7 @@ class EncryptionService:
         """
         encrypted = self._fernet.encrypt(data.encode())
         return encrypted.decode()
-    
+
     def decrypt(self, encrypted_data: str) -> str:
         """Decrypt an encrypted string.
         
@@ -76,7 +76,7 @@ class EncryptionService:
         """
         decrypted = self._fernet.decrypt(encrypted_data.encode())
         return decrypted.decode()
-    
+
     def encrypt_dict(self, data: dict) -> str:
         """Encrypt a dictionary.
         
@@ -89,7 +89,7 @@ class EncryptionService:
         import json
         json_str = json.dumps(data, default=str)
         return self.encrypt(json_str)
-    
+
     def decrypt_dict(self, encrypted_data: str) -> dict:
         """Decrypt an encrypted dictionary.
         
@@ -102,7 +102,7 @@ class EncryptionService:
         import json
         json_str = self.decrypt(encrypted_data)
         return json.loads(json_str)
-    
+
     def hash_data(self, data: str) -> str:
         """Create a SHA-256 hash of data.
         
@@ -113,7 +113,7 @@ class EncryptionService:
             Hex-encoded hash.
         """
         return hashlib.sha256(data.encode()).hexdigest()
-    
+
     def verify_hash(self, data: str, expected_hash: str) -> bool:
         """Verify data matches expected hash.
         
@@ -126,7 +126,7 @@ class EncryptionService:
         """
         actual_hash = self.hash_data(data)
         return actual_hash == expected_hash
-    
+
     @property
     def is_using_dev_key(self) -> bool:
         """Check if using a development key."""
@@ -135,22 +135,22 @@ class EncryptionService:
 
 class FieldEncryption:
     """Encrypt/decrypt specific fields in models."""
-    
+
     def __init__(self, encryption_service: EncryptionService):
         self.encryption_service = encryption_service
-    
+
     def encrypt_field(self, value: str | None) -> str | None:
         """Encrypt a field value."""
         if value is None:
             return None
         return self.encryption_service.encrypt(value)
-    
+
     def decrypt_field(self, encrypted_value: str | None) -> str | None:
         """Decrypt a field value."""
         if encrypted_value is None:
             return None
         return self.encryption_service.decrypt(encrypted_value)
-    
+
     def encrypt_sensitive_fields(self, data: dict, fields: list[str]) -> dict:
         """Encrypt specified fields in a dictionary."""
         encrypted_data = data.copy()
@@ -158,7 +158,7 @@ class FieldEncryption:
             if field in encrypted_data and encrypted_data[field] is not None:
                 encrypted_data[field] = self.encrypt_field(str(encrypted_data[field]))
         return encrypted_data
-    
+
     def decrypt_sensitive_fields(self, data: dict, fields: list[str]) -> dict:
         """Decrypt specified fields in a dictionary."""
         decrypted_data = data.copy()

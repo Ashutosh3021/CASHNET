@@ -11,7 +11,6 @@ Deploy this alongside the main API server.
 """
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
@@ -62,7 +61,7 @@ def models_status():
             'timestamp': mm.datetime.now(mm.timezone.utc).isoformat(),
             'models': status,
         }), 200
-    except Exception as e:
+    except (ValueError, KeyError) as e:
         logger.error(f"Error getting model status: {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -79,7 +78,7 @@ def predict_182():
 
         prediction = mm.predict(182, record)
         return jsonify(prediction), 200
-    except Exception as e:
+    except (ValueError, KeyError, TypeError) as e:
         logger.error(f"Prediction error (182): {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -96,7 +95,7 @@ def predict_183():
 
         prediction = mm.predict(183, record)
         return jsonify(prediction), 200
-    except Exception as e:
+    except (ValueError, KeyError, TypeError) as e:
         logger.error(f"Prediction error (183): {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -113,7 +112,7 @@ def predict_184():
 
         prediction = mm.predict(184, record)
         return jsonify(prediction), 200
-    except Exception as e:
+    except (ValueError, KeyError, TypeError) as e:
         logger.error(f"Prediction error (184): {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -128,7 +127,7 @@ def reload_models():
             'message': 'Models reloaded successfully',
             'status': status,
         }), 200
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         logger.error(f"Error reloading models: {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -144,13 +143,13 @@ def train_model():
             return jsonify({'error': 'model_id must be 182, 183, or 184'}), 400
 
         logger.info(f"Training model {model_id}...")
-        model, metadata = mm.load_or_train_model(model_id, force_retrain=True)
+        _, metadata = mm.load_or_train_model(model_id, force_retrain=True)
 
         return jsonify({
             'message': f'Model {model_id} trained successfully',
             'metadata': metadata,
         }), 200
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         logger.error(f"Error training model: {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -175,7 +174,7 @@ def batch_predict():
                 try:
                     prediction = mm.predict(model_id, record)
                     batch_results.append(prediction)
-                except Exception as e:
+                except (ValueError, KeyError, TypeError) as e:
                     batch_results.append({
                         'model_id': model_id,
                         'error': str(e),
@@ -193,7 +192,7 @@ def batch_predict():
             'models_processed': len(model_ids),
             'results': results,
         }), 200
-    except Exception as e:
+    except (ValueError, KeyError) as e:
         logger.error(f"Error in batch prediction: {e}")
         return jsonify({'error': str(e)}), 500
 

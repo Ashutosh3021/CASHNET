@@ -8,12 +8,8 @@ This module manages model lifecycle:
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import logging
-import pickle
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -25,7 +21,6 @@ from sklearn.preprocessing import StandardScaler
 
 import lib.artifacts as art
 import lib.io_utils as io
-from lib.schema import empty_contract
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +33,12 @@ def load_or_train_model(model_id: int | str, force_retrain: bool = False) -> tup
     """Load model from cache or disk, train if missing."""
     model_id_str = str(model_id)
     model_path = io.MODELS_DIR / f"{model_id_str}_model.pkl"
-    
+
     # Check cache first
     if model_id_str in _models and not force_retrain:
         logger.info(f"Loaded model {model_id} from cache")
         return _models[model_id_str], _model_metadata.get(model_id_str, {})
-    
+
     # Try to load from disk
     if model_path.exists() and not force_retrain:
         try:
@@ -52,13 +47,13 @@ def load_or_train_model(model_id: int | str, force_retrain: bool = False) -> tup
             _model_metadata[model_id_str] = metadata
             logger.info(f"Loaded model {model_id} from disk: {model_path}")
             return model, metadata
-        except Exception as e:
+        except (OSError, ValueError, TypeError) as e:
             logger.warning(f"Error loading model {model_id}: {e}")
-    
+
     # Train new model
     logger.info(f"Training new model {model_id}")
     model, metadata = _train_model(model_id)
-    
+
     # Save to disk
     try:
         art.save_model(
@@ -72,19 +67,19 @@ def load_or_train_model(model_id: int | str, force_retrain: bool = False) -> tup
             }
         )
         logger.info(f"Saved model {model_id} to {model_path}")
-    except Exception as e:
+    except (OSError, ValueError, TypeError) as e:
         logger.error(f"Error saving model {model_id}: {e}")
-    
+
     _models[model_id_str] = model
     _model_metadata[model_id_str] = metadata
-    
+
     return model, metadata
 
 
 def _train_model(model_id: int | str) -> tuple[Any, dict[str, Any]]:
     """Train a new model based on model_id."""
     model_id = int(model_id)
-    
+
     if model_id == 182:
         return _train_model_182()
     elif model_id == 183:
@@ -104,30 +99,30 @@ def _train_model_182() -> tuple[Any, dict[str, Any]]:
     - Cross-border routing classification
     """
     logger.info("Training Model 182")
-    
+
     try:
         # Load 182 data
-        cases = io.load_182_cases()
-        elliptic_features, elliptic_classes, elliptic_edges = io.load_elliptic(labeled_only=True)
-        
+        _ = io.load_182_cases()
+        elliptic_features, elliptic_classes, _ = io.load_elliptic(labeled_only=True)
+
         if elliptic_features.empty:
             logger.warning("No Elliptic data available, using synthetic model")
             return _create_synthetic_model_182(), {
                 "status": "synthetic",
                 "reason": "No training data available"
             }
-        
+
         # Extract labels
         y = elliptic_classes.set_index("txId").loc[elliptic_features["txId"]]["class"].values
         X = elliptic_features.drop("txId", axis=1).values
-        
+
         # Train illicit classifier
         model = Pipeline([
             ("scaler", StandardScaler()),
             ("clf", LogisticRegression(max_iter=1000, random_state=42)),
         ])
         model.fit(X, y)
-        
+
         metadata = {
             "model_id": 182,
             "type": "illicit_classifier",
@@ -136,10 +131,10 @@ def _train_model_182() -> tuple[Any, dict[str, Any]]:
             "accuracy": float(model.score(X, y)),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
         logger.info(f"Model 182 trained: {metadata}")
         return model, metadata
-        
+
     except (FileNotFoundError, ValueError) as e:
         logger.warning(f"Error training Model 182: {e}, using synthetic")
         return _create_synthetic_model_182(), {"status": "synthetic", "reason": str(e)}
@@ -153,29 +148,29 @@ def _train_model_183() -> tuple[Any, dict[str, Any]]:
     - Transaction pattern analysis
     """
     logger.info("Training Model 183")
-    
+
     try:
         # Load Elliptic data
-        features, classes, edges = io.load_elliptic(labeled_only=True)
-        
+        features, classes, _ = io.load_elliptic(labeled_only=True)
+
         if features.empty:
             logger.warning("No Elliptic data, using synthetic Model 183")
             return _create_synthetic_model_183(), {
                 "status": "synthetic",
                 "reason": "No training data available"
             }
-        
+
         # Extract data
         y = classes.set_index("txId").loc[features["txId"]]["class"].values
         X = features.drop("txId", axis=1).values
-        
+
         # Train model
         model = Pipeline([
             ("scaler", StandardScaler()),
             ("clf", RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)),
         ])
         model.fit(X, y)
-        
+
         metadata = {
             "model_id": 183,
             "type": "aml_classifier",
@@ -184,10 +179,10 @@ def _train_model_183() -> tuple[Any, dict[str, Any]]:
             "accuracy": float(model.score(X, y)),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
         logger.info(f"Model 183 trained: {metadata}")
         return model, metadata
-        
+
     except (FileNotFoundError, ValueError) as e:
         logger.warning(f"Error training Model 183: {e}, using synthetic")
         return _create_synthetic_model_183(), {"status": "synthetic", "reason": str(e)}
@@ -201,34 +196,34 @@ def _train_model_184() -> tuple[Any, dict[str, Any]]:
     - Typology detection (fraud, identity theft, etc.)
     """
     logger.info("Training Model 184")
-    
+
     try:
         # Load CFPB complaint data
         df = io.load_cfpb_sample(n=10000)
-        
+
         if df.empty:
             logger.warning("No CFPB data, using synthetic Model 184")
             return _create_synthetic_model_184(), {
                 "status": "synthetic",
                 "reason": "No training data available"
             }
-        
+
         # Simple feature extraction: text length, word count
         X = np.column_stack([
             df["narrative"].str.len().fillna(0),
             df["narrative"].str.split().str.len().fillna(0),
         ])
-        
+
         # Target: product category
         y = pd.factorize(df["product"])[0]
-        
+
         # Train model
         model = Pipeline([
             ("scaler", StandardScaler()),
             ("clf", LogisticRegression(max_iter=1000, random_state=42)),
         ])
         model.fit(X, y)
-        
+
         metadata = {
             "model_id": 184,
             "type": "typology_classifier",
@@ -237,10 +232,10 @@ def _train_model_184() -> tuple[Any, dict[str, Any]]:
             "accuracy": float(model.score(X, y)),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
         logger.info(f"Model 184 trained: {metadata}")
         return model, metadata
-        
+
     except (FileNotFoundError, ValueError) as e:
         logger.warning(f"Error training Model 184: {e}, using synthetic")
         return _create_synthetic_model_184(), {"status": "synthetic", "reason": str(e)}
@@ -273,14 +268,14 @@ def _create_synthetic_model_184() -> Any:
 def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
     """Make a prediction using the specified model."""
     model, metadata = load_or_train_model(model_id)
-    
+
     # Convert record to features (model-specific)
     features = _extract_features(record, model_id)
-    
+
     try:
         prediction = model.predict([features])[0]
         probability = float(model.predict_proba([features])[0].max())
-        
+
         return {
             "model_id": model_id,
             "prediction": int(prediction),
@@ -288,7 +283,7 @@ def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "metadata": metadata,
         }
-    except Exception as e:
+    except (ValueError, AttributeError) as e:
         logger.error(f"Error predicting with model {model_id}: {e}")
         return {
             "model_id": model_id,
@@ -300,7 +295,7 @@ def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
 def _extract_features(record: dict[str, Any], model_id: int | str) -> list[float]:
     """Extract features from record for model."""
     model_id = int(model_id)
-    
+
     # Generic feature extraction - adapt per model
     features = [
         float(record.get("risk_score", 0.0)),
@@ -308,7 +303,7 @@ def _extract_features(record: dict[str, Any], model_id: int | str) -> list[float
         float(record.get("amount", 0.0)),
         float(record.get("age_days", 0)),
     ]
-    
+
     return features
 
 
@@ -317,18 +312,18 @@ def get_model_status() -> dict[str, Any]:
     status = {}
     for model_id in ["182", "183", "184"]:
         try:
-            model, metadata = load_or_train_model(model_id)
+            _, metadata = load_or_train_model(model_id)
             status[model_id] = {
                 "loaded": True,
                 "metadata": metadata,
                 "cached": model_id in _models,
             }
-        except Exception as e:
+        except (FileNotFoundError, ValueError) as e:
             status[model_id] = {
                 "loaded": False,
                 "error": str(e),
             }
-    
+
     return status
 
 
@@ -342,7 +337,7 @@ def reload_models() -> dict[str, Any]:
 if __name__ == "__main__":
     # Test model loading/training
     io.ensure_dirs()
-    
+
     for mid in [182, 183, 184]:
         try:
             model, metadata = load_or_train_model(mid)

@@ -28,34 +28,34 @@ class Permission(str, Enum):
     CASE_UPDATE = "case:update"
     CASE_DELETE = "case:delete"
     CASE_ASSIGN = "case:assign"
-    
+
     # Finding permissions
     FINDING_CREATE = "finding:create"
     FINDING_READ = "finding:read"
     FINDING_UPDATE = "finding:update"
     FINDING_ADJUDICATE = "finding:adjudicate"
-    
+
     # Evidence permissions
     EVIDENCE_CREATE = "evidence:create"
     EVIDENCE_READ = "evidence:read"
     EVIDENCE_VERIFY = "evidence:verify"
-    
+
     # Action request permissions
     ACTION_CREATE = "action:create"
     ACTION_APPROVE = "action:approve"
     ACTION_SEND = "action:send"
-    
+
     # Entity permissions
     ENTITY_CREATE = "entity:create"
     ENTITY_READ = "entity:read"
     ENTITY_UPDATE = "entity:update"
-    
+
     # User management
     USER_CREATE = "user:create"
     USER_READ = "user:read"
     USER_UPDATE = "user:update"
     USER_DELETE = "user:delete"
-    
+
     # System permissions
     SYSTEM_ADMIN = "system:admin"
     AUDIT_READ = "audit:read"

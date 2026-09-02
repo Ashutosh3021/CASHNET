@@ -43,83 +43,83 @@ class VASPRequestStatus(str, Enum):
 
 class VASPConnector(IntegrationAdapter):
     """VASP/Exchange request workflow connector."""
-    
+
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self._integration_type = IntegrationType.VASP
-        
+
         # Configuration
         self.api_url = config.get("api_url")
         self.api_key = config.get("api_key")
         self.timeout = config.get("timeout", 30)
         self.default_expiry_days = config.get("default_expiry_days", 7)
-        
+
         # HTTP client
         self._client: httpx.AsyncClient | None = None
-        
+
         # VASP registry (name -> config)
         self._vasp_registry: dict[str, dict[str, Any]] = {}
-        
+
         # Request tracking
         self._requests: dict[str, dict[str, Any]] = {}
-    
+
     async def connect(self) -> bool:
         """Connect to VASP API (if available)."""
         if not self.api_url:
             # Offline mode - use local registry
             print("VASP connector in offline mode")
             return True
-        
+
         try:
             headers = {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             }
-            
+
             if self.api_key:
                 headers["X-API-Key"] = self.api_key
-            
+
             self._client = httpx.AsyncClient(
                 base_url=self.api_url,
                 timeout=self.timeout,
                 headers=headers,
             )
-            
+
             response = await self._client.get("/health")
             if response.status_code == 200:
                 print("Connected to VASP API")
                 return True
-            
+
             return False
-            
+
         except (httpx.ConnectError, httpx.TimeoutException, OSError) as e:
             print(f"Failed to connect to VASP API: {e}")
             return False
-    
+
     async def disconnect(self) -> None:
         """Disconnect from VASP API."""
         if self._client:
             await self._client.aclose()
-    
+
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a freeze/disclosure request to a VASP."""
         try:
             vasp_name = case_data.get("vasp_name")
-            
+
             if not vasp_name:
                 return IntegrationResponse(
                     request_id=case_data.get("request_id", ""),
                     status=IntegrationStatus.FAILED,
                     error_message="VASP name is required",
                 )
-            
+
             # Create request
             request_data = self._create_vasp_request(case_data)
-            
+
             # Store request
             request_id = request_data["request_id"]
             self._requests[request_id] = request_data
-            
+
             # Send to VASP if online
             if self._client:
                 response = await self._send_to_vasp(vasp_name, request_data)
@@ -138,14 +138,14 @@ class VASPConnector(IntegrationAdapter):
                     },
                     processed_at=datetime.now(timezone.utc),
                 )
-                
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=case_data.get("request_id", ""),
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def get_case_status(self, external_id: str) -> IntegrationResponse:
         """Get VASP request status."""
         try:
@@ -156,7 +156,7 @@ class VASPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message="Request not found",
                 )
-            
+
             # Check with VASP if online
             if self._client and request.get("vasp_api_endpoint"):
                 response = await self._client.get(
@@ -166,36 +166,36 @@ class VASPConnector(IntegrationAdapter):
                     vasp_status = response.json()
                     request["status"] = vasp_status.get("status")
                     request["response_data"] = vasp_status
-            
+
             return IntegrationResponse(
                 request_id=external_id,
                 status=self._map_vasp_status(request.get("status")),
                 response_data=request.get("response_data", {}),
                 processed_at=datetime.now(timezone.utc),
             )
-            
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=external_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def receive_case(self, external_data: dict[str, Any]) -> dict[str, Any]:
         """Receive a response from VASP."""
         return self._process_vasp_response(external_data)
-    
+
     async def health_check(self) -> bool:
         """Check VASP API health."""
         if not self._client:
             return True  # Offline mode is always "healthy"
-        
+
         try:
             response = await self._client.get("/health")
             return response.status_code == 200
         except httpx.RequestError:
             return False
-    
+
     async def create_freeze_request(
         self,
         case_id: str,
@@ -216,9 +216,9 @@ class VASPConnector(IntegrationAdapter):
             "evidence_package_id": evidence_package_id,
             "expires_at": self._calculate_expiry(),
         }
-        
+
         return await self.submit_case(request_data)
-    
+
     async def create_disclosure_request(
         self,
         case_id: str,
@@ -239,9 +239,9 @@ class VASPConnector(IntegrationAdapter):
             "information_requested": information_requested,
             "expires_at": self._calculate_expiry(),
         }
-        
+
         return await self.submit_case(request_data)
-    
+
     async def get_request_history(
         self,
         case_id: str | None = None,
@@ -250,7 +250,7 @@ class VASPConnector(IntegrationAdapter):
     ) -> list[dict[str, Any]]:
         """Get request history with filters."""
         results = []
-        
+
         for request in self._requests.values():
             if case_id and request.get("case_id") != case_id:
                 continue
@@ -259,9 +259,9 @@ class VASPConnector(IntegrationAdapter):
             if status and request.get("status") != status.value:
                 continue
             results.append(request)
-        
+
         return results
-    
+
     async def approve_request(
         self,
         request_id: str,
@@ -277,20 +277,20 @@ class VASPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message="Request not found",
                 )
-            
+
             if request.get("status") != VASPRequestStatus.PENDING_APPROVAL.value:
                 return IntegrationResponse(
                     request_id=request_id,
                     status=IntegrationStatus.FAILED,
                     error_message=f"Invalid status: {request.get('status')}",
                 )
-            
+
             # Update request
             request["status"] = VASPRequestStatus.APPROVED.value
             request["approved_by"] = approver_id
             request["approved_at"] = datetime.now(timezone.utc).isoformat()
             request["approval_comments"] = comments
-            
+
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.COMPLETED,
@@ -300,14 +300,14 @@ class VASPConnector(IntegrationAdapter):
                 },
                 processed_at=datetime.now(timezone.utc),
             )
-            
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def reject_request(
         self,
         request_id: str,
@@ -323,12 +323,12 @@ class VASPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message="Request not found",
                 )
-            
+
             request["status"] = VASPRequestStatus.REJECTED.value
             request["rejected_by"] = rejector_id
             request["rejected_at"] = datetime.now(timezone.utc).isoformat()
             request["rejection_reason"] = reason
-            
+
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.COMPLETED,
@@ -339,18 +339,18 @@ class VASPConnector(IntegrationAdapter):
                 },
                 processed_at=datetime.now(timezone.utc),
             )
-            
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     def _create_vasp_request(self, case_data: dict[str, Any]) -> dict[str, Any]:
         """Create a VASP request object."""
         import uuid
-        
+
         return {
             "request_id": str(uuid.uuid4()),
             "case_id": case_data.get("case_id"),
@@ -365,7 +365,7 @@ class VASPConnector(IntegrationAdapter):
             "expires_at": case_data.get("expires_at", self._calculate_expiry()),
             "response_data": {},
         }
-    
+
     async def _send_to_vasp(
         self,
         vasp_name: str,
@@ -380,16 +380,16 @@ class VASPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"VASP not registered: {vasp_name}",
                 )
-            
+
             # Transform request to VASP format
             vasp_payload = self._transform_to_vasp_format(request_data, vasp_config)
-            
+
             # Send request
             response = await self._client.post(
                 "/requests",
                 json=vasp_payload,
             )
-            
+
             if response.status_code in [200, 201]:
                 return IntegrationResponse(
                     request_id=request_data["request_id"],
@@ -403,14 +403,14 @@ class VASPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"VASP request failed: HTTP {response.status_code}",
                 )
-                
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=request_data["request_id"],
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     def _transform_to_vasp_format(
         self,
         request_data: dict[str, Any],
@@ -426,7 +426,7 @@ class VASPConnector(IntegrationAdapter):
             "reference": request_data.get("request_id"),
             "case_reference": request_data.get("case_id"),
         }
-    
+
     def _process_vasp_response(self, response_data: dict[str, Any]) -> dict[str, Any]:
         """Process response from VASP."""
         return {
@@ -435,13 +435,13 @@ class VASPConnector(IntegrationAdapter):
             "response_data": response_data.get("data", {}),
             "processed_at": datetime.now(timezone.utc).isoformat(),
         }
-    
+
     def _calculate_expiry(self) -> str:
         """Calculate request expiry date."""
         from datetime import timedelta
         expiry = datetime.now(timezone.utc) + timedelta(days=self.default_expiry_days)
         return expiry.isoformat()
-    
+
     def _map_vasp_status(self, status: str | None) -> IntegrationStatus:
         """Map VASP status to IntegrationStatus."""
         mapping = {

@@ -20,7 +20,7 @@ def main():
             return
 
         record = json.loads(input_data)
-        
+
         # Load the 184 model
         model_path = io.MODELS_DIR / "184_model.pkl"
         if not model_path.exists():
@@ -34,7 +34,7 @@ def main():
 
         # Output the result as JSON to stdout
         print(json.dumps(payload))
-        
+
     except (json.JSONDecodeError, KeyError, FileNotFoundError, OSError) as e:
         import traceback
         print(json.dumps({"error": str(e), "traceback": traceback.format_exc()}))

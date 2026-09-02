@@ -62,29 +62,29 @@ class EvidencePackage(BaseModel):
     package_id: str
     case_id: str
     package_type: PackageType
-    
+
     # Content
     items: list[EvidenceItem] = []
     content_hash: str = ""  # SHA-256 of entire package
     content_type: str = "application/json"
-    
+
     # Finding reference
     finding_id: str | None = None
-    
+
     # Integrity
     is_sealed: bool = False  # Once sealed, cannot be modified
     sealed_at: datetime | None = None
-    
+
     # Verification
     verification_status: VerificationStatus = VerificationStatus.UNVERIFIED
     verified_at: datetime | None = None
     verified_by: str | None = None
-    
+
     # Chain of custody
     created_by: str = ""
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     # Metadata
     title: str | None = None
     description: str | None = None
@@ -102,13 +102,13 @@ class ReportFormat(str, Enum):
 
 class EvidenceService:
     """Main Evidence Package Service."""
-    
+
     def __init__(self):
         self._packages: dict[str, EvidencePackage] = {}
         self._case_index: dict[str, list[str]] = {}  # case_id -> [package_ids]
         self._finding_index: dict[str, list[str]] = {}  # finding_id -> [package_ids]
         self._hash_chain: list[str] = []  # Chain of package hashes for integrity
-    
+
     def create_package(
         self,
         case_id: str,
@@ -120,7 +120,7 @@ class EvidenceService:
     ) -> EvidencePackage:
         """Create a new evidence package."""
         import uuid
-        
+
         package = EvidencePackage(
             package_id=str(uuid.uuid4()),
             case_id=case_id,
@@ -130,22 +130,22 @@ class EvidenceService:
             description=description,
             finding_id=finding_id,
         )
-        
+
         # Store package
         self._packages[package.package_id] = package
-        
+
         # Update indexes
         if case_id not in self._case_index:
             self._case_index[case_id] = []
         self._case_index[case_id].append(package.package_id)
-        
+
         if finding_id:
             if finding_id not in self._finding_index:
                 self._finding_index[finding_id] = []
             self._finding_index[finding_id].append(package.package_id)
-        
+
         return package
-    
+
     def add_item(
         self,
         package_id: str,
@@ -157,18 +157,18 @@ class EvidenceService:
     ) -> EvidenceItem:
         """Add an item to a package."""
         import uuid
-        
+
         package = self._packages.get(package_id)
         if not package:
             raise ValueError(f"Package not found: {package_id}")
-        
+
         if package.is_sealed:
             raise ValueError("Cannot add items to a sealed package")
-        
+
         # Calculate content hash
         content_str = json.dumps(content, sort_keys=True, default=str)
         content_hash = hashlib.sha256(content_str.encode()).hexdigest()
-        
+
         item = EvidenceItem(
             item_id=str(uuid.uuid4()),
             item_type=item_type,
@@ -178,15 +178,15 @@ class EvidenceService:
             description=description,
             metadata=metadata or {},
         )
-        
+
         package.items.append(item)
         package.updated_at = datetime.now(timezone.utc)
-        
+
         # Recalculate package hash
         package.content_hash = self._calculate_package_hash(package)
-        
+
         return item
-    
+
     def add_transaction_evidence(
         self,
         package_id: str,
@@ -208,14 +208,14 @@ class EvidenceService:
             "risk_score": transaction.risk_score,
             "is_suspicious": transaction.is_suspicious,
         }
-        
+
         return self.add_item(
             package_id,
             ItemType.TRANSACTION,
             content,
             description or f"Transaction {transaction.tx_hash}",
         )
-    
+
     def add_block_data(
         self,
         package_id: str,
@@ -233,42 +233,42 @@ class EvidenceService:
             "gas_used": block_data.get("gas_used"),
             "gas_limit": block_data.get("gas_limit"),
         }
-        
+
         return self.add_item(
             package_id,
             ItemType.BLOCK_DATA,
             content,
             description or f"Block {block_data.get('number')} on {chain.value}",
         )
-    
+
     def seal_package(self, package_id: str) -> EvidencePackage:
         """Seal a package (makes it immutable)."""
         package = self._packages.get(package_id)
         if not package:
             raise ValueError(f"Package not found: {package_id}")
-        
+
         if package.is_sealed:
             raise ValueError("Package is already sealed")
-        
+
         # Calculate final hash
         package.content_hash = self._calculate_package_hash(package)
-        
+
         # Seal
         package.is_sealed = True
         package.sealed_at = datetime.now(timezone.utc)
         package.updated_at = datetime.now(timezone.utc)
-        
+
         # Add to hash chain
         self._hash_chain.append(package.content_hash)
-        
+
         return package
-    
+
     def verify_package(self, package_id: str) -> dict[str, Any]:
         """Verify package integrity."""
         package = self._packages.get(package_id)
         if not package:
             raise ValueError(f"Package not found: {package_id}")
-        
+
         verification_result = {
             "package_id": package_id,
             "is_sealed": package.is_sealed,
@@ -278,23 +278,23 @@ class EvidenceService:
             "package_hash_valid": False,
             "overall_status": VerificationStatus.UNVERIFIED,
         }
-        
+
         # Verify each item
         for item in package.items:
             content_str = json.dumps(item.content, sort_keys=True, default=str)
             computed_hash = hashlib.sha256(content_str.encode()).hexdigest()
-            
+
             if computed_hash == item.content_hash:
                 verification_result["items_verified"] += 1
             else:
                 verification_result["items_failed"] += 1
-        
+
         # Verify package hash
         computed_package_hash = self._calculate_package_hash(package)
         verification_result["package_hash_valid"] = computed_package_hash == package.content_hash
-        
+
         # Determine overall status
-        if (verification_result["items_failed"] == 0 and 
+        if (verification_result["items_failed"] == 0 and
             verification_result["package_hash_valid"] and
             package.is_sealed):
             verification_result["overall_status"] = VerificationStatus.VERIFIED
@@ -305,23 +305,23 @@ class EvidenceService:
             package.verification_status = VerificationStatus.TAMPERED
         else:
             verification_result["overall_status"] = VerificationStatus.UNVERIFIED
-        
+
         return verification_result
-    
+
     def get_package(self, package_id: str) -> EvidencePackage | None:
         """Get a package by ID."""
         return self._packages.get(package_id)
-    
+
     def get_packages_for_case(self, case_id: str) -> list[EvidencePackage]:
         """Get all packages for a case."""
         package_ids = self._case_index.get(case_id, [])
         return [self._packages[pid] for pid in package_ids if pid in self._packages]
-    
+
     def get_packages_for_finding(self, finding_id: str) -> list[EvidencePackage]:
         """Get all packages for a finding."""
         package_ids = self._finding_index.get(finding_id, [])
         return [self._packages[pid] for pid in package_ids if pid in self._packages]
-    
+
     def export_package(
         self,
         package_id: str,
@@ -331,7 +331,7 @@ class EvidenceService:
         package = self._packages.get(package_id)
         if not package:
             raise ValueError(f"Package not found: {package_id}")
-        
+
         if format == ReportFormat.JSON:
             return self._export_json(package)
         elif format == ReportFormat.HTML:
@@ -340,32 +340,32 @@ class EvidenceService:
             return self._export_csv(package)
         else:
             return self._export_json(package)
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get evidence service statistics."""
         packages = list(self._packages.values())
-        
+
         if not packages:
             return {"total_packages": 0}
-        
+
         # Count by type
         by_type = {}
         for pkg in packages:
             pkg_type = pkg.package_type.value
             by_type[pkg_type] = by_type.get(pkg_type, 0) + 1
-        
+
         # Count by status
         by_status = {}
         for pkg in packages:
             status = pkg.verification_status.value
             by_status[status] = by_status.get(status, 0) + 1
-        
+
         # Count sealed vs unsealed
         sealed_count = sum(1 for pkg in packages if pkg.is_sealed)
-        
+
         # Total items
         total_items = sum(len(pkg.items) for pkg in packages)
-        
+
         return {
             "total_packages": len(packages),
             "sealed_count": sealed_count,
@@ -375,7 +375,7 @@ class EvidenceService:
             "by_status": by_status,
             "hash_chain_length": len(self._hash_chain),
         }
-    
+
     def _calculate_package_hash(self, package: EvidencePackage) -> str:
         """Calculate SHA-256 hash of package content."""
         # Create a deterministic representation
@@ -394,10 +394,10 @@ class EvidenceService:
             "created_by": package.created_by,
             "created_at": package.created_at.isoformat(),
         }
-        
+
         content_str = json.dumps(content, sort_keys=True)
         return hashlib.sha256(content_str.encode()).hexdigest()
-    
+
     def _export_json(self, package: EvidencePackage) -> dict[str, Any]:
         """Export package as JSON."""
         return {
@@ -428,7 +428,7 @@ class EvidenceService:
             "tags": package.tags,
             "metadata": package.metadata,
         }
-    
+
     def _export_html(self, package: EvidencePackage) -> dict[str, Any]:
         """Export package as HTML."""
         html_content = f"""<!DOCTYPE html>
@@ -457,7 +457,7 @@ class EvidenceService:
     
     <h2>Items ({len(package.items)})</h2>
 """
-        
+
         for item in package.items:
             html_content += f"""
     <div class="item">
@@ -466,7 +466,7 @@ class EvidenceService:
         <pre>{json.dumps(item.content, indent=2)}</pre>
     </div>
 """
-        
+
         html_content += f"""
     <div class="header">
         <h2>Integrity</h2>
@@ -476,24 +476,24 @@ class EvidenceService:
     </div>
 </body>
 </html>"""
-        
+
         return {
             "format": "html",
             "content": html_content,
             "package_id": package.package_id,
         }
-    
+
     def _export_csv(self, package: EvidencePackage) -> dict[str, Any]:
         """Export package as CSV."""
         csv_rows = ["item_id,item_type,description,content_hash,created_at"]
-        
+
         for item in package.items:
             csv_rows.append(
                 f"{item.item_id},{item.item_type.value},"
                 f"\"{item.description or ''}\",{item.content_hash},"
                 f"{item.created_at.isoformat()}"
             )
-        
+
         return {
             "format": "csv",
             "content": "\n".join(csv_rows),

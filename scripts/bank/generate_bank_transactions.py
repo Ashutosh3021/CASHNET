@@ -35,7 +35,7 @@ def main():
     p=argparse.ArgumentParser(); p.add_argument('--output',default=str(DEFAULT)); p.add_argument('--seed',type=int,default=42); p.add_argument('--validate',action='store_true'); a=p.parse_args()
     if a.validate:
         from validate_bank_transactions import validate_file
-        errors=validate_file(Path(a.output));
+        errors=validate_file(Path(a.output))
         if errors: raise SystemExit('Validation failed: '+'; '.join(errors))
         print('Bank validation passed'); return
     generate(Path(a.output),a.seed)

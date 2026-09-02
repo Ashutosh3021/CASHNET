@@ -23,7 +23,7 @@ def load_accounts():
 def description(kind:str, subtype:str): return f"Synthetic CASHNET training complaint: victim reported a {kind.replace('_',' ')} ({subtype.replace('_',' ')}). Funds were sent to a synthetic recipient for controlled evaluation."
 
 def generate(count:int, days:int, seed:int)->dict[str,Any]:
-    rng=random.Random(seed); accounts=load_accounts(); by_id={a["account_id"]:a for a in accounts}; victims=[a for a in accounts if a.get("role") in ("VICTIM","CUSTOMER")]; mules=[a for a in accounts if a.get("role")=="MULE"]
+    rng=random.Random(seed); accounts=load_accounts(); _={a["account_id"]:a for a in accounts}; victims=[a for a in accounts if a.get("role") in ("VICTIM","CUSTOMER")]; mules=[a for a in accounts if a.get("role")=="MULE"]
     if not victims or not mules: raise ValueError("Bank registry lacks synthetic victim/mule accounts")
     atm_links=json.loads(ATM.read_text()).get("links",[]) if ATM.exists() else []
     records=[]; links=[]; anchor=datetime(2026,8,29,tzinfo=UTC)
@@ -66,7 +66,7 @@ def main():
     p=argparse.ArgumentParser(); p.add_argument("--complaints",type=int,default=1000); p.add_argument("--days",type=int,default=90); p.add_argument("--seed",type=int,default=42); p.add_argument("--validate",action="store_true"); args=p.parse_args(); path=OUT/"BM_C.json"
     if args.validate:
         if not path.exists(): sys.exit("No BM_C dataset exists")
-        errors=validate(json.loads(path.read_text()));
+        errors=validate(json.loads(path.read_text()))
         if errors: sys.exit("Validation failed: "+"; ".join(errors))
         print("Validated",path); return
     data=generate(args.complaints,args.days,args.seed); errors=validate(data)

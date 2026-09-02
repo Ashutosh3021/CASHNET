@@ -56,38 +56,38 @@ class NotificationRecord(BaseModel):
     notification_id: str
     notification_type: NotificationType
     priority: NotificationPriority
-    
+
     # Recipient
     institution_id: str
     institution_name: str
     recipient_email: str | None = None
     recipient_phone: str | None = None
-    
+
     # Content
     subject: str
     body: str
     template_id: str | None = None
     template_data: dict[str, Any] = {}
-    
+
     # Related entities
     case_id: str | None = None
     action_request_id: str | None = None
-    
+
     # Delivery
     channel: NotificationChannel = NotificationChannel.EMAIL
     status: NotificationStatus = NotificationStatus.PENDING
-    
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     sent_at: datetime | None = None
     delivered_at: datetime | None = None
-    
+
     # Tracking
     external_id: str | None = None  # ID from external provider
     retry_count: int = 0
     max_retries: int = 3
     error_message: str | None = None
-    
+
     # Metadata
     metadata: dict[str, Any] = {}
 
@@ -109,26 +109,26 @@ class FinancialInstitution(BaseModel):
 
 class NotificationService:
     """Financial Institution Notification Service."""
-    
+
     def __init__(self):
         self._notifications: dict[str, NotificationRecord] = {}
         self._institutions: dict[str, FinancialInstitution] = {}
         self._case_index: dict[str, list[str]] = {}  # case_id -> [notification_ids]
         self._institution_index: dict[str, list[str]] = {}  # institution_id -> [notification_ids]
-        
+
         # Email provider config (would be set in production)
         self._email_config: dict[str, Any] = {}
         self._sms_config: dict[str, Any] = {}
-    
+
     def register_institution(self, institution: FinancialInstitution) -> FinancialInstitution:
         """Register a financial institution."""
         self._institutions[institution.institution_id] = institution
         return institution
-    
+
     def get_institution(self, institution_id: str) -> FinancialInstitution | None:
         """Get institution details."""
         return self._institutions.get(institution_id)
-    
+
     def send_fraud_alert(
         self,
         institution_id: str,
@@ -144,9 +144,9 @@ class NotificationService:
         institution = self._institutions.get(institution_id)
         if not institution:
             raise ValueError(f"Institution not found: {institution_id}")
-        
+
         subject = f"URGENT: Fraud Alert - {fraud_type} - Case {case_id}"
-        
+
         body = self._render_fraud_alert(
             institution=institution,
             case_id=case_id,
@@ -156,7 +156,7 @@ class NotificationService:
             currency=currency,
             description=description,
         )
-        
+
         return self._create_notification(
             notification_type=NotificationType.FRAUD_ALERT,
             priority=priority,
@@ -171,7 +171,7 @@ class NotificationService:
                 "currency": currency,
             },
         )
-    
+
     def send_freeze_request(
         self,
         institution_id: str,
@@ -187,9 +187,9 @@ class NotificationService:
         institution = self._institutions.get(institution_id)
         if not institution:
             raise ValueError(f"Institution not found: {institution_id}")
-        
+
         subject = f"URGENT: Account Freeze Request - Case {case_id}"
-        
+
         body = self._render_freeze_request(
             institution=institution,
             case_id=case_id,
@@ -198,7 +198,7 @@ class NotificationService:
             reason=reason,
             legal_reference=legal_reference,
         )
-        
+
         return self._create_notification(
             notification_type=NotificationType.FREEZE_REQUEST,
             priority=priority,
@@ -214,7 +214,7 @@ class NotificationService:
                 "legal_reference": legal_reference,
             },
         )
-    
+
     def send_investigation_update(
         self,
         institution_id: str,
@@ -227,16 +227,16 @@ class NotificationService:
         institution = self._institutions.get(institution_id)
         if not institution:
             raise ValueError(f"Institution not found: {institution_id}")
-        
+
         subject = f"Investigation Update - {update_type} - Case {case_id}"
-        
+
         body = self._render_investigation_update(
             institution=institution,
             case_id=case_id,
             update_type=update_type,
             message=message,
         )
-        
+
         return self._create_notification(
             notification_type=NotificationType.INVESTIGATION_UPDATE,
             priority=priority,
@@ -249,7 +249,7 @@ class NotificationService:
                 "message": message,
             },
         )
-    
+
     def send_evidence_request(
         self,
         institution_id: str,
@@ -263,9 +263,9 @@ class NotificationService:
         institution = self._institutions.get(institution_id)
         if not institution:
             raise ValueError(f"Institution not found: {institution_id}")
-        
+
         subject = f"Evidence Request - {evidence_type} - Case {case_id}"
-        
+
         body = self._render_evidence_request(
             institution=institution,
             case_id=case_id,
@@ -273,7 +273,7 @@ class NotificationService:
             description=description,
             deadline=deadline,
         )
-        
+
         return self._create_notification(
             notification_type=NotificationType.EVIDENCE_REQUEST,
             priority=priority,
@@ -287,53 +287,53 @@ class NotificationService:
                 "deadline": deadline.isoformat() if deadline else None,
             },
         )
-    
+
     def get_notification(self, notification_id: str) -> NotificationRecord | None:
         """Get a notification record."""
         return self._notifications.get(notification_id)
-    
+
     def get_notifications_for_case(self, case_id: str) -> list[NotificationRecord]:
         """Get all notifications for a case."""
         notification_ids = self._case_index.get(case_id, [])
         return [self._notifications[nid] for nid in notification_ids if nid in self._notifications]
-    
+
     def get_notifications_for_institution(self, institution_id: str) -> list[NotificationRecord]:
         """Get all notifications for an institution."""
         notification_ids = self._institution_index.get(institution_id, [])
         return [self._notifications[nid] for nid in notification_ids if nid in self._notifications]
-    
+
     def get_pending_notifications(self) -> list[NotificationRecord]:
         """Get all pending notifications."""
         return [
             n for n in self._notifications.values()
             if n.status in [NotificationStatus.PENDING, NotificationStatus.QUEUED]
         ]
-    
+
     def get_failed_notifications(self) -> list[NotificationRecord]:
         """Get all failed notifications."""
         return [
             n for n in self._notifications.values()
             if n.status == NotificationStatus.FAILED
         ]
-    
+
     def retry_notification(self, notification_id: str) -> NotificationRecord | None:
         """Retry a failed notification."""
         notification = self._notifications.get(notification_id)
         if not notification:
             return None
-        
+
         if notification.status != NotificationStatus.FAILED:
             return None
-        
+
         if notification.retry_count >= notification.max_retries:
             return None
-        
+
         notification.retry_count += 1
         notification.status = NotificationStatus.PENDING
         notification.error_message = None
-        
+
         return notification
-    
+
     def update_status(
         self,
         notification_id: str,
@@ -345,64 +345,64 @@ class NotificationService:
         notification = self._notifications.get(notification_id)
         if not notification:
             return None
-        
+
         notification.status = status
-        
+
         if error_message:
             notification.error_message = error_message
-        
+
         if external_id:
             notification.external_id = external_id
-        
+
         now = datetime.now(timezone.utc)
         if status == NotificationStatus.SENT:
             notification.sent_at = now
         elif status == NotificationStatus.DELIVERED:
             notification.delivered_at = now
-        
+
         return notification
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get notification statistics."""
         notifications = list(self._notifications.values())
-        
+
         if not notifications:
             return {"total": 0}
-        
+
         # Count by status
         by_status = {}
         for n in notifications:
             status = n.status.value
             by_status[status] = by_status.get(status, 0) + 1
-        
+
         # Count by type
         by_type = {}
         for n in notifications:
             ntype = n.notification_type.value
             by_type[ntype] = by_type.get(ntype, 0) + 1
-        
+
         # Count by priority
         by_priority = {}
         for n in notifications:
             priority = n.priority.value
             by_priority[priority] = by_priority.get(priority, 0) + 1
-        
+
         # Success rate
         sent = by_status.get("sent", 0) + by_status.get("delivered", 0)
         total = len(notifications)
         success_rate = sent / total if total > 0 else 0
-        
+
         # Average delivery time
         delivery_times = []
         for n in notifications:
             if n.sent_at and n.delivered_at:
                 time_diff = (n.delivered_at - n.sent_at).total_seconds()
                 delivery_times.append(time_diff)
-        
+
         avg_delivery_time = (
             sum(delivery_times) / len(delivery_times) if delivery_times else 0
         )
-        
+
         return {
             "total": len(notifications),
             "by_status": by_status,
@@ -413,7 +413,7 @@ class NotificationService:
             "pending_count": by_status.get("pending", 0) + by_status.get("queued", 0),
             "failed_count": by_status.get("failed", 0),
         }
-    
+
     def _create_notification(
         self,
         notification_type: NotificationType,
@@ -427,10 +427,10 @@ class NotificationService:
     ) -> NotificationRecord:
         """Create and store a notification."""
         import uuid
-        
+
         # Determine channel based on institution preferences
         channel = self._determine_channel(institution, priority)
-        
+
         notification = NotificationRecord(
             notification_id=str(uuid.uuid4()),
             notification_type=notification_type,
@@ -446,23 +446,23 @@ class NotificationService:
             channel=channel,
             template_data=template_data or {},
         )
-        
+
         # Store notification
         self._notifications[notification.notification_id] = notification
-        
+
         # Update indexes
         if case_id:
             if case_id not in self._case_index:
                 self._case_index[case_id] = []
             self._case_index[case_id].append(notification.notification_id)
-        
+
         inst_id = institution.institution_id
         if inst_id not in self._institution_index:
             self._institution_index[inst_id] = []
         self._institution_index[inst_id].append(notification.notification_id)
-        
+
         return notification
-    
+
     def _determine_channel(
         self,
         institution: FinancialInstitution,
@@ -475,7 +475,7 @@ class NotificationService:
             if institution.api_endpoint:
                 return NotificationChannel.API
             return NotificationChannel.EMAIL
-        
+
         # Check institution preferences
         prefs = institution.notification_preferences
         if "preferred_channel" in prefs:
@@ -483,10 +483,10 @@ class NotificationService:
                 return NotificationChannel(prefs["preferred_channel"])
             except ValueError:
                 pass
-        
+
         # Default to email
         return NotificationChannel.EMAIL
-    
+
     def _render_fraud_alert(
         self,
         institution: FinancialInstitution,
@@ -499,7 +499,7 @@ class NotificationService:
     ) -> str:
         """Render fraud alert email body."""
         accounts_str = "\n".join(f"  - {acc}" for acc in affected_accounts)
-        
+
         return f"""URGENT: Fraud Alert Notification
 
 Dear {institution.name} Compliance Team,
@@ -527,7 +527,7 @@ Reference ID: {case_id}
 
  regards,
 CashNet Investigation Team"""
-    
+
     def _render_freeze_request(
         self,
         institution: FinancialInstitution,
@@ -539,7 +539,7 @@ CashNet Investigation Team"""
     ) -> str:
         """Render freeze request email body."""
         amount_str = f"{amount:,.2f} INR" if amount else "All funds"
-        
+
         return f"""URGENT: Account Freeze Request
 
 Dear {institution.name} Compliance Team,
@@ -571,7 +571,7 @@ Case Reference: {case_id}
 
  regards,
 CashNet Investigation Team"""
-    
+
     def _render_investigation_update(
         self,
         institution: FinancialInstitution,
@@ -601,7 +601,7 @@ This is an official communication from the CashNet Investigation Platform.
 
  regards,
 CashNet Investigation Team"""
-    
+
     def _render_evidence_request(
         self,
         institution: FinancialInstitution,
@@ -612,7 +612,7 @@ CashNet Investigation Team"""
     ) -> str:
         """Render evidence request email body."""
         deadline_str = deadline.strftime("%Y-%m-%d %H:%M UTC") if deadline else "Not specified"
-        
+
         return f"""Evidence Request
 
 Dear {institution.name} Compliance Team,

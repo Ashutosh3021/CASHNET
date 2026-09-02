@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[2]
 REG=ROOT/'data/synthetic/complaints/complaint_account_registry.json'; COMPLAINTS=ROOT/'data/synthetic/complaints/complaint.json'
 SCHEMA=('transaction_id','source_account','destination_account','transaction_amount','currency','timestamp','transaction_type','status')
 def validate_file(path):
-    rows=json.loads(path.read_text()); registry=json.loads(REG.read_text())['accounts']; ids={a['account_number'] for a in registry}; cids={a['upi_id'] for a in registry}; tids=set(); errors=[]
+    rows=json.loads(path.read_text()); registry=json.loads(REG.read_text())['accounts']; ids={a['account_number'] for a in registry}; _={a['upi_id'] for a in registry}; tids=set(); errors=[]
     if not isinstance(rows,list): return ['BANK.json must be an array']
     for row in rows:
         d=row.get('bank_transaction_data',{})

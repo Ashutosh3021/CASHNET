@@ -51,7 +51,7 @@ def train_and_package_models() -> dict[str, dict]:
         try:
             # Train/load model
             logger.info(f"Loading model {model_id}...")
-            model, metadata = mm.load_or_train_model(model_id, force_retrain=False)
+            _, metadata = mm.load_or_train_model(model_id, force_retrain=False)
 
             # Verify model exists
             model_path = io.MODELS_DIR / f"{model_id}_model.pkl"
@@ -131,7 +131,7 @@ def train_and_package_models() -> dict[str, dict]:
     logger.info(f"Manifest: {manifest_path}")
 
     # List files
-    logger.info(f"\nGenerated Model Files:")
+    logger.info("\nGenerated Model Files:")
     for model_file in sorted(io.MODELS_DIR.glob("*_model.pkl")):
         size_mb = model_file.stat().st_size / (1024 * 1024)
         logger.info(f"  - {model_file.name} ({size_mb:.2f} MB)")

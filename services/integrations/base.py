@@ -51,40 +51,40 @@ class IntegrationResponse(BaseModel):
 
 class IntegrationAdapter(ABC):
     """Abstract base class for integration adapters."""
-    
+
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self._integration_type: IntegrationType
-    
+
     @property
     def integration_type(self) -> IntegrationType:
         """Get the integration type."""
         return self._integration_type
-    
+
     @abstractmethod
     async def connect(self) -> bool:
         """Connect to the external service."""
-    
+
     @abstractmethod
     async def disconnect(self) -> None:
         """Disconnect from the service."""
-    
+
     @abstractmethod
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a case to the external system."""
-    
+
     @abstractmethod
     async def get_case_status(self, external_id: str) -> IntegrationResponse:
         """Get case status from the external system."""
-    
+
     @abstractmethod
     async def receive_case(self, external_data: dict[str, Any]) -> dict[str, Any]:
         """Receive a case from the external system."""
-    
+
     @abstractmethod
     async def health_check(self) -> bool:
         """Check if the integration is healthy."""
-    
+
     async def retry_request(
         self,
         request: IntegrationRequest,
@@ -103,7 +103,7 @@ class IntegrationAdapter(ABC):
                         status=IntegrationStatus.FAILED,
                         error_message=f"Max retries exceeded: {e!s}",
                     )
-        
+
         return IntegrationResponse(
             request_id=request.request_id,
             status=IntegrationStatus.RETRYING,

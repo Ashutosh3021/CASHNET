@@ -32,27 +32,27 @@ class TimelineEvent(BaseModel):
     event_id: str
     event_type: TimelineEventType
     timestamp: datetime
-    
+
     # Related entities
     case_id: str | None = None
     tx_hash: str | None = None
     address: str | None = None
     chain: ChainType | None = None
-    
+
     # Event details
     title: str
     description: str | None = None
     value: float | None = None
     currency: str | None = None
-    
+
     # Source
     source: str = "system"  # "system", "investigator", "integration"
     source_id: str | None = None  # Reference to source object
-    
+
     # Risk
     risk_score: float | None = None
     is_suspicious: bool = False
-    
+
     # Metadata
     metadata: dict[str, Any] = {}
 
@@ -75,22 +75,22 @@ class TimelineSummary(BaseModel):
     time_span_hours: float = 0.0
     first_event: datetime | None = None
     last_event: datetime | None = None
-    
+
     # By type
     events_by_type: dict[str, int] = {}
-    
+
     # By chain
     events_by_chain: dict[str, int] = {}
-    
+
     # Value statistics
     total_value: float = 0.0
     max_single_value: float = 0.0
     avg_value: float = 0.0
-    
+
     # Risk statistics
     suspicious_count: int = 0
     avg_risk_score: float = 0.0
-    
+
     # Unique entities
     unique_addresses: int = 0
     unique_chains: int = 0
@@ -98,13 +98,13 @@ class TimelineSummary(BaseModel):
 
 class TimelineService:
     """Generates and manages investigation timelines."""
-    
+
     def __init__(self):
         self._events: dict[str, TimelineEvent] = {}
         self._case_index: dict[str, list[str]] = {}  # case_id -> [event_ids]
         self._address_index: dict[str, list[str]] = {}  # address -> [event_ids]
         self._chain_index: dict[ChainType, list[str]] = {}  # chain -> [event_ids]
-    
+
     def add_transaction_event(
         self,
         transaction: NormalizedTransaction,
@@ -113,7 +113,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add a transaction to the timeline."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.TRANSACTION,
@@ -137,9 +137,9 @@ class TimelineService:
                 "is_success": transaction.is_success,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def add_bridge_event(
         self,
         source_tx: NormalizedTransaction,
@@ -149,7 +149,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add a bridge event to the timeline."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.BRIDGE_EVENT,
@@ -171,9 +171,9 @@ class TimelineService:
                 "to_address": source_tx.to_address,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def add_address_discovery(
         self,
         address: str,
@@ -184,7 +184,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add an address discovery event."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.ADDRESS_DISCOVERY,
@@ -199,9 +199,9 @@ class TimelineService:
                 "discovery_method": discovery_method,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def add_vasp_attribution(
         self,
         address: str,
@@ -212,7 +212,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add a VASP attribution event."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.VASP_ATTRIBUTION,
@@ -228,9 +228,9 @@ class TimelineService:
                 "confidence": confidence,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def add_finding(
         self,
         finding_id: str,
@@ -241,7 +241,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add a finding event."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.FINDING,
@@ -257,9 +257,9 @@ class TimelineService:
                 "finding_type": finding_type,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def add_investigation_note(
         self,
         case_id: str,
@@ -269,7 +269,7 @@ class TimelineService:
     ) -> TimelineEvent:
         """Add an investigation note."""
         import uuid
-        
+
         event = TimelineEvent(
             event_id=str(uuid.uuid4()),
             event_type=TimelineEventType.INVESTIGATION_NOTE,
@@ -283,9 +283,9 @@ class TimelineService:
                 "author": author,
             },
         )
-        
+
         return self._add_event(event)
-    
+
     def get_timeline(
         self,
         case_id: str,
@@ -294,16 +294,16 @@ class TimelineService:
         """Get timeline for a case, optionally filtered."""
         event_ids = self._case_index.get(case_id, [])
         events = [self._events[eid] for eid in event_ids if eid in self._events]
-        
+
         # Apply filters
         if filter:
             events = self._apply_filter(events, filter)
-        
+
         # Sort by timestamp
         events.sort(key=lambda e: e.timestamp)
-        
+
         return events
-    
+
     def get_address_timeline(
         self,
         address: str,
@@ -312,56 +312,56 @@ class TimelineService:
         """Get timeline for an address."""
         event_ids = self._address_index.get(address.lower(), [])
         events = [self._events[eid] for eid in event_ids if eid in self._events]
-        
+
         # Filter by chain if specified
         if chain:
             events = [e for e in events if e.chain == chain]
-        
+
         # Sort by timestamp
         events.sort(key=lambda e: e.timestamp)
-        
+
         return events
-    
+
     def get_summary(self, case_id: str) -> TimelineSummary:
         """Get summary statistics for a timeline."""
         event_ids = self._case_index.get(case_id, [])
         events = [self._events[eid] for eid in event_ids if eid in self._events]
-        
+
         if not events:
             return TimelineSummary()
-        
+
         # Sort by timestamp
         events.sort(key=lambda e: e.timestamp)
-        
+
         # Time span
         first_event = events[0].timestamp
         last_event = events[-1].timestamp
         time_span = (last_event - first_event).total_seconds() / 3600
-        
+
         # Count by type
         events_by_type = {}
         for event in events:
             event_type = event.event_type.value
             events_by_type[event_type] = events_by_type.get(event_type, 0) + 1
-        
+
         # Count by chain
         events_by_chain = {}
         for event in events:
             if event.chain:
                 chain = event.chain.value
                 events_by_chain[chain] = events_by_chain.get(chain, 0) + 1
-        
+
         # Value statistics
         values = [e.value for e in events if e.value is not None]
         total_value = sum(values)
         max_value = max(values) if values else 0
         avg_value = total_value / len(values) if values else 0
-        
+
         # Risk statistics
         suspicious = [e for e in events if e.is_suspicious]
         risk_scores = [e.risk_score for e in events if e.risk_score is not None]
         avg_risk = sum(risk_scores) / len(risk_scores) if risk_scores else 0
-        
+
         # Unique entities
         unique_addresses = set()
         unique_chains = set()
@@ -370,7 +370,7 @@ class TimelineService:
                 unique_addresses.add(event.address.lower())
             if event.chain:
                 unique_chains.add(event.chain)
-        
+
         return TimelineSummary(
             total_events=len(events),
             time_span_hours=round(time_span, 2),
@@ -386,49 +386,49 @@ class TimelineService:
             unique_addresses=len(unique_addresses),
             unique_chains=len(unique_chains),
         )
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get overall timeline statistics."""
         total_events = len(self._events)
         total_cases = len(self._case_index)
-        
+
         # Count by type
         by_type = {}
         for event in self._events.values():
             event_type = event.event_type.value
             by_type[event_type] = by_type.get(event_type, 0) + 1
-        
+
         return {
             "total_events": total_events,
             "total_cases": total_cases,
             "events_by_type": by_type,
         }
-    
+
     def _add_event(self, event: TimelineEvent) -> TimelineEvent:
         """Add an event to the timeline."""
         self._events[event.event_id] = event
-        
+
         # Update case index
         if event.case_id:
             if event.case_id not in self._case_index:
                 self._case_index[event.case_id] = []
             self._case_index[event.case_id].append(event.event_id)
-        
+
         # Update address index
         if event.address:
             addr = event.address.lower()
             if addr not in self._address_index:
                 self._address_index[addr] = []
             self._address_index[addr].append(event.event_id)
-        
+
         # Update chain index
         if event.chain:
             if event.chain not in self._chain_index:
                 self._chain_index[event.chain] = []
             self._chain_index[event.chain].append(event.event_id)
-        
+
         return event
-    
+
     def _apply_filter(
         self,
         events: list[TimelineEvent],
@@ -436,35 +436,35 @@ class TimelineService:
     ) -> list[TimelineEvent]:
         """Apply filter to events."""
         filtered = events
-        
+
         if filter.start_time:
             filtered = [e for e in filtered if e.timestamp >= filter.start_time]
-        
+
         if filter.end_time:
             filtered = [e for e in filtered if e.timestamp <= filter.end_time]
-        
+
         if filter.event_types:
             filtered = [e for e in filtered if e.event_type in filter.event_types]
-        
+
         if filter.chains:
             filtered = [e for e in filtered if e.chain == filter.chains]
-        
+
         if filter.addresses:
             filter_addrs = {a.lower() for a in filter.addresses}
             filtered = [
                 e for e in filtered
                 if e.address and e.address.lower() in filter_addrs
             ]
-        
+
         if filter.min_value is not None:
             filtered = [e for e in filtered if e.value is not None and e.value >= filter.min_value]
-        
+
         if filter.max_value is not None:
             filtered = [e for e in filtered if e.value is not None and e.value <= filter.max_value]
-        
+
         if filter.include_suspicious_only:
             filtered = [e for e in filtered if e.is_suspicious]
-        
+
         return filtered
 
 
@@ -474,23 +474,23 @@ def format_timeline_event(event: TimelineEvent) -> str:
         f"[{event.timestamp.isoformat()}] {event.event_type.value.upper()}",
         f"  {event.title}",
     ]
-    
+
     if event.description:
         lines.append(f"  {event.description}")
-    
+
     if event.tx_hash:
         lines.append(f"  Tx: {event.tx_hash}")
-    
+
     if event.address:
         lines.append(f"  Address: {event.address}")
-    
+
     if event.chain:
         lines.append(f"  Chain: {event.chain.value}")
-    
+
     if event.value is not None:
         lines.append(f"  Value: {event.value} {event.currency or ''}")
-    
+
     if event.is_suspicious:
         lines.append(f"  ⚠️ SUSPICIOUS (Risk: {event.risk_score:.2f})")
-    
+
     return "\n".join(lines)

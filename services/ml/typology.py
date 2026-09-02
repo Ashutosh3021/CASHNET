@@ -71,14 +71,14 @@ class TypologyRule(BaseModel):
     description: str
     category: TypologyCategory
     severity: MatchSeverity
-    
+
     # Rule conditions (all must match for a hit)
     conditions: list[RuleCondition]
-    
+
     # Scoring
     base_score: float = 0.5  # Base confidence if rule matches
     score_multiplier: float = 1.0  # Multiplier for additional conditions
-    
+
     # Metadata
     version: int = 1
     is_active: bool = True
@@ -86,7 +86,7 @@ class TypologyRule(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     source: str = "manual"  # "manual", "ml_generated", "community"
     tags: list[str] = []
-    
+
     # Thresholds
     min_match_count: int = 1  # Minimum conditions that must match
     confidence_boost: float = 0.0  # Additional confidence when all match
@@ -99,18 +99,18 @@ class TypologyMatch(BaseModel):
     rule_name: str
     category: TypologyCategory
     severity: MatchSeverity
-    
+
     # Match details
     confidence: float
     matched_conditions: list[str]  # List of matched condition descriptions
     evidence: list[dict[str, Any]]  # Supporting evidence
-    
+
     # Context
     transaction_hash: str | None = None
     address: str | None = None
     chain: str | None = None
     case_id: str | None = None
-    
+
     # Metadata
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_version: str | None = None
@@ -119,15 +119,15 @@ class TypologyMatch(BaseModel):
 
 class TypologyEngine:
     """Main typology detection engine."""
-    
+
     def __init__(self):
         self._rules: dict[str, TypologyRule] = {}
         self._matches: list[TypologyMatch] = []
         self._rule_index: dict[TypologyCategory, list[str]] = {}  # category -> rule_ids
-        
+
         # Load default rules
         self._load_default_rules()
-    
+
     def _load_default_rules(self) -> None:
         """Load built-in typology rules."""
         default_rules = [
@@ -308,28 +308,28 @@ class TypologyEngine:
                 tags=["bridge", "cross_chain", "layering"],
             ),
         ]
-        
+
         for rule in default_rules:
             self._rules[rule.rule_id] = rule
             if rule.category not in self._rule_index:
                 self._rule_index[rule.category] = []
             self._rule_index[rule.category].append(rule.rule_id)
-    
+
     def add_rule(self, rule: TypologyRule) -> TypologyRule:
         """Add or update a typology rule."""
         self._rules[rule.rule_id] = rule
-        
+
         if rule.category not in self._rule_index:
             self._rule_index[rule.category] = []
         if rule.rule_id not in self._rule_index[rule.category]:
             self._rule_index[rule.category].append(rule.rule_id)
-        
+
         return rule
-    
+
     def get_rule(self, rule_id: str) -> TypologyRule | None:
         """Get a rule by ID."""
         return self._rules.get(rule_id)
-    
+
     def remove_rule(self, rule_id: str) -> bool:
         """Remove a rule."""
         rule = self._rules.pop(rule_id, None)
@@ -340,16 +340,16 @@ class TypologyEngine:
                 ]
             return True
         return False
-    
+
     def get_rules_by_category(self, category: TypologyCategory) -> list[TypologyRule]:
         """Get all rules for a category."""
         rule_ids = self._rule_index.get(category, [])
         return [self._rules[rid] for rid in rule_ids if rid in self._rules]
-    
+
     def get_all_active_rules(self) -> list[TypologyRule]:
         """Get all active rules."""
         return [r for r in self._rules.values() if r.is_active]
-    
+
     def evaluate_transaction(
         self,
         transaction: dict[str, Any],
@@ -359,15 +359,15 @@ class TypologyEngine:
         """Evaluate a transaction against all active rules."""
         matches: list[TypologyMatch] = []
         context = context or {}
-        
+
         for rule in self.get_all_active_rules():
             match = self._evaluate_rule(rule, transaction, known_addresses, context)
             if match:
                 matches.append(match)
                 self._matches.append(match)
-        
+
         return matches
-    
+
     def evaluate_address(
         self,
         address: str,
@@ -378,15 +378,15 @@ class TypologyEngine:
         """Evaluate an address against all active rules."""
         matches: list[TypologyMatch] = []
         address_data = address_data or {}
-        
+
         for rule in self.get_all_active_rules():
             match = self._evaluate_address_rule(rule, address, chain, address_data, known_addresses)
             if match:
                 matches.append(match)
                 self._matches.append(match)
-        
+
         return matches
-    
+
     def get_matches(
         self,
         category: TypologyCategory | None = None,
@@ -396,45 +396,45 @@ class TypologyEngine:
     ) -> list[TypologyMatch]:
         """Get detection matches with optional filters."""
         results = self._matches
-        
+
         if category:
             results = [m for m in results if m.category == category]
         if severity:
             results = [m for m in results if m.severity == severity]
         if case_id:
             results = [m for m in results if m.case_id == case_id]
-        
+
         return results[:limit]
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get typology detection statistics."""
         rules = list(self._rules.values())
         matches = self._matches
-        
+
         # Count rules by category
         rules_by_category = {}
         for rule in rules:
             cat = rule.category.value
             rules_by_category[cat] = rules_by_category.get(cat, 0) + 1
-        
+
         # Count matches by category
         matches_by_category = {}
         for match in matches:
             cat = match.category.value
             matches_by_category[cat] = matches_by_category.get(cat, 0) + 1
-        
+
         # Count matches by severity
         matches_by_severity = {}
         for match in matches:
             sev = match.severity.value
             matches_by_severity[sev] = matches_by_severity.get(sev, 0) + 1
-        
+
         # Average confidence
         avg_confidence = (
             sum(m.confidence for m in matches) / len(matches)
             if matches else 0.0
         )
-        
+
         return {
             "total_rules": len(rules),
             "active_rules": sum(1 for r in rules if r.is_active),
@@ -444,7 +444,7 @@ class TypologyEngine:
             "matches_by_severity": matches_by_severity,
             "average_confidence": round(avg_confidence, 4),
         }
-    
+
     def _evaluate_rule(
         self,
         rule: TypologyRule,
@@ -455,7 +455,7 @@ class TypologyEngine:
         """Evaluate a single rule against a transaction."""
         matched_conditions: list[str] = []
         evidence: list[dict[str, Any]] = []
-        
+
         for condition in rule.conditions:
             if self._evaluate_condition(condition, transaction, known_addresses, context):
                 matched_conditions.append(
@@ -468,7 +468,7 @@ class TypologyEngine:
                     "value": condition.value,
                     "actual_value": transaction.get(condition.field),
                 })
-        
+
         # Check if enough conditions matched
         if len(matched_conditions) >= rule.min_match_count:
             # Calculate confidence
@@ -477,7 +477,7 @@ class TypologyEngine:
                 rule.base_score * rule.score_multiplier * match_ratio + rule.confidence_boost,
                 1.0,
             )
-            
+
             import uuid
             return TypologyMatch(
                 match_id=str(uuid.uuid4()),
@@ -493,9 +493,9 @@ class TypologyEngine:
                 chain=transaction.get("chain"),
                 case_id=context.get("case_id"),
             )
-        
+
         return None
-    
+
     def _evaluate_address_rule(
         self,
         rule: TypologyRule,
@@ -507,7 +507,7 @@ class TypologyEngine:
         """Evaluate a single rule against an address."""
         matched_conditions: list[str] = []
         evidence: list[dict[str, Any]] = []
-        
+
         for condition in rule.conditions:
             if self._evaluate_condition(condition, {
                 "address": address,
@@ -523,14 +523,14 @@ class TypologyEngine:
                     "address": address,
                     "chain": chain,
                 })
-        
+
         if len(matched_conditions) >= rule.min_match_count:
             match_ratio = len(matched_conditions) / len(rule.conditions)
             confidence = min(
                 rule.base_score * rule.score_multiplier * match_ratio + rule.confidence_boost,
                 1.0,
             )
-            
+
             import uuid
             return TypologyMatch(
                 match_id=str(uuid.uuid4()),
@@ -544,9 +544,9 @@ class TypologyEngine:
                 address=address,
                 chain=chain,
             )
-        
+
         return None
-    
+
     def _evaluate_condition(
         self,
         condition: RuleCondition,
@@ -556,10 +556,10 @@ class TypologyEngine:
     ) -> bool:
         """Evaluate a single condition."""
         actual_value = data.get(condition.field)
-        
+
         if actual_value is None:
             return False
-        
+
         try:
             if condition.condition_type == RuleConditionType.VALUE_THRESHOLD:
                 if condition.operator == "gt":
@@ -572,25 +572,25 @@ class TypologyEngine:
                     return float(actual_value) <= float(condition.value)
                 elif condition.operator == "eq":
                     return float(actual_value) == float(condition.value)
-            
+
             elif condition.condition_type == RuleConditionType.VALUE_RANGE:
                 min_val, max_val = condition.value
                 return float(min_val) <= float(actual_value) <= float(max_val)
-            
+
             elif condition.condition_type == RuleConditionType.CURRENCY_MATCH:
                 if condition.operator == "eq":
                     return actual_value == condition.value
                 elif condition.operator == "in":
                     return actual_value in condition.value
-            
+
             elif condition.condition_type == RuleConditionType.CHAIN_MATCH:
                 return actual_value == condition.value
-            
+
             elif condition.condition_type == RuleConditionType.ADDRESS_LIST:
                 if known_addresses and condition.value in known_addresses:
                     return actual_value.lower() in {a.lower() for a in known_addresses[condition.value]}
                 return False
-            
+
             elif condition.condition_type == RuleConditionType.PATTERN_MATCH:
                 if condition.operator == "eq":
                     return actual_value == condition.value
@@ -599,41 +599,41 @@ class TypologyEngine:
                 elif condition.operator == "regex":
                     import re
                     return bool(re.search(condition.value, str(actual_value)))
-            
+
             elif condition.condition_type == RuleConditionType.FREQUENCY:
                 if condition.operator == "gte":
                     return int(actual_value) >= int(condition.value)
                 elif condition.operator == "lte":
                     return int(actual_value) <= int(condition.value)
-            
+
             elif condition.condition_type == RuleConditionType.TIME_WINDOW:
                 if condition.operator == "lt":
                     return float(actual_value) < float(condition.value)
                 elif condition.operator == "gt":
                     return float(actual_value) > float(condition.value)
-            
+
             elif condition.condition_type == RuleConditionType.COUNTERPARTY_TYPE:
                 return actual_value == condition.value
-            
+
             elif condition.condition_type == RuleConditionType.RISK_SCORE:
                 if condition.operator == "gt":
                     return float(actual_value) > float(condition.value)
                 elif condition.operator == "lt":
                     return float(actual_value) < float(condition.value)
-            
+
             elif condition.condition_type == RuleConditionType.LABEL_MATCH:
                 if condition.operator == "contains":
                     labels = actual_value if isinstance(actual_value, list) else [actual_value]
                     target = condition.value if isinstance(condition.value, list) else [condition.value]
                     return any(label in labels for label in target)
-            
+
             elif condition.condition_type == RuleConditionType.VELOCITY:
                 if condition.operator == "gte":
                     return int(actual_value) >= int(condition.value)
-        
+
         except (ValueError, TypeError):
             return False
-        
+
         return False
 
 
@@ -647,10 +647,10 @@ def format_typology_match(match: TypologyMatch) -> str:
         "",
         "Matched Conditions:",
     ]
-    
+
     for condition in match.matched_conditions:
         lines.append(f"  - {condition}")
-    
+
     if match.address:
         lines.append(f"\nAddress: {match.address}")
     if match.chain:
@@ -659,5 +659,5 @@ def format_typology_match(match: TypologyMatch) -> str:
         lines.append(f"Transaction: {match.transaction_hash}")
     if match.case_id:
         lines.append(f"Case: {match.case_id}")
-    
+
     return "\n".join(lines)

@@ -5,7 +5,7 @@ Provides role-based and attribute-based access control for all resources.
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -57,7 +57,7 @@ class AccessContext(BaseModel):
     permissions: list[str]
     department: str | None = None
     ip_address: str | None = None
-    timestamp: datetime = datetime.utcnow()
+    timestamp: datetime = datetime.now(timezone.utc)
 
 
 class AccessDecision(BaseModel):
@@ -65,7 +65,7 @@ class AccessDecision(BaseModel):
     allowed: bool
     reason: str
     conditions: list[str] = []
-    evaluated_at: datetime = datetime.utcnow()
+    evaluated_at: datetime = datetime.now(timezone.utc)
 
 
 class Policy(BaseModel):
@@ -82,14 +82,14 @@ class Policy(BaseModel):
 
 class AuthorizationService:
     """RBAC/ABAC Authorization Service."""
-    
+
     def __init__(self):
         self.policies: list[Policy] = []
         self._setup_default_policies()
-    
+
     def _setup_default_policies(self):
         """Setup default RBAC policies."""
-        
+
         # Admin can do everything
         self.policies.append(Policy(
             id="admin-all",
@@ -101,7 +101,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role == UserRole.ADMIN],
             priority=100,
         ))
-        
+
         # Supervisor policies
         self.policies.append(Policy(
             id="supervisor-case-assign",
@@ -113,7 +113,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role == UserRole.SUPERVISOR],
             priority=90,
         ))
-        
+
         self.policies.append(Policy(
             id="supervisor-approve",
             name="Supervisor Can Approve Actions",
@@ -124,7 +124,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role in [UserRole.SUPERVISOR, UserRole.ADMIN]],
             priority=90,
         ))
-        
+
         # Investigator policies
         self.policies.append(Policy(
             id="investigator-case-read",
@@ -139,7 +139,7 @@ class AuthorizationService:
             ],
             priority=80,
         ))
-        
+
         self.policies.append(Policy(
             id="investigator-case-update",
             name="Investigator Can Update Assigned Cases",
@@ -153,7 +153,7 @@ class AuthorizationService:
             ],
             priority=80,
         ))
-        
+
         # Analyst policies
         self.policies.append(Policy(
             id="analyst-read-only",
@@ -165,7 +165,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role == UserRole.ANALYST],
             priority=70,
         ))
-        
+
         # Viewer policies
         self.policies.append(Policy(
             id="viewer-read-only",
@@ -177,7 +177,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role == UserRole.VIEWER],
             priority=60,
         ))
-        
+
         # Deny policies (higher priority)
         self.policies.append(Policy(
             id="deny-delete-non-admin",
@@ -189,7 +189,7 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role != UserRole.ADMIN],
             priority=200,
         ))
-        
+
         self.policies.append(Policy(
             id="deny-approve-non-supervisor",
             name="Deny Approve for Non-Supervisors",
@@ -200,11 +200,11 @@ class AuthorizationService:
             conditions=[lambda ctx, res: ctx.user_role not in [UserRole.SUPERVISOR, UserRole.ADMIN]],
             priority=200,
         ))
-    
+
     def add_policy(self, policy: Policy) -> None:
         """Add a custom policy."""
         self.policies.append(policy)
-    
+
     def remove_policy(self, policy_id: str) -> bool:
         """Remove a policy by ID."""
         for i, policy in enumerate(self.policies):
@@ -212,7 +212,7 @@ class AuthorizationService:
                 self.policies.pop(i)
                 return True
         return False
-    
+
     def evaluate(
         self,
         context: AccessContext,
@@ -222,33 +222,33 @@ class AuthorizationService:
         """Evaluate access control for a request."""
         # Sort policies by priority (highest first)
         sorted_policies = sorted(self.policies, key=lambda p: p.priority, reverse=True)
-        
+
         # Check policies in priority order
         for policy in sorted_policies:
             # Check if policy applies to this resource type and action
             if policy.resource_type != resource.type or policy.action != action:
                 continue
-            
+
             # Evaluate all conditions
             conditions_met = all(
                 condition(context, resource)
                 for condition in policy.conditions
             )
-            
+
             if conditions_met:
                 return AccessDecision(
                     allowed=policy.effect == "allow",
                     reason=f"Policy '{policy.name}' matched",
                     conditions=[f"Effect: {policy.effect}"],
                 )
-        
+
         # Default deny if no policy matches
         return AccessDecision(
             allowed=False,
             reason="No matching policy found",
             conditions=["Default deny"],
         )
-    
+
     def check_permission(
         self,
         context: AccessContext,
@@ -260,16 +260,16 @@ class AuthorizationService:
                 allowed=True,
                 reason="Permission granted",
             )
-        
+
         return AccessDecision(
             allowed=False,
             reason=f"Permission '{permission.value}' not granted",
         )
-    
+
     def get_user_permissions(self, role: UserRole) -> list[str]:
         """Get all permissions for a role."""
         return [p.value for p in ROLE_PERMISSIONS.get(role, [])]
-    
+
     def filter_resources(
         self,
         context: AccessContext,

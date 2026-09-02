@@ -20,23 +20,23 @@ from .base import (
 
 class NCRPConnector(IntegrationAdapter):
     """NCRP API connector for case intake and tracking."""
-    
+
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self._integration_type = IntegrationType.NCRP
-        
+
         # Configuration
         self.api_url = config.get("api_url", "https://api.ncrp.gov.in/v1")
         self.api_key = config.get("api_key")
         self.org_id = config.get("org_id")
         self.timeout = config.get("timeout", 30)
-        
+
         # HTTP client
         self._client: httpx.AsyncClient | None = None
-        
+
         # Case mapping
         self._case_mapping: dict[str, str] = {}
-    
+
     async def connect(self) -> bool:
         """Connect to NCRP API."""
         try:
@@ -44,58 +44,58 @@ class NCRPConnector(IntegrationAdapter):
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             }
-            
+
             if self.api_key:
                 headers["Authorization"] = f"Bearer {self.api_key}"
-            
+
             if self.org_id:
                 headers["X-Organization-ID"] = self.org_id
-            
+
             self._client = httpx.AsyncClient(
                 base_url=self.api_url,
                 timeout=self.timeout,
                 headers=headers,
             )
-            
+
             # Test connection
             response = await self._client.get("/status")
             if response.status_code == 200:
                 print("Connected to NCRP API")
                 return True
-            
+
             return False
-            
+
         except Exception as e:
             print(f"Failed to connect to NCRP: {e}")
             return False
-    
+
     async def disconnect(self) -> None:
         """Disconnect from NCRP API."""
         if self._client:
             await self._client.aclose()
-    
+
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a case to NCRP (for outbound reporting)."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             # Transform to NCRP format
             ncrp_payload = self._transform_case_to_ncrp(case_data)
-            
+
             response = await self._client.post(
                 "/complaints",
                 json=ncrp_payload,
             )
-            
+
             if response.status_code == 201:
                 result = response.json()
                 ncrp_complaint_id = result.get("complaint_id")
-                
+
                 cashnet_case_id = case_data.get("case_id")
                 if cashnet_case_id and ncrp_complaint_id:
                     self._case_mapping[cashnet_case_id] = ncrp_complaint_id
-                
+
                 return IntegrationResponse(
                     request_id=case_data.get("request_id", ""),
                     status=IntegrationStatus.COMPLETED,
@@ -114,22 +114,22 @@ class NCRPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=error_data.get("error", f"HTTP {response.status_code}"),
                 )
-                
+
         except Exception as e:
             return IntegrationResponse(
                 request_id=case_data.get("request_id", ""),
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def get_case_status(self, external_id: str) -> IntegrationResponse:
         """Get case status from NCRP."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.get(f"/complaints/{external_id}")
-            
+
             if response.status_code == 200:
                 result = response.json()
                 return IntegrationResponse(
@@ -151,30 +151,30 @@ class NCRPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"Failed to get status: HTTP {response.status_code}",
                 )
-                
+
         except Exception as e:
             return IntegrationResponse(
                 request_id=external_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def receive_case(self, external_data: dict[str, Any]) -> dict[str, Any]:
         """Receive a case from NCRP (inbound complaint)."""
         return self._transform_ncrp_to_cashnet(external_data)
-    
+
     async def health_check(self) -> bool:
         """Check NCRP API health."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.get("/status")
             return response.status_code == 200
-            
+
         except Exception:
             return False
-    
+
     async def update_investigation(
         self,
         ncrp_complaint_id: str,
@@ -184,12 +184,12 @@ class NCRPConnector(IntegrationAdapter):
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.patch(
                 f"/complaints/{ncrp_complaint_id}/investigation",
                 json=investigation_data,
             )
-            
+
             if response.status_code == 200:
                 return IntegrationResponse(
                     request_id=ncrp_complaint_id,
@@ -203,14 +203,14 @@ class NCRPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"Update failed: HTTP {response.status_code}",
                 )
-                
+
         except Exception as e:
             return IntegrationResponse(
                 request_id=ncrp_complaint_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def add_evidence(
         self,
         ncrp_complaint_id: str,
@@ -220,12 +220,12 @@ class NCRPConnector(IntegrationAdapter):
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.post(
                 f"/complaints/{ncrp_complaint_id}/evidence",
                 json=evidence_data,
             )
-            
+
             if response.status_code == 201:
                 return IntegrationResponse(
                     request_id=ncrp_complaint_id,
@@ -239,14 +239,14 @@ class NCRPConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"Failed to add evidence: HTTP {response.status_code}",
                 )
-                
+
         except Exception as e:
             return IntegrationResponse(
                 request_id=ncrp_complaint_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     def _transform_case_to_ncrp(self, case_data: dict[str, Any]) -> dict[str, Any]:
         """Transform CashNet case to NCRP format."""
         return {
@@ -273,7 +273,7 @@ class NCRPConnector(IntegrationAdapter):
                 "source": "CASHNET",
             },
         }
-    
+
     def _transform_ncrp_to_cashnet(self, ncrp_data: dict[str, Any]) -> dict[str, Any]:
         """Transform NCRP complaint to CashNet format."""
         return {
@@ -294,7 +294,7 @@ class NCRPConnector(IntegrationAdapter):
             "fir_number": ncrp_data.get("fir_number"),
             "station_code": ncrp_data.get("station_code"),
         }
-    
+
     def _map_complaint_type(self, fraud_type: str | None) -> str:
         """Map CashNet fraud type to NCRP complaint type."""
         mapping = {
@@ -305,7 +305,7 @@ class NCRPConnector(IntegrationAdapter):
             "RANSOMWARE": "RANSOMWARE",
         }
         return mapping.get(fraud_type or "", "OTHER")
-    
+
     def _reverse_map_complaint_type(self, ncrp_type: str | None) -> str:
         """Map NCRP complaint type to CashNet fraud type."""
         mapping = {
@@ -316,7 +316,7 @@ class NCRPConnector(IntegrationAdapter):
             "RANSOMWARE": "RANSOMWARE",
         }
         return mapping.get(ncrp_type or "", "OTHER")
-    
+
     def _map_ncrp_status(self, ncrp_status: str | None) -> IntegrationStatus:
         """Map NCRP status to IntegrationStatus."""
         mapping = {

@@ -20,24 +20,24 @@ from .base import (
 
 class SAHYOGConnector(IntegrationAdapter):
     """SAHYOG API connector for case submission and tracking."""
-    
+
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self._integration_type = IntegrationType.SAHYOG
-        
+
         # Configuration
         self.api_url = config.get("api_url", "https://api.sahyog.gov.in/v1")
         self.api_key = config.get("api_key")
         self.client_id = config.get("client_id")
         self.timeout = config.get("timeout", 30)
         self.retry_attempts = config.get("retry_attempts", 3)
-        
+
         # HTTP client
         self._client: httpx.AsyncClient | None = None
-        
+
         # Case mapping (CashNet case_id -> SAHYOG case_id)
         self._case_mapping: dict[str, str] = {}
-    
+
     async def connect(self) -> bool:
         """Connect to SAHYOG API."""
         try:
@@ -45,60 +45,60 @@ class SAHYOGConnector(IntegrationAdapter):
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             }
-            
+
             if self.api_key:
                 headers["X-API-Key"] = self.api_key
-            
+
             if self.client_id:
                 headers["X-Client-ID"] = self.client_id
-            
+
             self._client = httpx.AsyncClient(
                 base_url=self.api_url,
                 timeout=self.timeout,
                 headers=headers,
             )
-            
+
             # Test connection with health endpoint
             response = await self._client.get("/health")
             if response.status_code == 200:
                 print("Connected to SAHYOG API")
                 return True
-            
+
             return False
-            
+
         except (httpx.ConnectError, httpx.TimeoutException, OSError) as e:
             print(f"Failed to connect to SAHYOG: {e}")
             return False
-    
+
     async def disconnect(self) -> None:
         """Disconnect from SAHYOG API."""
         if self._client:
             await self._client.aclose()
-    
+
     async def submit_case(self, case_data: dict[str, Any]) -> IntegrationResponse:
         """Submit a case to SAHYOG."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             # Transform case data to SAHYOG format
             sahyog_payload = self._transform_case_to_sahyog(case_data)
-            
+
             # Submit to SAHYOG
             response = await self._client.post(
                 "/cases",
                 json=sahyog_payload,
             )
-            
+
             if response.status_code == 201:
                 result = response.json()
                 sahyog_case_id = result.get("case_id")
-                
+
                 # Store mapping
                 cashnet_case_id = case_data.get("case_id")
                 if cashnet_case_id and sahyog_case_id:
                     self._case_mapping[cashnet_case_id] = sahyog_case_id
-                
+
                 return IntegrationResponse(
                     request_id=case_data.get("request_id", ""),
                     status=IntegrationStatus.COMPLETED,
@@ -116,22 +116,22 @@ class SAHYOGConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=error_data.get("error", f"HTTP {response.status_code}"),
                 )
-                
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=case_data.get("request_id", ""),
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def get_case_status(self, external_id: str) -> IntegrationResponse:
         """Get case status from SAHYOG."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.get(f"/cases/{external_id}/status")
-            
+
             if response.status_code == 200:
                 result = response.json()
                 return IntegrationResponse(
@@ -151,31 +151,31 @@ class SAHYOGConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"Failed to get status: HTTP {response.status_code}",
                 )
-                
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=external_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def receive_case(self, external_data: dict[str, Any]) -> dict[str, Any]:
         """Receive a case from SAHYOG (inbound)."""
         # Transform SAHYOG format to CashNet format
         return self._transform_sahyog_to_cashnet(external_data)
-    
+
     async def health_check(self) -> bool:
         """Check SAHYOG API health."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.get("/health")
             return response.status_code == 200
-            
+
         except httpx.RequestError:
             return False
-    
+
     async def update_case(
         self,
         cashnet_case_id: str,
@@ -190,12 +190,12 @@ class SAHYOGConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message="No SAHYOG case ID mapping found",
                 )
-            
+
             response = await self._client.patch(
                 f"/cases/{sahyog_case_id}",
                 json=update_data,
             )
-            
+
             if response.status_code == 200:
                 return IntegrationResponse(
                     request_id=cashnet_case_id,
@@ -209,30 +209,30 @@ class SAHYOGConnector(IntegrationAdapter):
                     status=IntegrationStatus.FAILED,
                     error_message=f"Update failed: HTTP {response.status_code}",
                 )
-                
+
         except (httpx.RequestError, ValueError, KeyError) as e:
             return IntegrationResponse(
                 request_id=cashnet_case_id,
                 status=IntegrationStatus.FAILED,
                 error_message=str(e),
             )
-    
+
     async def get_case_history(self, external_id: str) -> list[dict[str, Any]]:
         """Get case history from SAHYOG."""
         try:
             if not self._client:
                 await self.connect()
-            
+
             response = await self._client.get(f"/cases/{external_id}/history")
-            
+
             if response.status_code == 200:
                 return response.json().get("history", [])
-            
+
             return []
-            
+
         except (httpx.RequestError, ValueError):
             return []
-    
+
     def _transform_case_to_sahyog(self, case_data: dict[str, Any]) -> dict[str, Any]:
         """Transform CashNet case data to SAHYOG format."""
         return {
@@ -257,7 +257,7 @@ class SAHYOGConnector(IntegrationAdapter):
                 "cashnet_reference": case_data.get("case_reference"),
             },
         }
-    
+
     def _transform_sahyog_to_cashnet(self, sahyog_data: dict[str, Any]) -> dict[str, Any]:
         """Transform SAHYOG case data to CashNet format."""
         return {
@@ -275,7 +275,7 @@ class SAHYOGConnector(IntegrationAdapter):
             "external_id": sahyog_data.get("case_id"),
             "external_reference": sahyog_data.get("reference_number"),
         }
-    
+
     def _map_fraud_type(self, fraud_type: str | None) -> str:
         """Map CashNet fraud type to SAHYOG format."""
         mapping = {
@@ -286,7 +286,7 @@ class SAHYOGConnector(IntegrationAdapter):
             "RANSOMWARE": "CYBER_CRIME",
         }
         return mapping.get(fraud_type or "", "OTHER")
-    
+
     def _reverse_map_fraud_type(self, sahyog_type: str | None) -> str:
         """Map SAHYOG fraud type to CashNet format."""
         mapping = {
@@ -296,7 +296,7 @@ class SAHYOGConnector(IntegrationAdapter):
             "CYBER_CRIME": "PHISHING",
         }
         return mapping.get(sahyog_type or "", "OTHER")
-    
+
     def _map_priority(self, priority: str | None) -> str:
         """Map CashNet priority to SAHYOG format."""
         mapping = {
@@ -306,7 +306,7 @@ class SAHYOGConnector(IntegrationAdapter):
             "LOW": "LOW",
         }
         return mapping.get(priority or "", "MEDIUM")
-    
+
     def _map_sahyog_status(self, sahyog_status: str | None) -> IntegrationStatus:
         """Map SAHYOG status to IntegrationStatus."""
         mapping = {

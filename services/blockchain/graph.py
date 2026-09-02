@@ -13,13 +13,13 @@ from .base import AddressType, ChainType, NormalizedTransaction, TransactionType
 
 class GraphService:
     """Graph database service using Neo4j."""
-    
+
     def __init__(self, uri: str, user: str, password: str):
         self.uri = uri
         self.user = user
         self.password = password
         self.driver: AsyncDriver | None = None
-    
+
     async def connect(self) -> bool:
         """Connect to Neo4j database."""
         try:
@@ -34,12 +34,12 @@ class GraphService:
         except Exception as e:
             print(f"Failed to connect to Neo4j: {e}")
             return False
-    
+
     async def disconnect(self) -> None:
         """Close the driver."""
         if self.driver:
             await self.driver.close()
-    
+
     async def create_indexes(self) -> None:
         """Create necessary indexes for performance."""
         async with self.driver.session() as session:
@@ -47,27 +47,27 @@ class GraphService:
             await session.run(
                 "CREATE INDEX IF NOT EXISTS FOR (a:Address) ON (a.address)"
             )
-            
+
             # Transaction index
             await session.run(
                 "CREATE INDEX IF NOT EXISTS FOR (t:Transaction) ON (t.tx_hash)"
             )
-            
+
             # Block index
             await session.run(
                 "CREATE INDEX IF NOT EXISTS FOR (b:Block) ON (b.number)"
             )
-            
+
             # Chain index
             await session.run(
                 "CREATE INDEX IF NOT EXISTS FOR (a:Address) ON (a.chain)"
             )
-            
+
             # Composite index for address + chain
             await session.run(
                 "CREATE INDEX IF NOT EXISTS FOR (a:Address) ON (a.address, a.chain)"
             )
-    
+
     async def store_transaction(self, transaction: NormalizedTransaction) -> bool:
         """Store a normalized transaction in the graph."""
         try:
@@ -89,7 +89,7 @@ class GraphService:
                     from_type=transaction.from_address_type.value if isinstance(transaction.from_address_type, AddressType) else transaction.from_address_type,
                     to_type=transaction.to_address_type.value if isinstance(transaction.to_address_type, AddressType) else transaction.to_address_type,
                 )
-                
+
                 # Create transaction and relationships
                 await session.run(
                     """
@@ -123,13 +123,13 @@ class GraphService:
                     is_suspicious=transaction.is_suspicious,
                     risk_score=transaction.risk_score or 0.0,
                 )
-                
+
                 return True
-                
+
         except Exception as e:
             print(f"Error storing transaction: {e}")
             return False
-    
+
     async def store_transactions_batch(
         self,
         transactions: list[NormalizedTransaction],
@@ -140,7 +140,7 @@ class GraphService:
             if await self.store_transaction(tx):
                 count += 1
         return count
-    
+
     async def get_address_transactions(
         self,
         address: str,
@@ -168,7 +168,7 @@ class GraphService:
                     chain=chain.value,
                     limit=limit,
                 )
-                
+
                 transactions = []
                 async for record in result:
                     tx = record["tx"]
@@ -182,13 +182,13 @@ class GraphService:
                             "is_suspicious": tx["is_suspicious"],
                             "risk_score": tx["risk_score"],
                         })
-                
+
                 return transactions
-                
+
         except Exception as e:
             print(f"Error getting address transactions: {e}")
             return []
-    
+
     async def find_paths(
         self,
         from_address: str,
@@ -225,7 +225,7 @@ class GraphService:
                     min_value=min_value,
                     max_time_days=max_time_days,
                 )
-                
+
                 paths = []
                 async for record in result:
                     path_data = []
@@ -235,13 +235,13 @@ class GraphService:
                             "data": dict(node),
                         })
                     paths.append(path_data)
-                
+
                 return paths
-                
+
         except Exception as e:
             print(f"Error finding paths: {e}")
             return []
-    
+
     async def get_transaction_graph(
         self,
         address: str,
@@ -294,20 +294,20 @@ class GraphService:
                     address=address,
                     chain=chain.value,
                 )
-                
+
                 record = await result.single()
                 if record:
                     return {
                         "nodes": record["center_nodes"] + record["connected_nodes"],
                         "relationships": record["relationships"],
                     }
-                
+
                 return {"nodes": [], "relationships": []}
-                
+
         except Exception as e:
             print(f"Error getting transaction graph: {e}")
             return {"nodes": [], "relationships": []}
-    
+
     async def get_address_risk_score(
         self,
         address: str,
@@ -351,25 +351,25 @@ class GraphService:
                     address=address,
                     chain=chain.value,
                 )
-                
+
                 record = await result.single()
                 if record:
                     # Calculate risk score
                     risk_score = 0.0
-                    
+
                     # Suspicious transaction ratio
                     total_tx = record["outgoing_count"] + record["incoming_count"]
                     if total_tx > 0:
                         suspicious_ratio = (record["suspicious_out"] + record["suspicious_in"]) / total_tx
                         risk_score += suspicious_ratio * 0.4
-                    
+
                     # Average risk score of transactions
                     risk_score += (record["avg_risk_score"] or 0) * 0.3
-                    
+
                     # Risky connections
                     if record["risky_connections"] > 0:
                         risk_score += min(record["risky_connections"] * 0.1, 0.3)
-                    
+
                     return {
                         "address": record["address"],
                         "risk_score": min(risk_score, 1.0),
@@ -381,13 +381,13 @@ class GraphService:
                         "total_in_value": record["total_in_value"],
                         "risky_connections": record["risky_connections"],
                     }
-                
+
                 return {"address": address, "risk_score": 0.0}
-                
+
         except Exception as e:
             print(f"Error calculating risk score: {e}")
             return {"address": address, "risk_score": 0.0}
-    
+
     async def cleanup_old_data(self, days: int = 365) -> int:
         """Clean up data older than specified days."""
         try:
@@ -401,10 +401,10 @@ class GraphService:
                     """,
                     days=days,
                 )
-                
+
                 record = await result.single()
                 return record["deleted"] if record else 0
-                
+
         except Exception as e:
             print(f"Error cleaning up old data: {e}")
             return 0

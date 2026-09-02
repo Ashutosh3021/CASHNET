@@ -51,7 +51,7 @@ class PipelineBundle:
                         io.write_out(mid, payload, "pred", case_id=str(cid))
                     summary["consolidated_actions"].extend(payload.get("routing_action_list", []))
                 summary["per_model"][mid] = {"n": len(records), "status": "ok"}
-            except Exception as e:  # error isolation: one model must not block others
+            except (ValueError, AttributeError, KeyError, TypeError) as e:  # error isolation: one model must not block others
                 summary["errors"].append({"model": mid, "error": str(e)})
                 summary["per_model"][mid] = {"status": "failed", "error": str(e)}
                 traceback.print_exc()

@@ -50,25 +50,25 @@ class MixerSignal(BaseModel):
     signal_id: str
     address: str
     chain: str
-    
+
     # Detection details
     mixer_type: MixerType
     detection_method: DetectionMethod
     confidence: float  # 0.0 to 1.0
     risk_level: MixerRiskLevel
-    
+
     # Evidence
     evidence: list[dict[str, Any]] = []
     indicators: list[str] = []
-    
+
     # Known references
     known_mixer_address: str | None = None
     mixer_contract: str | None = None
-    
+
     # Context
     transaction_hash: str | None = None
     case_id: str | None = None
-    
+
     # Metadata
     detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, Any] = {}
@@ -81,13 +81,13 @@ class KnownMixer(BaseModel):
     mixer_type: MixerType
     name: str
     risk_level: MixerRiskLevel
-    
+
     # Details
     total_volume: float = 0.0
     transaction_count: int = 0
     first_seen: datetime | None = None
     last_seen: datetime | None = None
-    
+
     # Metadata
     source: str = "manual"  # "manual", "verified", "community"
     tags: list[str] = []
@@ -96,15 +96,15 @@ class KnownMixer(BaseModel):
 
 class MixerDetector:
     """Mixer/Tumbler detection service."""
-    
+
     def __init__(self):
         self._known_mixers: dict[str, KnownMixer] = {}  # key: chain:address
         self._signals: list[MixerSignal] = []
         self._address_index: dict[str, list[str]] = {}  # address -> [signal_ids]
-        
+
         # Load known mixers
         self._load_known_mixers()
-    
+
     def _load_known_mixers(self) -> None:
         """Load known mixer addresses."""
         known_mixers = [
@@ -156,17 +156,17 @@ class MixerDetector:
                 tags=["chipmixer", "seized"],
             ),
         ]
-        
+
         for mixer in known_mixers:
             key = f"{mixer.chain}:{mixer.address.lower()}"
             self._known_mixers[key] = mixer
-    
+
     def register_known_mixer(self, mixer: KnownMixer) -> KnownMixer:
         """Register a known mixer."""
         key = f"{mixer.chain}:{mixer.address.lower()}"
         self._known_mixers[key] = mixer
         return mixer
-    
+
     def check_address(
         self,
         address: str,
@@ -176,41 +176,41 @@ class MixerDetector:
     ) -> list[MixerSignal]:
         """Check an address for mixer indicators."""
         signals: list[MixerSignal] = []
-        
+
         # Check known mixer list
         known_signal = self._check_known_mixers(address, chain, case_id)
         if known_signal:
             signals.append(known_signal)
-        
+
         # Check transaction patterns
         if transaction_data:
             pattern_signals = self._check_patterns(address, chain, transaction_data, case_id)
             signals.extend(pattern_signals)
-            
+
             # Check amount analysis
             amount_signal = self._check_amounts(address, chain, transaction_data, case_id)
             if amount_signal:
                 signals.append(amount_signal)
-            
+
             # Check timing analysis
             timing_signal = self._check_timing(address, chain, transaction_data, case_id)
             if timing_signal:
                 signals.append(timing_signal)
-        
+
         # Store signals
         for signal in signals:
             self._signals.append(signal)
             if address not in self._address_index:
                 self._address_index[address.lower()] = []
             self._address_index[address.lower()].append(signal.signal_id)
-        
+
         return signals
-    
+
     def get_signals_for_address(self, address: str) -> list[MixerSignal]:
         """Get all mixer signals for an address."""
         signal_ids = self._address_index.get(address.lower(), [])
         return [s for s in self._signals if s.signal_id in signal_ids]
-    
+
     def get_all_signals(
         self,
         chain: str | None = None,
@@ -220,16 +220,16 @@ class MixerDetector:
     ) -> list[MixerSignal]:
         """Get all mixer signals with optional filters."""
         results = self._signals
-        
+
         if chain:
             results = [s for s in results if s.chain == chain]
         if mixer_type:
             results = [s for s in results if s.mixer_type == mixer_type]
         if risk_level:
             results = [s for s in results if s.risk_level == risk_level]
-        
+
         return results[:limit]
-    
+
     def get_known_mixers(
         self,
         chain: str | None = None,
@@ -237,43 +237,43 @@ class MixerDetector:
     ) -> list[KnownMixer]:
         """Get all known mixers."""
         results = list(self._known_mixers.values())
-        
+
         if chain:
             results = [m for m in results if m.chain == chain]
         if mixer_type:
             results = [m for m in results if m.mixer_type == mixer_type]
-        
+
         return results
-    
+
     def get_statistics(self) -> dict[str, Any]:
         """Get mixer detection statistics."""
         signals = self._signals
         known = list(self._known_mixers.values())
-        
+
         # Count signals by type
         signals_by_type = {}
         for s in signals:
             mtype = s.mixer_type.value
             signals_by_type[mtype] = signals_by_type.get(mtype, 0) + 1
-        
+
         # Count signals by risk level
         signals_by_risk = {}
         for s in signals:
             risk = s.risk_level.value
             signals_by_risk[risk] = signals_by_risk.get(risk, 0) + 1
-        
+
         # Count known mixers by chain
         known_by_chain = {}
         for m in known:
             chain = m.chain
             known_by_chain[chain] = known_by_chain.get(chain, 0) + 1
-        
+
         # Average confidence
         avg_confidence = (
             sum(s.confidence for s in signals) / len(signals)
             if signals else 0.0
         )
-        
+
         return {
             "total_signals": len(signals),
             "unique_addresses": len(self._address_index),
@@ -283,7 +283,7 @@ class MixerDetector:
             "known_by_chain": known_by_chain,
             "average_confidence": round(avg_confidence, 4),
         }
-    
+
     def _check_known_mixers(
         self,
         address: str,
@@ -293,7 +293,7 @@ class MixerDetector:
         """Check if address is a known mixer."""
         key = f"{chain}:{address.lower()}"
         known = self._known_mixers.get(key)
-        
+
         if known:
             import uuid
             return MixerSignal(
@@ -313,9 +313,9 @@ class MixerDetector:
                 known_mixer_address=address,
                 case_id=case_id,
             )
-        
+
         return None
-    
+
     def _check_patterns(
         self,
         address: str,
@@ -325,7 +325,7 @@ class MixerDetector:
     ) -> list[MixerSignal]:
         """Check for mixer transaction patterns."""
         signals = []
-        
+
         # Pattern 1: Multiple inputs to single output (consolidation)
         input_count = transaction_data.get("input_count", 0)
         if input_count >= 5:
@@ -338,7 +338,7 @@ class MixerDetector:
                 [f"Transaction has {input_count} inputs (consolidation pattern)"],
                 case_id,
             ))
-        
+
         # Pattern 2: Fixed denomination amounts
         amounts = transaction_data.get("amounts", [])
         if amounts:
@@ -353,9 +353,9 @@ class MixerDetector:
                     [f"Fixed denomination amounts detected: {unique_amounts}"],
                     case_id,
                 ))
-        
+
         return signals
-    
+
     def _check_amounts(
         self,
         address: str,
@@ -366,7 +366,7 @@ class MixerDetector:
         """Check for suspicious amount patterns."""
         # Check for amounts that are powers of 2 (common in mixers)
         amounts = transaction_data.get("amounts", [])
-        
+
         for amount in amounts:
             if amount > 0 and (amount & (amount - 1)) == 0:  # Power of 2
                 return self._create_signal(
@@ -378,9 +378,9 @@ class MixerDetector:
                     [f"Power-of-2 amount detected: {amount}"],
                     case_id,
                 )
-        
+
         return None
-    
+
     def _check_timing(
         self,
         address: str,
@@ -391,20 +391,20 @@ class MixerDetector:
         """Check for suspicious timing patterns."""
         # Check for uniform time intervals (automated mixing)
         timestamps = transaction_data.get("timestamps", [])
-        
+
         if len(timestamps) >= 3:
             intervals = [
                 timestamps[i+1] - timestamps[i]
                 for i in range(len(timestamps) - 1)
             ]
-            
+
             # Check if intervals are very similar (automated)
             if intervals:
                 avg_interval = sum(intervals) / len(intervals)
                 if avg_interval > 0:
                     variance = sum((i - avg_interval) ** 2 for i in intervals) / len(intervals)
                     cv = (variance ** 0.5) / avg_interval if avg_interval > 0 else 0
-                    
+
                     if cv < 0.1:  # Very uniform intervals
                         return self._create_signal(
                             address, chain,
@@ -415,9 +415,9 @@ class MixerDetector:
                             [f"Uniform transaction intervals detected (CV: {cv:.3f})"],
                             case_id,
                         )
-        
+
         return None
-    
+
     def _create_signal(
         self,
         address: str,
@@ -431,7 +431,7 @@ class MixerDetector:
     ) -> MixerSignal:
         """Create a mixer signal."""
         import uuid
-        
+
         return MixerSignal(
             signal_id=str(uuid.uuid4()),
             address=address.lower(),
@@ -458,11 +458,11 @@ def format_mixer_signal(signal: MixerSignal) -> str:
         "",
         "Indicators:",
     ]
-    
+
     for indicator in signal.indicators:
         lines.append(f"  - {indicator}")
-    
+
     if signal.known_mixer_address:
         lines.append(f"\nKnown Mixer: {signal.known_mixer_address}")
-    
+
     return "\n".join(lines)

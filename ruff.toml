@@ -1,0 +1,11 @@
+[lint]
+select = ["E", "F", "W", "C", "B", "A", "DTZ", "RUF", "UP", "SIM", "TRY"]
+ignore = ["E501", "BLE001", "SIM102"]  # Ignore line length, blind exceptions, and nested if simplification
+
+[lint.per-file-ignores]
+# Disable BLE001 for blockchain adapters (external API integrations)
+"services/blockchain/*.py" = ["BLE001"]
+"scripts/*.py" = ["BLE001"]  # Allow in scripts for error resilience
+
+[format]
+quote-style = "double"

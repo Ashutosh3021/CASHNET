@@ -323,7 +323,7 @@ async def get_finding(finding_id: str) -> dict[str, Any]:
 
 @findings_router.post("/{finding_id}/adjudications", status_code=status.HTTP_201_CREATED)
 async def create_adjudication(finding_id: str, payload: AdjudicationInput) -> dict[str, Any]:
-    attribution = ServiceRegistry.get("attribution")
+    _ = ServiceRegistry.get("attribution")
     return {
         "adjudication_id": str(uuid.uuid4()),
         "finding_id": finding_id,
@@ -485,7 +485,7 @@ async def reject_action_request(request_id: str, payload: ActionApproveInput) ->
 
 @action_router.post("/{request_id}/send")
 async def send_action_request(request_id: str) -> dict[str, Any]:
-    vasp = ServiceRegistry.get("vasp")
+    _ = ServiceRegistry.get("vasp")
     return {
         "request_id": request_id,
         "sent_at": datetime.now(timezone.utc).isoformat(),
@@ -527,7 +527,7 @@ clusters_router = APIRouter(prefix="/clusters", tags=["clusters"])
 
 @clusters_router.post("", status_code=status.HTTP_201_CREATED)
 async def create_cluster(payload: ClusterInput) -> dict[str, Any]:
-    attribution = ServiceRegistry.get("attribution")
+    _ = ServiceRegistry.get("attribution")
     return {
         "cluster_id": str(uuid.uuid4()),
         "name": payload.name,
@@ -806,7 +806,7 @@ async def get_freshness_overview() -> dict[str, Any]:
 
 @freshness_router.get("/chains")
 async def get_chain_freshness() -> dict[str, Any]:
-    monitor = ServiceRegistry.get("freshness")
+    _ = ServiceRegistry.get("freshness")
     return {
         "chains": [
             {
