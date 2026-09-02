@@ -45,6 +45,30 @@ from .enhanced_bridge import (
     BridgeProtocol,
     SwapProtocol,
 )
+from .notifications import (
+    RealtimeNotificationService,
+    Recipient,
+    AlertRule,
+    DeliveryProvider,
+    RealtimeNotification,
+    AlertType,
+    MessageChannel,
+    DeliveryStatus,
+    format_notification_for_slack,
+)
+from .intelligence_sharing import (
+    CrossAgencySharingService,
+    SharingPolicy,
+    RedactionRule,
+    IntelligencePackage,
+    Agency,
+    AccessLogEntry,
+    IntelligenceRecord,
+    SharingScope,
+    ClassificationLevel,
+    ShareStatus,
+    RedactionAction,
+)
 
 __all__ = [
     # Typology
@@ -88,4 +112,26 @@ __all__ = [
     "SwapPattern",
     "BridgeProtocol",
     "SwapProtocol",
+    
+    # Real-time Notifications
+    "RealtimeNotificationService",
+    "Recipient",
+    "AlertRule",
+    "DeliveryProvider",
+    "RealtimeNotification",
+    "AlertType",
+    "MessageChannel",
+    "DeliveryStatus",
+    
+    # Cross-Agency Intelligence Sharing
+    "CrossAgencySharingService",
+    "SharingPolicy",
+    "RedactionRule",
+    "IntelligencePackage",
+    "Agency",
+    "AccessLogEntry",
+    "IntelligenceRecord",
+    "SharingScope",
+    "ClassificationLevel",
+    "ShareStatus",
 ]
