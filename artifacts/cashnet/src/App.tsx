@@ -24,6 +24,15 @@ import HistoricalActivityPage from '@/components/historical-activity-page';
 import PredictiveEnginePage from '@/components/predictive-engine-page';
 import AlertsPage from '@/components/alerts-page';
 
+import { setBaseUrl } from '@workspace/api-client-react';
+
+// Wire the API client to the backend URL at startup.
+// VITE_API_BASE_URL is set in Vercel environment variables.
+// Falls back to relative paths (same-origin) for local dev.
+if (import.meta.env.VITE_API_BASE_URL) {
+  setBaseUrl(import.meta.env.VITE_API_BASE_URL);
+}
+
 const queryClient = new QueryClient();
 
 const money = (value?: number) => typeof value === 'number'
