@@ -226,15 +226,42 @@ def _train_model_184() -> tuple[Any, dict[str, Any]]:
             }
 
         # Simple feature extraction: text length, word count
+        # CFPB uses "Consumer complaint narrative" as the column name
+        narrative_col = next(
+            (
+                c
+                for c in ("Consumer complaint narrative", "narrative")
+                if c in df.columns
+            ),
+            None,
+        )
+        if narrative_col is None:
+            logger.warning(
+                "No narrative column in CFPB data, using synthetic Model 184"
+            )
+            return _create_synthetic_model_184(), {
+                "status": "synthetic",
+                "reason": "Narrative column not found in CFPB data",
+            }
         X = np.column_stack(
             [
-                df["narrative"].str.len().fillna(0),
-                df["narrative"].str.split().str.len().fillna(0),
+                df[narrative_col].str.len().fillna(0),
+                df[narrative_col].str.split().str.len().fillna(0),
             ]
         )
 
         # Target: product category
-        y = pd.factorize(df["product"])[0]
+        product_col = next(
+            (c for c in ("Product", "product") if c in df.columns),
+            None,
+        )
+        if product_col is None:
+            logger.warning("No product column in CFPB data, using synthetic Model 184")
+            return _create_synthetic_model_184(), {
+                "status": "synthetic",
+                "reason": "Product column not found in CFPB data",
+            }
+        y = pd.factorize(df[product_col])[0]
 
         # Train model
         model = Pipeline(
@@ -263,18 +290,28 @@ def _train_model_184() -> tuple[Any, dict[str, Any]]:
 
 
 def _create_synthetic_model_182() -> Any:
-    """Create a synthetic Model 182 for testing when training data is unavailable."""
-    return Pipeline(
+    """Create a synthetic Model 182 for testing when training data is unavailable.
+
+    Fitted on minimal dummy data so predict() / predict_proba() work without error.
+    """
+    pipe = Pipeline(
         [
             ("scaler", StandardScaler()),
             ("clf", LogisticRegression(random_state=42)),
         ]
     )
+    X = np.array([[0.1, 1, 1000.0, 0], [0.9, 50, 100000.0, 30]])
+    y = np.array([0, 1])
+    pipe.fit(X, y)
+    return pipe
 
 
 def _create_synthetic_model_183() -> Any:
-    """Create a synthetic Model 183 for testing."""
-    return Pipeline(
+    """Create a synthetic Model 183 for testing.
+
+    Fitted on minimal dummy data so predict() / predict_proba() work without error.
+    """
+    pipe = Pipeline(
         [
             ("scaler", StandardScaler()),
             (
@@ -283,25 +320,59 @@ def _create_synthetic_model_183() -> Any:
             ),
         ]
     )
+    X = np.array([[0.1, 1, 1000.0, 0], [0.9, 50, 100000.0, 30]])
+    y = np.array([0, 1])
+    pipe.fit(X, y)
+    return pipe
 
 
 def _create_synthetic_model_184() -> Any:
-    """Create a synthetic Model 184 for testing."""
-    return Pipeline(
+    """Create a synthetic Model 184 for testing.
+
+    Fitted on minimal dummy data so predict() / predict_proba() work without error.
+    """
+    pipe = Pipeline(
         [
             ("scaler", StandardScaler()),
             ("clf", LogisticRegression(random_state=42)),
         ]
     )
+    X = np.array([[0.1, 1, 1000.0, 0], [0.9, 50, 100000.0, 30]])
+    y = np.array([0, 1])
+    pipe.fit(X, y)
+    return pipe
 
 
 def predict(model_id: int | str, record: dict[str, Any]) -> dict[str, Any]:
-    """Make a prediction using the specified model."""
+    """Make a prediction using the specified model.
+
+    Routes to the real class-based models (Model182/183/184) when the loaded
+    object is a domain model instance, and falls back to the sklearn Pipeline
+    feature-list path only for plain Pipeline objects.
+    """
     model, metadata = load_or_train_model(model_id)
 
-    # Convert record to features (model-specific)
-    features = _extract_features(record, model_id)
+    # Class-based domain models (Model182 / Model183 / Model184) are not
+    # sklearn Pipelines — they have no `named_steps` attribute and expect the
+    # full domain record dict passed directly to predict().
+    if hasattr(model, "predict") and not hasattr(model, "named_steps"):
+        try:
+            result = model.predict(record)
+            if isinstance(result, dict):
+                result.setdefault("model_id", model_id)
+                result.setdefault("timestamp", datetime.now(UTC).isoformat())
+                result.setdefault("metadata", metadata)
+                return result
+        except Exception as e:
+            logger.exception(f"Error predicting with model {model_id}")
+            return {
+                "model_id": model_id,
+                "error": str(e),
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
 
+    # sklearn Pipeline fallback — convert record to a flat feature vector.
+    features = _extract_features(record, model_id)
     try:
         prediction = model.predict([features])[0]
         probability = float(model.predict_proba([features])[0].max())
@@ -348,7 +419,7 @@ def get_model_status() -> dict[str, Any]:
                 "metadata": metadata,
                 "cached": model_id in _models,
             }
-        except (FileNotFoundError, ValueError) as e:
+        except Exception as e:  # broader catch — load_or_train_model can raise anything
             status[model_id] = {
                 "loaded": False,
                 "error": str(e),
