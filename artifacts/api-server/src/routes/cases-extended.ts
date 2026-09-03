@@ -27,6 +27,135 @@ const caseAlerts = new Map<string, AnyRecord[]>();
 const entityRegistry = new Map<string, AnyRecord>();
 const clusterRegistry = new Map<string, AnyRecord>();
 
+// ============================================================================
+// SEED DATA - Entities
+// ============================================================================
+entityRegistry.set("ENT-MULE-A", {
+  id: "ENT-MULE-A",
+  type: "PERSON",
+  name: "Mule Account A",
+  identifier: "XXXXXX4821",
+  riskScore: 78,
+  category: "MULE_ACCOUNT",
+  indicators: ["HIGH_VELOCITY", "RAPID_TRANSFERS", "MULTIPLE_SENDERS"],
+  firstSeen: new Date(2026, 7, 18, 10, 1).toISOString(),
+  lastSeen: new Date(2026, 7, 18, 10, 5).toISOString(),
+  jurisdiction: "India",
+  relatedCases: ["CASE-CASHNET-001"],
+  confidence: 0.91,
+});
+
+entityRegistry.set("ENT-VASP-ALPHA", {
+  id: "ENT-VASP-ALPHA",
+  type: "ORGANIZATION",
+  name: "VASP Alpha",
+  riskScore: 72,
+  category: "VASP",
+  indicators: ["CRYPTO_CONVERSION", "FIAT_DEPOSIT", "DIRECT_ATTRIBUTION"],
+  firstSeen: new Date(2026, 7, 18, 10, 7).toISOString(),
+  lastSeen: new Date(2026, 7, 18, 10, 11).toISOString(),
+  jurisdiction: "Singapore",
+  relatedCases: ["CASE-CASHNET-001"],
+  confidence: 0.91,
+});
+
+entityRegistry.set("ENT-WALLET-A", {
+  id: "ENT-WALLET-A",
+  type: "CRYPTO_WALLET",
+  name: "0x7A4C9D12…92F",
+  riskScore: 88,
+  category: "CRYPTO_WALLET",
+  indicators: ["CROSS_CHAIN", "HIGH_VALUE", "FOREIGN_DESTINATION"],
+  firstSeen: new Date(2026, 7, 18, 10, 11).toISOString(),
+  lastSeen: new Date(2026, 7, 18, 10, 22).toISOString(),
+  chain: "Ethereum",
+  relatedCases: ["CASE-CASHNET-001"],
+  confidence: 0.88,
+});
+
+entityRegistry.set("ENT-LAST-CREDITED", {
+  id: "ENT-LAST-CREDITED",
+  type: "BANK_ACCOUNT",
+  name: "Account C",
+  identifier: "XXXXXX1234",
+  riskScore: 94,
+  category: "CASH_OUT_LOCATION",
+  indicators: ["PREDICTED_ATM", "FINAL_RECIPIENT", "CRITICAL_RISK"],
+  firstSeen: new Date(2026, 7, 18, 10, 31).toISOString(),
+  lastSeen: new Date(2026, 7, 18, 10, 42).toISOString(),
+  bank: "Synthetic National Bank",
+  branch: "Indiranagar Branch",
+  relatedCases: ["CASE-CASHNET-001"],
+  confidence: 0.84,
+});
+
+// ============================================================================
+// SEED DATA - Alerts
+// ============================================================================
+caseAlerts.set("CASE-CASHNET-001", [
+  {
+    id: "ALERT-001-HOTSPOT",
+    caseId: "CASE-CASHNET-001",
+    severity: "CRITICAL",
+    title: "Predicted cash-out cluster detected",
+    description: "Bengaluru · Indiranagar · 82% probability",
+    category: "PREDICTIVE_ANALYSIS",
+    timestamp: new Date(2026, 7, 18, 10, 44).toISOString(),
+    status: "ACTIVE",
+    location: "Bengaluru, Indiranagar",
+    coordinates: { lat: 12.9719, lng: 77.6412 },
+    confidence: 0.82,
+    actionRequired: true,
+  },
+  {
+    id: "ALERT-001-CONVERSION",
+    caseId: "CASE-CASHNET-001",
+    severity: "HIGH",
+    title: "FIAT → CRYPTO conversion detected",
+    description: "VASP Alpha · 10:11 UTC · ₹1,86,500 → 2,234 USDT",
+    category: "CONVERSION_DETECTION",
+    timestamp: new Date(2026, 7, 18, 10, 11).toISOString(),
+    status: "ACKNOWLEDGED",
+    conversionType: "FIAT_TO_CRYPTO",
+    amount: 186500,
+    convertedAmount: 2234,
+    confidence: 0.91,
+    actionRequired: false,
+  },
+  {
+    id: "ALERT-001-VELOCITY",
+    caseId: "CASE-CASHNET-001",
+    severity: "HIGH",
+    title: "High transaction velocity detected",
+    description: "12 transactions within 42 minutes on primary account",
+    category: "VELOCITY_ANALYSIS",
+    timestamp: new Date(2026, 7, 18, 10, 5).toISOString(),
+    status: "ACKNOWLEDGED",
+    transactionCount: 12,
+    timeWindowMinutes: 42,
+    confidence: 0.89,
+    actionRequired: false,
+  },
+]);
+
+caseAlerts.set("CASE-CASHNET-002", [
+  {
+    id: "ALERT-002-CROSS-BORDER",
+    caseId: "CASE-CASHNET-002",
+    severity: "HIGH",
+    title: "Cross-border movement detected",
+    description: "Funds moving from India to Singapore via crypto",
+    category: "CROSS_BORDER_DETECTION",
+    timestamp: new Date(2026, 7, 18, 10, 22).toISOString(),
+    status: "ACTIVE",
+    sourceCountry: "India",
+    destinationCountry: "Singapore",
+    amount: 1980,
+    confidence: 0.78,
+    actionRequired: true,
+  },
+]);
+
 const router: IRouter = Router();
 
 // ============================================================================

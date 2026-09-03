@@ -19,6 +19,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import numpy as np
 
 # Add project root to path
 ROOT = Path(__file__).resolve().parent.parent
@@ -42,6 +43,22 @@ CORS(app)
 io.ensure_dirs()
 
 
+# Helper to make objects JSON-serialisable (convert numpy types)
+def make_serialisable(obj):
+    """Convert numpy types to Python native types for JSON serialisation."""
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    if isinstance(obj, (np.floating,)):
+        return float(obj)
+    if isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+    if isinstance(obj, dict):
+        return {k: make_serialisable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [make_serialisable(i) for i in obj]
+    return obj
+
+
 @app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint."""
@@ -62,6 +79,8 @@ def models_status():
     """Get status of all models."""
     try:
         status = mm.get_model_status()
+        # Ensure all values are JSON-serialisable
+        status = make_serialisable(status)
         return (
             jsonify(
                 {
@@ -209,6 +228,9 @@ def batch_predict():
                     "predictions": batch_results,
                 }
             )
+
+        # Convert numpy types to JSON-serialisable Python types
+        results = make_serialisable(results)
 
         return (
             jsonify(

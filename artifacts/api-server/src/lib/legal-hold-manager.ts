@@ -155,7 +155,7 @@ export class LegalHoldManager {
 
     // Record audit event
     this.recordAuditEvent({
-      action: "HOLD_PLACED",
+      action: "LEGAL_HOLD_PLACED",
       actor: placedBy,
       targetId: caseId,
       targetType: "CASE",
@@ -192,7 +192,7 @@ export class LegalHoldManager {
 
     // Record audit event
     this.recordAuditEvent({
-      action: "HOLD_RELEASED",
+      action: "LEGAL_HOLD_RELEASED",
       actor: releasedBy,
       targetId: hold.caseId,
       targetType: "CASE",
@@ -433,12 +433,18 @@ export class DataDeletionManager {
       targetId,
       targetType,
       reason,
-      details: { scheduledFor: scheduledDeleteDate },
+      details: { scheduledFor: scheduledDeleteDate.toISOString() },
       status: options.requiresApproval ? "PENDING" : "COMPLETED",
       notes: options.notes || "",
     };
 
-    auditEvents.push(auditEvent);
+    // Convert timestamp to ISO string for proper JSON serialization
+    const eventForStorage = {
+      ...auditEvent,
+      timestamp: auditEvent.timestamp.toISOString() as any,
+    };
+
+    auditEvents.push(eventForStorage);
 
     logger.info(
       { targetId, targetType, reason, actor },
@@ -469,14 +475,20 @@ export class DataDeletionManager {
       reason,
       approvedBy,
       details: {
-        executedAt: new Date(),
+        executedAt: new Date().toISOString(),
         verificationHash: this.generateDeletionHash(targetId),
       },
       status: "COMPLETED",
       notes: options.notes || "",
     };
 
-    auditEvents.push(auditEvent);
+    // Convert timestamp to ISO string for proper JSON serialization
+    const eventForStorage = {
+      ...auditEvent,
+      timestamp: auditEvent.timestamp.toISOString() as any,
+    };
+
+    auditEvents.push(eventForStorage);
 
     logger.info(
       { targetId, targetType, reason, approvedBy, executedBy },

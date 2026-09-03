@@ -430,7 +430,69 @@ router.post("/subject-access-requests", (req: Request, res: Response) => {
 });
 
 /**
+ * GET /subject-access-requests/pending - Get pending SARs
+ * MUST come BEFORE the parameterised :sarId route
+ */
+router.get("/subject-access-requests/pending", (_req: Request, res: Response) => {
+  try {
+    const pendingSARs = SARManager.getPendingSARs();
+
+    res.json({
+      success: true,
+      data: pendingSARs,
+      count: pendingSARs.length,
+    });
+  } catch (error) {
+    logger.error({ error }, "Failed to retrieve pending SARs");
+    res.status(500).json({ error: "Failed to retrieve pending subject access requests" });
+  }
+});
+
+/**
+ * GET /subject-access-requests/overdue - Get overdue SARs
+ * MUST come BEFORE the parameterised :sarId route
+ */
+router.get("/subject-access-requests/overdue", (_req: Request, res: Response) => {
+  try {
+    const overdueSARs = SARManager.getOverdueSARs();
+
+    res.json({
+      success: true,
+      data: overdueSARs,
+      count: overdueSARs.length,
+    });
+  } catch (error) {
+    logger.error({ error }, "Failed to retrieve overdue SARs");
+    res.status(500).json({ error: "Failed to retrieve overdue subject access requests" });
+  }
+});
+
+/**
+ * GET /subject-access-requests - List SARs
+ */
+router.get("/subject-access-requests", (req: Request, res: Response) => {
+  try {
+    const { status, requestType } = req.query;
+
+    const sars = SARManager.listAllSARs({
+      status: status as string,
+      requestType: requestType as string,
+    });
+
+    res.json({
+      success: true,
+      data: sars,
+      count: sars.length,
+    });
+  } catch (error) {
+    logger.error({ error }, "Failed to list SARs");
+    res.status(500).json({ error: "Failed to list subject access requests" });
+  }
+});
+
+/**
  * GET /subject-access-requests/:sarId - Get SAR details
+ * MUST come AFTER all static routes
  */
 router.get("/subject-access-requests/:sarId", (req: Request, res: Response) => {
   try {
@@ -472,65 +534,6 @@ router.post("/subject-access-requests/:sarId/process", (req: Request, res: Respo
   } catch (error) {
     logger.error({ error }, "Failed to process SAR");
     res.status(500).json({ error: "Failed to process subject access request" });
-  }
-});
-
-/**
- * GET /subject-access-requests - List SARs
- */
-router.get("/subject-access-requests", (req: Request, res: Response) => {
-  try {
-    const { status, requestType } = req.query;
-
-    const sars = SARManager.listAllSARs({
-      status: status as string,
-      requestType: requestType as string,
-    });
-
-    res.json({
-      success: true,
-      data: sars,
-      count: sars.length,
-    });
-  } catch (error) {
-    logger.error({ error }, "Failed to list SARs");
-    res.status(500).json({ error: "Failed to list subject access requests" });
-  }
-});
-
-/**
- * GET /subject-access-requests/pending - Get pending SARs
- */
-router.get("/subject-access-requests/pending", (_req: Request, res: Response) => {
-  try {
-    const pendingSARs = SARManager.getPendingSARs();
-
-    res.json({
-      success: true,
-      data: pendingSARs,
-      count: pendingSARs.length,
-    });
-  } catch (error) {
-    logger.error({ error }, "Failed to retrieve pending SARs");
-    res.status(500).json({ error: "Failed to retrieve pending subject access requests" });
-  }
-});
-
-/**
- * GET /subject-access-requests/overdue - Get overdue SARs
- */
-router.get("/subject-access-requests/overdue", (_req: Request, res: Response) => {
-  try {
-    const overdueSARs = SARManager.getOverdueSARs();
-
-    res.json({
-      success: true,
-      data: overdueSARs,
-      count: overdueSARs.length,
-    });
-  } catch (error) {
-    logger.error({ error }, "Failed to retrieve overdue SARs");
-    res.status(500).json({ error: "Failed to retrieve overdue subject access requests" });
   }
 });
 

@@ -81,6 +81,9 @@ router.post("/action-requests", (req: Request, res: Response) => {
 
 /**
  * POST /action-requests/:requestId/approve - Approve action request
+ * 
+ * State transition: DRAFT → APPROVED
+ * This must be called before send() to authorize the request.
  */
 router.post("/action-requests/:requestId/approve", (req: Request, res: Response) => {
   try {
@@ -117,6 +120,10 @@ router.post("/action-requests/:requestId/approve", (req: Request, res: Response)
 
 /**
  * POST /action-requests/:requestId/send - Send approved request to partner
+ * 
+ * State transition: APPROVED → SENT
+ * This can only be called after approve() is called.
+ * Required: request.status must be "APPROVED"
  */
 router.post("/action-requests/:requestId/send", (req: Request, res: Response) => {
   try {
@@ -157,6 +164,13 @@ router.post("/action-requests/:requestId/send", (req: Request, res: Response) =>
 
 /**
  * POST /action-requests/:requestId/response - Record partner response
+ * 
+ * State transition: SENT → RESPONDED
+ * This can only be called after send() has been called.
+ * Captures the partner's response to the action request.
+ * 
+ * State Machine Summary:
+ * DRAFT (initial) → APPROVED (after approve) → SENT (after send) → RESPONDED (after response)
  */
 router.post("/action-requests/:requestId/response", (req: Request, res: Response) => {
   try {
@@ -166,6 +180,12 @@ router.post("/action-requests/:requestId/response", (req: Request, res: Response
     const request = actionRequests.get(requestId);
     if (!request) {
       return res.status(404).json({ error: "Action request not found" });
+    }
+
+    if (request.status !== "SENT") {
+      return res.status(400).json({
+        error: "Request must be sent before recording response. Current status: " + request.status,
+      });
     }
 
     const response: AnyRecord = {
