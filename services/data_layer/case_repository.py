@@ -22,7 +22,9 @@ class CaseRepository(BaseRepository):
         """Create a new case with validation."""
         case_data = {
             "id": str(uuid.uuid4()),
-            "case_reference": data.get("case_reference", f"CASE-{datetime.now(UTC).timestamp()}"),
+            "case_reference": data.get(
+                "case_reference", f"CASE-{datetime.now(UTC).timestamp()}"
+            ),
             "title": data["title"],
             "fraud_type": data["fraud_type"],
             "amount": data["amount"],
@@ -38,7 +40,9 @@ class CaseRepository(BaseRepository):
         }
         return await self.insert(case_data)
 
-    async def get_cases_by_status(self, status: str, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_cases_by_status(
+        self, status: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get cases filtered by status."""
         query = """
             SELECT * FROM cases
@@ -48,7 +52,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute(query, status, limit)
 
-    async def get_cases_by_source(self, source: str, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_cases_by_source(
+        self, source: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get cases filtered by source (NCRP, SAHYOG, USER_PROVIDED, SYNTHETIC)."""
         query = """
             SELECT * FROM cases
@@ -58,7 +64,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute(query, source, limit)
 
-    async def get_cases_by_priority(self, priority: str, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_cases_by_priority(
+        self, priority: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get high-priority cases."""
         query = """
             SELECT * FROM cases
@@ -78,7 +86,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute(query, limit)
 
-    async def get_recent_cases(self, hours: int = 24, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_recent_cases(
+        self, hours: int = 24, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get cases created in the last N hours."""
         query = """
             SELECT * FROM cases
@@ -88,7 +98,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute(query, hours, limit)
 
-    async def get_cases_by_location(self, state: str, city: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_cases_by_location(
+        self, state: str, city: str | None = None, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get cases filtered by geographic location."""
         if city:
             query = """
@@ -107,7 +119,9 @@ class CaseRepository(BaseRepository):
             """
             return await self.execute(query, state, limit)
 
-    async def get_cases_by_amount_range(self, min_amount: float, max_amount: float, limit: int = 50) -> list[dict[str, Any]]:
+    async def get_cases_by_amount_range(
+        self, min_amount: float, max_amount: float, limit: int = 50
+    ) -> list[dict[str, Any]]:
         """Get cases within an amount range."""
         query = """
             SELECT * FROM cases
@@ -117,7 +131,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute(query, min_amount, max_amount, limit)
 
-    async def link_external_case(self, internal_id: str, external_id: str, source: str) -> dict[str, Any] | None:
+    async def link_external_case(
+        self, internal_id: str, external_id: str, source: str
+    ) -> dict[str, Any] | None:
         """Link an internal case to an external case (NCRP, SAHYOG)."""
         query = """
             UPDATE cases
@@ -127,7 +143,9 @@ class CaseRepository(BaseRepository):
         """
         return await self.execute_scalar(query, external_id, source, internal_id)
 
-    async def update_case_status(self, case_id: str, status: str, notes: str = "") -> dict[str, Any] | None:
+    async def update_case_status(
+        self, case_id: str, status: str, notes: str = ""
+    ) -> dict[str, Any] | None:
         """Update case status and add audit note."""
         query = """
             UPDATE cases
@@ -180,10 +198,7 @@ class CaseRepository(BaseRepository):
         return await self.execute(query)
 
     async def get_cases_by_date_range(
-        self,
-        start_date: str,
-        end_date: str,
-        limit: int = 100
+        self, start_date: str, end_date: str, limit: int = 100
     ) -> list[dict[str, Any]]:
         """Get cases created within a date range."""
         query = """

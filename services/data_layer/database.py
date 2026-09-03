@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
+from collections.abc import AsyncGenerator
 
 import asyncpg
 from asyncpg import Pool
@@ -27,8 +28,7 @@ async def get_pool() -> Pool:
 async def create_pool() -> Pool:
     """Create a new database connection pool."""
     database_url = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:password@localhost:5432/cashnet"
+        "DATABASE_URL", "postgresql://postgres:password@localhost:5432/cashnet"
     )
     pool = await asyncpg.create_pool(
         database_url,
@@ -95,7 +95,9 @@ class BaseRepository:
             row = await conn.fetchrow(query, *data.values())
             return dict(row) if row else {}
 
-    async def update(self, id_: str | int, data: dict[str, Any]) -> dict[str, Any] | None:
+    async def update(
+        self, id_: str | int, data: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Update a record by ID."""
         if not data:
             return None
