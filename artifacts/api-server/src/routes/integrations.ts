@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from "express";
+﻿import { Router, type Request, type Response } from "express";
 import { integrationManager } from "../services/integration-manager";
 import { logger } from "../lib/logger";
 
@@ -24,7 +24,7 @@ router.get("/", async (req: Request, res: Response) => {
 // POST /integrations/:systemName/cases - Submit case to external system
 router.post("/:systemName/cases", async (req: Request, res: Response) => {
   try {
-    const { systemName } = req.params;
+    const systemName = req.params.systemName;
     const caseData = req.body;
 
     if (!caseData.caseId) {
@@ -59,7 +59,8 @@ router.post("/:systemName/cases", async (req: Request, res: Response) => {
 // GET /integrations/:systemName/cases/:externalId - Get case status from external system
 router.get("/:systemName/cases/:externalId", async (req: Request, res: Response) => {
   try {
-    const { systemName, externalId } = req.params;
+    const systemName = req.params.systemName;
+    const externalId = req.params.externalId;
 
     const result = await integrationManager.getCaseStatus(systemName, externalId);
 

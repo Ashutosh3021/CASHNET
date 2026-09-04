@@ -1,4 +1,4 @@
-import { logger } from "./logger";
+﻿import { logger } from "../lib/logger";
 import { integrationConfig } from "../lib/integration-config";
 
 export interface SubmitCaseResponse {
@@ -40,7 +40,7 @@ class IntegrationManager {
 
   async healthCheck() {
     const results = [];
-    for (const [name] of this.connectors) {
+    for (const [name] of Array.from(this.connectors.entries())) {
       results.push({ name, enabled: true, healthy: true });
     }
     for (const name of ["ncrp", "sahyog", "vasp"]) {
@@ -52,35 +52,38 @@ class IntegrationManager {
   }
 
   async submitCase(
-    systemName: string,
+    systemName: string | string[],
     caseData: Record<string, unknown>
   ): Promise<SubmitCaseResponse> {
-    if (!this.connectors.has(systemName)) {
+    const system = Array.isArray(systemName) ? systemName[0] : systemName;
+    if (!this.connectors.has(system)) {
       return {
         status: "error",
-        systemName,
-        error: `Integration ${systemName} not available`,
+        systemName: system,
+        error: `Integration ${system} not available`,
       };
     }
-    const externalId = `${systemName.toUpperCase()}-${Date.now()}`;
-    logger.info({ systemName, caseId: caseData.caseId }, "Case submitted");
-    return { status: "success", systemName, externalId };
+    const externalId = `${system.toUpperCase()}-${Date.now()}`;
+    logger.info({ systemName: system, caseId: caseData.caseId }, "Case submitted");
+    return { status: "success", systemName: system, externalId };
   }
 
   async getCaseStatus(
-    systemName: string,
-    externalId: string
+    systemName: string | string[],
+    externalId: string | string[]
   ): Promise<GetCaseStatusResponse> {
-    if (!this.connectors.has(systemName)) {
+    const system = Array.isArray(systemName) ? systemName[0] : systemName;
+    const extId = Array.isArray(externalId) ? externalId[0] : externalId;
+    if (!this.connectors.has(system)) {
       return {
         status: "error",
-        systemName,
-        externalId,
-        error: `Integration ${systemName} not available`,
+        systemName: system,
+        externalId: extId,
+        error: `Integration ${system} not available`,
       };
     }
-    logger.info({ systemName, externalId }, "Status retrieved");
-    return { status: "success", systemName, externalId, externalStatus: "PROCESSING" };
+    logger.info({ systemName: system, externalId: extId }, "Status retrieved");
+    return { status: "success", systemName: system, externalId: extId, externalStatus: "PROCESSING" };
   }
 
   getEnabledConnectors(): string[] {
