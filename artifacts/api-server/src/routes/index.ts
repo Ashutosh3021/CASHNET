@@ -1,4 +1,5 @@
-import { Router, type IRouter } from "express";
+﻿import { Router, type IRouter } from "express";
+import integrationsRouter from "./integrations";
 import healthRouter from "./health";
 import cashnetRouter from "./cashnet";
 import geospatialRouter from "./geospatial";
@@ -10,6 +11,7 @@ import modelsRouter from "./models";
 
 const router: IRouter = Router();
 
+router.use("/integrations", integrationsRouter);
 router.use(healthRouter);
 router.use(cashnetRouter);
 router.use(geospatialRouter);
