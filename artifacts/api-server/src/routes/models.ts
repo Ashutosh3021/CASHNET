@@ -91,7 +91,7 @@ router.post('/predict/183', async (req: Request, res: Response) => {
  * POST /models/predict/184
  * Predict using Model 184 (Complaint Typology)
  */
-router.post('/models/predict/184', async (req: Request, res: Response) => {
+router.post('/predict/184', async (req: Request, res: Response) => {
   try {
     const { record } = req.body;
 
