@@ -85,7 +85,7 @@ export interface RetentionPolicy {
 export interface RetentionAuditEvent {
   id: string;
   timestamp: Date;
-  action: "HOLD_PLACED" | "HOLD_RELEASED" | "DELETION_SCHEDULED" | "DELETION_EXECUTED" | "SAR_RECEIVED" | "SAR_PROCESSED";
+  action: "HOLD_PLACED" | "HOLD_RELEASED" | "LEGAL_HOLD_PLACED" | "LEGAL_HOLD_RELEASED" | "DELETION_SCHEDULED" | "DELETION_EXECUTED" | "SAR_RECEIVED" | "SAR_PROCESSED";
   actor: string;
   targetId: string;
   targetType: string;

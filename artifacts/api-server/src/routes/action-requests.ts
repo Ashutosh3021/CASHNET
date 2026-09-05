@@ -68,14 +68,14 @@ router.post("/action-requests", (req: Request, res: Response) => {
 
     actionRequests.set(requestId, actionRequest);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Action request created",
       data: actionRequest,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create action request");
-    res.status(500).json({ error: "Failed to create action request" });
+    return res.status(500).json({ error: "Failed to create action request" });
   }
 });
 
@@ -87,7 +87,7 @@ router.post("/action-requests", (req: Request, res: Response) => {
  */
 router.post("/action-requests/:requestId/approve", (req: Request, res: Response) => {
   try {
-    const { requestId } = req.params;
+    const requestId = String(req.params.requestId);
     const { approvalNotes } = req.body;
 
     const request = actionRequests.get(requestId);
@@ -107,14 +107,14 @@ router.post("/action-requests/:requestId/approve", (req: Request, res: Response)
     request.status = "APPROVED";
     request.approvedAt = new Date().toISOString();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Action request approved",
       data: request,
     });
   } catch (error) {
     logger.error({ error }, "Failed to approve action request");
-    res.status(500).json({ error: "Failed to approve action request" });
+    return res.status(500).json({ error: "Failed to approve action request" });
   }
 });
 
@@ -127,7 +127,7 @@ router.post("/action-requests/:requestId/approve", (req: Request, res: Response)
  */
 router.post("/action-requests/:requestId/send", (req: Request, res: Response) => {
   try {
-    const { requestId } = req.params;
+    const requestId = String(req.params.requestId);
 
     const request = actionRequests.get(requestId);
     if (!request) {
@@ -151,14 +151,14 @@ router.post("/action-requests/:requestId/send", (req: Request, res: Response) =>
       targetEntity: request.targetEntity,
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Action request sent to partner",
       data: request,
     });
   } catch (error) {
     logger.error({ error }, "Failed to send action request");
-    res.status(500).json({ error: "Failed to send action request" });
+    return res.status(500).json({ error: "Failed to send action request" });
   }
 });
 
@@ -174,7 +174,7 @@ router.post("/action-requests/:requestId/send", (req: Request, res: Response) =>
  */
 router.post("/action-requests/:requestId/response", (req: Request, res: Response) => {
   try {
-    const { requestId } = req.params;
+    const requestId = String(req.params.requestId);
     const { responseStatus, responseData, responseNotes } = req.body;
 
     const request = actionRequests.get(requestId);
@@ -201,14 +201,14 @@ router.post("/action-requests/:requestId/response", (req: Request, res: Response
     request.status = "RESPONDED";
     request.respondedAt = new Date().toISOString();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Response recorded",
       data: request,
     });
   } catch (error) {
     logger.error({ error }, "Failed to record response");
-    res.status(500).json({ error: "Failed to record response" });
+    return res.status(500).json({ error: "Failed to record response" });
   }
 });
 
@@ -233,14 +233,14 @@ router.get("/action-requests", (req: Request, res: Response) => {
       requests = requests.filter((r) => r.actionType === actionType);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: requests,
       count: requests.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list action requests");
-    res.status(500).json({ error: "Failed to list action requests" });
+    return res.status(500).json({ error: "Failed to list action requests" });
   }
 });
 
@@ -249,17 +249,17 @@ router.get("/action-requests", (req: Request, res: Response) => {
  */
 router.get("/action-requests/:requestId", (req: Request, res: Response) => {
   try {
-    const { requestId } = req.params;
+    const requestId = String(req.params.requestId);
     const request = actionRequests.get(requestId);
 
     if (!request) {
       return res.status(404).json({ error: "Action request not found" });
     }
 
-    res.json({ success: true, data: request });
+    return res.json({ success: true, data: request });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve action request");
-    res.status(500).json({ error: "Failed to retrieve action request" });
+    return res.status(500).json({ error: "Failed to retrieve action request" });
   }
 });
 
@@ -300,14 +300,14 @@ router.post("/webhooks/subscribe", (req: Request, res: Response) => {
 
     webhookSubscriptions.set(subscriptionId, subscription);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Webhook subscription created",
       data: subscription,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create webhook subscription");
-    res.status(500).json({ error: "Failed to create webhook subscription" });
+    return res.status(500).json({ error: "Failed to create webhook subscription" });
   }
 });
 
@@ -318,14 +318,14 @@ router.get("/webhooks/subscriptions", (req: Request, res: Response) => {
   try {
     const subscriptions = Array.from(webhookSubscriptions.values());
 
-    res.json({
+    return res.json({
       success: true,
       data: subscriptions,
       count: subscriptions.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list subscriptions");
-    res.status(500).json({ error: "Failed to list subscriptions" });
+    return res.status(500).json({ error: "Failed to list subscriptions" });
   }
 });
 
@@ -334,7 +334,7 @@ router.get("/webhooks/subscriptions", (req: Request, res: Response) => {
  */
 router.delete("/webhooks/:subscriptionId", (req: Request, res: Response) => {
   try {
-    const { subscriptionId } = req.params;
+    const subscriptionId = String(req.params.subscriptionId);
 
     if (!webhookSubscriptions.has(subscriptionId)) {
       return res.status(404).json({ error: "Subscription not found" });
@@ -342,13 +342,13 @@ router.delete("/webhooks/:subscriptionId", (req: Request, res: Response) => {
 
     webhookSubscriptions.delete(subscriptionId);
 
-    res.json({
+    return res.json({
       success: true,
       message: "Webhook subscription removed",
     });
   } catch (error) {
     logger.error({ error }, "Failed to remove subscription");
-    res.status(500).json({ error: "Failed to remove subscription" });
+    return res.status(500).json({ error: "Failed to remove subscription" });
   }
 });
 
@@ -377,7 +377,7 @@ router.post("/webhooks/events", (req: Request, res: Response) => {
       subscription.deliveryStats.failed++;
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: "Webhook event logged",
       data: {
@@ -389,7 +389,7 @@ router.post("/webhooks/events", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to log webhook event");
-    res.status(500).json({ error: "Failed to log webhook event" });
+    return res.status(500).json({ error: "Failed to log webhook event" });
   }
 });
 

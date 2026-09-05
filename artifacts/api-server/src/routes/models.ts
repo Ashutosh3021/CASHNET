@@ -19,9 +19,9 @@ const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:5
 router.get('/status', async (req: Request, res: Response) => {
   try {
     const response = await axios.get(`${PYTHON_SERVICE_URL}/models/status`);
-    res.json(response.data);
+    return res.json(response.data);
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get model status',
       details: error.message,
     });
@@ -53,9 +53,9 @@ router.post('/predict/182', async (req: Request, res: Response) => {
       record,
     });
 
-    res.json(response.data);
+    return res.json(response.data);
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Model 182 prediction failed',
       details: error.message,
     });
@@ -78,9 +78,9 @@ router.post('/predict/183', async (req: Request, res: Response) => {
       record,
     });
 
-    res.json(response.data);
+    return res.json(response.data);
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Model 183 prediction failed',
       details: error.message,
     });
@@ -103,9 +103,9 @@ router.post('/models/predict/184', async (req: Request, res: Response) => {
       record,
     });
 
-    res.json(response.data);
+    return res.json(response.data);
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Model 184 prediction failed',
       details: error.message,
     });
@@ -152,14 +152,14 @@ router.post('/batch-predict', async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       timestamp: new Date().toISOString(),
       total_records: records.length,
       models_processed: modelIds.length,
       results,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Batch prediction failed',
       details: error.message,
     });
@@ -174,12 +174,12 @@ router.post('/batch-predict', async (req: Request, res: Response) => {
 router.post('/reload', async (req: Request, res: Response) => {
   try {
     const response = await axios.post(`${PYTHON_SERVICE_URL}/models/reload`);
-    res.json({
+    return res.json({
       message: 'Models reloaded successfully',
       status: response.data,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Model reload failed',
       details: error.message,
     });
@@ -195,13 +195,13 @@ router.get('/health', async (req: Request, res: Response) => {
     const response = await axios.get(`${PYTHON_SERVICE_URL}/health`, {
       timeout: 5000,
     });
-    res.json({
+    return res.json({
       status: 'healthy',
       python_service: response.data,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    res.status(503).json({
+    return res.status(503).json({
       status: 'unhealthy',
       error: 'Python service unreachable',
       details: error.message,

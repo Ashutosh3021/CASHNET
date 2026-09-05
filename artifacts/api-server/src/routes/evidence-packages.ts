@@ -72,14 +72,14 @@ router.post("/evidence-packages", (req: Request, res: Response) => {
 
     evidencePackages.set(packageId, evidencePackage);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Evidence package created successfully",
       data: evidencePackage,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create evidence package");
-    res.status(500).json({ error: "Failed to create evidence package" });
+    return res.status(500).json({ error: "Failed to create evidence package" });
   }
 });
 
@@ -88,17 +88,17 @@ router.post("/evidence-packages", (req: Request, res: Response) => {
  */
 router.get("/evidence-packages/:packageId", (req: Request, res: Response) => {
   try {
-    const { packageId } = req.params;
+    const packageId = String(req.params.packageId);
     const pkg = evidencePackages.get(packageId);
 
     if (!pkg) {
       return res.status(404).json({ error: "Evidence package not found" });
     }
 
-    res.json({ success: true, data: pkg });
+    return res.json({ success: true, data: pkg });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve evidence package");
-    res.status(500).json({ error: "Failed to retrieve evidence package" });
+    return res.status(500).json({ error: "Failed to retrieve evidence package" });
   }
 });
 
@@ -107,7 +107,7 @@ router.get("/evidence-packages/:packageId", (req: Request, res: Response) => {
  */
 router.get("/evidence-packages/:packageId/verify", (req: Request, res: Response) => {
   try {
-    const { packageId } = req.params;
+    const packageId = String(req.params.packageId);
     const pkg = evidencePackages.get(packageId);
 
     if (!pkg) {
@@ -138,7 +138,7 @@ router.get("/evidence-packages/:packageId/verify", (req: Request, res: Response)
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: verification,
       message: isValid
@@ -147,7 +147,7 @@ router.get("/evidence-packages/:packageId/verify", (req: Request, res: Response)
     });
   } catch (error) {
     logger.error({ error }, "Failed to verify evidence package");
-    res.status(500).json({ error: "Failed to verify evidence package" });
+    return res.status(500).json({ error: "Failed to verify evidence package" });
   }
 });
 
@@ -156,7 +156,7 @@ router.get("/evidence-packages/:packageId/verify", (req: Request, res: Response)
  */
 router.post("/evidence-packages/:packageId/finalize", (req: Request, res: Response) => {
   try {
-    const { packageId } = req.params;
+    const packageId = String(req.params.packageId);
     const pkg = evidencePackages.get(packageId);
 
     if (!pkg) {
@@ -175,14 +175,14 @@ router.post("/evidence-packages/:packageId/finalize", (req: Request, res: Respon
       notes: "Package finalized and locked",
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Evidence package finalized successfully",
       data: pkg,
     });
   } catch (error) {
     logger.error({ error }, "Failed to finalize evidence package");
-    res.status(500).json({ error: "Failed to finalize evidence package" });
+    return res.status(500).json({ error: "Failed to finalize evidence package" });
   }
 });
 
@@ -191,7 +191,7 @@ router.post("/evidence-packages/:packageId/finalize", (req: Request, res: Respon
  */
 router.post("/evidence-packages/:packageId/export", (req: Request, res: Response) => {
   try {
-    const { packageId } = req.params;
+    const packageId = String(req.params.packageId);
     const { format } = req.body;
 
     const pkg = evidencePackages.get(packageId);
@@ -210,7 +210,7 @@ router.post("/evidence-packages/:packageId/export", (req: Request, res: Response
       exportPath,
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Evidence package exported successfully",
       data: {
@@ -223,7 +223,7 @@ router.post("/evidence-packages/:packageId/export", (req: Request, res: Response
     });
   } catch (error) {
     logger.error({ error }, "Failed to export evidence package");
-    res.status(500).json({ error: "Failed to export evidence package" });
+    return res.status(500).json({ error: "Failed to export evidence package" });
   }
 });
 
@@ -244,14 +244,14 @@ router.get("/evidence-packages", (req: Request, res: Response) => {
       packages = packages.filter((p) => p.status === status);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: packages,
       count: packages.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list evidence packages");
-    res.status(500).json({ error: "Failed to list evidence packages" });
+    return res.status(500).json({ error: "Failed to list evidence packages" });
   }
 });
 

@@ -167,7 +167,7 @@ const router: IRouter = Router();
  */
 router.post("/cases/:caseId/addresses", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const { address, chain, addressType, notes, riskScore, indicators } = req.body;
 
     if (!address || !chain) {
@@ -194,14 +194,14 @@ router.post("/cases/:caseId/addresses", (req: Request, res: Response) => {
     }
     caseAddresses.get(caseId)!.push(addressRecord);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Address added successfully",
       data: addressRecord,
     });
   } catch (error) {
     logger.error({ error }, "Failed to add address");
-    res.status(500).json({ error: "Failed to add address" });
+    return res.status(500).json({ error: "Failed to add address" });
   }
 });
 
@@ -210,7 +210,7 @@ router.post("/cases/:caseId/addresses", (req: Request, res: Response) => {
  */
 router.get("/cases/:caseId/addresses", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const { chain, riskMinimum } = req.query;
 
     let addresses = caseAddresses.get(caseId) || [];
@@ -226,7 +226,7 @@ router.get("/cases/:caseId/addresses", (req: Request, res: Response) => {
       addresses = addresses.filter((a) => a.riskScore >= minRisk);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: addresses,
       count: addresses.length,
@@ -234,7 +234,7 @@ router.get("/cases/:caseId/addresses", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve addresses");
-    res.status(500).json({ error: "Failed to retrieve addresses" });
+    return res.status(500).json({ error: "Failed to retrieve addresses" });
   }
 });
 
@@ -243,7 +243,8 @@ router.get("/cases/:caseId/addresses", (req: Request, res: Response) => {
  */
 router.delete("/cases/:caseId/addresses/:addressId", (req: Request, res: Response) => {
   try {
-    const { caseId, addressId } = req.params;
+    const caseId = String(req.params.caseId);
+    const addressId = String(req.params.addressId);
     const addresses = caseAddresses.get(caseId) || [];
     const index = addresses.findIndex((a) => a.id === addressId);
 
@@ -253,14 +254,14 @@ router.delete("/cases/:caseId/addresses/:addressId", (req: Request, res: Respons
 
     const removed = addresses.splice(index, 1)[0];
 
-    res.json({
+    return res.json({
       success: true,
       message: "Address removed successfully",
       data: removed,
     });
   } catch (error) {
     logger.error({ error }, "Failed to remove address");
-    res.status(500).json({ error: "Failed to remove address" });
+    return res.status(500).json({ error: "Failed to remove address" });
   }
 });
 
@@ -273,7 +274,7 @@ router.delete("/cases/:caseId/addresses/:addressId", (req: Request, res: Respons
  */
 router.post("/cases/:caseId/assign", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const { investigatorId, investigatorName, investigatorEmail, priority, notes } = req.body;
 
     if (!investigatorId) {
@@ -295,14 +296,14 @@ router.post("/cases/:caseId/assign", (req: Request, res: Response) => {
 
     caseAssignments.set(caseId, assignment);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Case assigned successfully",
       data: assignment,
     });
   } catch (error) {
     logger.error({ error }, "Failed to assign case");
-    res.status(500).json({ error: "Failed to assign case" });
+    return res.status(500).json({ error: "Failed to assign case" });
   }
 });
 
@@ -311,7 +312,7 @@ router.post("/cases/:caseId/assign", (req: Request, res: Response) => {
  */
 router.get("/cases/:caseId/assign", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const assignment = caseAssignments.get(caseId);
 
     if (!assignment) {
@@ -322,10 +323,10 @@ router.get("/cases/:caseId/assign", (req: Request, res: Response) => {
       });
     }
 
-    res.json({ success: true, data: assignment });
+    return res.json({ success: true, data: assignment });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve assignment");
-    res.status(500).json({ error: "Failed to retrieve assignment" });
+    return res.status(500).json({ error: "Failed to retrieve assignment" });
   }
 });
 
@@ -334,7 +335,7 @@ router.get("/cases/:caseId/assign", (req: Request, res: Response) => {
  */
 router.post("/cases/:caseId/reassign", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const { newInvestigatorId, newInvestigatorName, newInvestigatorEmail, reason } = req.body;
 
     if (!newInvestigatorId) {
@@ -358,14 +359,14 @@ router.post("/cases/:caseId/reassign", (req: Request, res: Response) => {
 
     caseAssignments.set(caseId, assignment);
 
-    res.json({
+    return res.json({
       success: true,
       message: "Case reassigned successfully",
       data: assignment,
     });
   } catch (error) {
     logger.error({ error }, "Failed to reassign case");
-    res.status(500).json({ error: "Failed to reassign case" });
+    return res.status(500).json({ error: "Failed to reassign case" });
   }
 });
 
@@ -378,7 +379,7 @@ router.post("/cases/:caseId/reassign", (req: Request, res: Response) => {
  */
 router.post("/cases/:caseId/findings", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const {
       findingType,
       title,
@@ -417,14 +418,14 @@ router.post("/cases/:caseId/findings", (req: Request, res: Response) => {
     }
     caseFindings.get(caseId)!.push(finding);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Finding added successfully",
       data: finding,
     });
   } catch (error) {
     logger.error({ error }, "Failed to add finding");
-    res.status(500).json({ error: "Failed to add finding" });
+    return res.status(500).json({ error: "Failed to add finding" });
   }
 });
 
@@ -433,7 +434,7 @@ router.post("/cases/:caseId/findings", (req: Request, res: Response) => {
  */
 router.get("/cases/:caseId/findings", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const { findingType, severity } = req.query;
 
     let findings = caseFindings.get(caseId) || [];
@@ -446,7 +447,7 @@ router.get("/cases/:caseId/findings", (req: Request, res: Response) => {
       findings = findings.filter((f) => f.severity === severity);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: findings,
       count: findings.length,
@@ -454,7 +455,7 @@ router.get("/cases/:caseId/findings", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve findings");
-    res.status(500).json({ error: "Failed to retrieve findings" });
+    return res.status(500).json({ error: "Failed to retrieve findings" });
   }
 });
 
@@ -463,7 +464,7 @@ router.get("/cases/:caseId/findings", (req: Request, res: Response) => {
  */
 router.post("/findings/:findingId/adjudications", (req: Request, res: Response) => {
   try {
-    const { findingId } = req.params;
+    const findingId = String(req.params.findingId);
     const { adjudicationStatus, confidence, notes, reviewer } = req.body;
 
     if (!adjudicationStatus) {
@@ -480,14 +481,14 @@ router.post("/findings/:findingId/adjudications", (req: Request, res: Response) 
       adjudicatedAt: new Date().toISOString(),
     };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Adjudication recorded successfully",
       data: adjudication,
     });
   } catch (error) {
     logger.error({ error }, "Failed to record adjudication");
-    res.status(500).json({ error: "Failed to record adjudication" });
+    return res.status(500).json({ error: "Failed to record adjudication" });
   }
 });
 
@@ -527,14 +528,14 @@ router.post("/analyses", (req: Request, res: Response) => {
       analysis.completedAt = new Date().toISOString();
     }, 2000);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Analysis started",
       data: analysis,
     });
   } catch (error) {
     logger.error({ error }, "Failed to start analysis");
-    res.status(500).json({ error: "Failed to start analysis" });
+    return res.status(500).json({ error: "Failed to start analysis" });
   }
 });
 
@@ -562,7 +563,7 @@ router.post("/tags", (req: Request, res: Response) => {
       tags.push(tag);
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Tag added successfully",
       data: {
@@ -574,7 +575,7 @@ router.post("/tags", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to add tag");
-    res.status(500).json({ error: "Failed to add tag" });
+    return res.status(500).json({ error: "Failed to add tag" });
   }
 });
 
@@ -609,14 +610,14 @@ router.post("/clusters", (req: Request, res: Response) => {
 
     clusterRegistry.set(clusterId, cluster);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Cluster created successfully",
       data: cluster,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create cluster");
-    res.status(500).json({ error: "Failed to create cluster" });
+    return res.status(500).json({ error: "Failed to create cluster" });
   }
 });
 
@@ -629,17 +630,17 @@ router.post("/clusters", (req: Request, res: Response) => {
  */
 router.get("/entities/:entityId", (req: Request, res: Response) => {
   try {
-    const { entityId } = req.params;
+    const entityId = String(req.params.entityId);
     const entity = entityRegistry.get(entityId);
 
     if (!entity) {
       return res.status(404).json({ error: "Entity not found" });
     }
 
-    res.json({ success: true, data: entity });
+    return res.json({ success: true, data: entity });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve entity");
-    res.status(500).json({ error: "Failed to retrieve entity" });
+    return res.status(500).json({ error: "Failed to retrieve entity" });
   }
 });
 
@@ -661,14 +662,14 @@ router.get("/entities", (req: Request, res: Response) => {
       entities = entities.filter((e) => e.riskScore >= minRisk);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: entities,
       count: entities.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to search entities");
-    res.status(500).json({ error: "Failed to search entities" });
+    return res.status(500).json({ error: "Failed to search entities" });
   }
 });
 
@@ -681,7 +682,7 @@ router.get("/entities", (req: Request, res: Response) => {
  */
 router.post("/alerts/:alertId/acknowledge", (req: Request, res: Response) => {
   try {
-    const { alertId } = req.params;
+    const alertId = String(req.params.alertId);
     const { notes } = req.body;
 
     const acknowledgment: AnyRecord = {
@@ -693,14 +694,14 @@ router.post("/alerts/:alertId/acknowledge", (req: Request, res: Response) => {
       status: "ACKNOWLEDGED",
     };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Alert acknowledged",
       data: acknowledgment,
     });
   } catch (error) {
     logger.error({ error }, "Failed to acknowledge alert");
-    res.status(500).json({ error: "Failed to acknowledge alert" });
+    return res.status(500).json({ error: "Failed to acknowledge alert" });
   }
 });
 
@@ -724,14 +725,14 @@ router.get("/alerts", (req: Request, res: Response) => {
       alerts = alerts.filter((a) => a.severity === severity);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: alerts,
       count: alerts.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve alerts");
-    res.status(500).json({ error: "Failed to retrieve alerts" });
+    return res.status(500).json({ error: "Failed to retrieve alerts" });
   }
 });
 

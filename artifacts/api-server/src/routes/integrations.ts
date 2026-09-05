@@ -8,13 +8,13 @@ const router = Router();
 router.get("/", async (req: Request, res: Response) => {
   try {
     const health = await integrationManager.healthCheck();
-    res.json({
+    return res.json({
       success: true,
       data: health,
     });
   } catch (error) {
     logger.error({ error }, "Failed to get integration health");
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to retrieve integration status",
     });
@@ -43,13 +43,13 @@ router.post("/:systemName/cases", async (req: Request, res: Response) => {
       });
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: result,
     });
   } catch (error) {
     logger.error({ error }, "Failed to submit case to integration");
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to submit case",
     });
@@ -71,13 +71,13 @@ router.get("/:systemName/cases/:externalId", async (req: Request, res: Response)
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: result,
     });
   } catch (error) {
     logger.error({ error }, "Failed to get case status from integration");
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to retrieve case status",
     });

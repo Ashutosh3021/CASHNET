@@ -1,8 +1,5 @@
 import { Router, type IRouter } from "express";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import path from "path";
-const execFileAsync = promisify(execFile);
+import axios from "axios";
 import {
   AddComplaintBody,
   CreateCaseBody,
@@ -89,74 +86,109 @@ router.post("/cases", (req, res) => { const parsed = CreateCaseBody.safeParse(re
 router.get("/cases/:caseId", (req, res) => res.json(detail(req.params.caseId)));
 router.post("/cases/:caseId/analyze", async (req, res) => {
   const d = detail(req.params.caseId);
+
+  // Build a record matching what lib/model_manager._extract_features understands
+  // (risk_score, transaction_count, amount, age_days) plus case context.
+  const record = {
+    risk_score:
+      d.priority === "CRITICAL" ? 0.9 : d.priority === "HIGH" ? 0.7 : 0.4,
+    transaction_count: d.transactions?.length ?? 0,
+    amount: d.amount ?? 0,
+    age_days: Math.max(
+      1,
+      Math.round(
+        (Date.now() - new Date(d.updatedAt || d.conversionAt).getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    ),
+    // Case context that 184 / the model domain may want; the proxy passes
+    // through whatever keys it doesn't strip.
+    case_id: d.id,
+    city: d.city,
+    fraud_type: d.fraudType,
+  };
+
+  // Route the prediction through the same proxy the frontend's modelService
+  // already uses. This keeps a single integration path to the Python service
+  // and avoids shelling out of the Node process.
+  const pythonBase =
+    process.env.PYTHON_SERVICE_URL || "http://localhost:5000";
+
   try {
-    const transaction = {
-      bank_transaction_data: {
-        transaction_id: `TXN-${d.id}`,
-        transaction_amount: d.amount,
-        source_account: { account_number: d.accounts[0]?.masked, city: d.city },
-        destination_account: { city: d.city }
-      },
-      scenario_metadata: { is_suspicious: d.priority === "CRITICAL" || d.priority === "HIGH" }
-    };
-    
-    // Path relative to dist/routes/cashnet.js -> artifacts/api-server/dist/routes/
-    const scriptPath = path.resolve(__dirname, "../../../../../scripts/predict_184.py");
-    const { stdout } = await execFileAsync("python", [scriptPath], { 
-      input: JSON.stringify(transaction) 
-    });
-    
-    const prediction = JSON.parse(stdout);
+    const upstream = await axios.post(
+      `${pythonBase}/models/predict/184`,
+      { record },
+      { timeout: 30_000, validateStatus: () => true },
+    );
+
+    if (upstream.status >= 400) {
+      // Surface the upstream failure rather than silently returning stale data.
+      return res.status(502).json({
+        error: "Model service unavailable",
+        upstream_status: upstream.status,
+        upstream_body: upstream.data,
+        case: d,
+      });
+    }
+
+    const prediction = upstream.data ?? {};
     if (prediction.error) {
-      console.error("Python prediction error:", prediction.error);
-      return res.json(d);
+      return res.status(502).json({
+        error: "Model returned error",
+        upstream_error: prediction.error,
+        case: d,
+      });
     }
-    
-    if (prediction.risk_object) {
-      d.risk = {
-        score: Math.round(prediction.risk_object.risk_score * 100),
-        category: prediction.risk_object.risk_label.toUpperCase(),
-        confidence: prediction.confidence,
-        features: ["Live Python Model Inference", "Real-time assessment"],
-        modelVersion: prediction.metadata?.model || "184-active"
-      };
-    }
-    
-    if (prediction.dashboard) {
-      const city = prediction.dashboard.metrics?.predicted_withdrawal_city || "unknown";
-      d.predictions = {
-        hotspots: [{
-          id: "live-1",
-          city,
-          lat: 28.61, lng: 77.20, // Default to Delhi coords for live example if needed
-          probability: prediction.confidence,
-          risk: Math.round((prediction.risk_object?.risk_score || 0.8) * 100),
+
+    // Map the proxy's normalized response back onto the case detail shape the
+    // frontend already renders.
+    const confidence =
+      typeof prediction.confidence === "number" ? prediction.confidence : 0;
+    const scorePct = Math.round(confidence * 100);
+    const category = scorePct >= 80 ? "CRITICAL" : scorePct >= 60 ? "HIGH" : scorePct >= 40 ? "MEDIUM" : "LOW";
+
+    d.risk = {
+      score: scorePct,
+      category,
+      confidence,
+      features: ["Live Python Model Inference", `Model ${prediction.model_id ?? 184}`],
+      modelVersion: String(prediction.model_id ?? 184),
+    };
+    d.predictions = {
+      hotspots: [
+        {
+          id: `live-${d.id}`,
+          city: d.city || "unknown",
+          lat: 28.61,
+          lng: 77.2,
+          probability: confidence,
+          risk: scorePct,
           amount: d.amount,
           timeWindow: "Next 24 hours",
           atm: "Predicted Region",
           branch: "Unknown",
-          factors: ["ML Model Inference", `ATMs in city: ${prediction.dashboard.metrics?.atms_in_city}`],
-          confidence: prediction.confidence
-        }],
-        generatedAt: new Date().toISOString(),
-        modelVersion: prediction.metadata?.model || "184-active"
-      };
-    }
+          factors: ["ML Model Inference", `Model ${prediction.model_id ?? 184}`],
+          confidence,
+        },
+      ],
+      generatedAt: prediction.timestamp || new Date().toISOString(),
+      modelVersion: String(prediction.model_id ?? 184),
+    };
+    d.audit.push({
+      action: "CASE_ANALYSIS_EXECUTED",
+      actor: "demo.investigator",
+      timestamp: new Date().toISOString(),
+      source: "MODEL_INFERENCE",
+    });
 
-    if (prediction.routing_action_list && prediction.routing_action_list.length > 0) {
-      d.recommendations = prediction.routing_action_list.map((act: any) => ({
-        priority: act.priority,
-        title: act.action.replace(/_/g, " "),
-        reason: `Target: ${act.target}`,
-        evidence: ["Live ML Inference"],
-        confidence: act.confidence
-      }));
-    }
-
-    res.json(d);
+    return res.json(d);
   } catch (error) {
-    console.error("Prediction execution failed:", error);
-    res.json(d);
+    // Network failure to the Python service (DNS, connection refused, timeout).
+    return res.status(502).json({
+      error: "Model service unreachable",
+      details: (error as Error).message,
+      case: d,
+    });
   }
 });
 router.post("/cases/:caseId/complaint", (req, res) => { const parsed = AddComplaintBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid report input" }); return; } res.json(detail(req.params.caseId)); });

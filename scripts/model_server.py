@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -84,7 +85,7 @@ def models_status():
         return (
             jsonify(
                 {
-                    "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "models": status,
                 }
             ),
@@ -235,7 +236,7 @@ def batch_predict():
         return (
             jsonify(
                 {
-                    "timestamp": mm.datetime.now(mm.timezone.utc).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "total_records": len(records),
                     "models_processed": len(model_ids),
                     "results": results,

@@ -47,14 +47,14 @@ router.post("/legal-holds", (req: Request, res: Response) => {
       notifyParties,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Legal hold placed successfully",
       data: hold,
     });
   } catch (error) {
     logger.error({ error }, "Failed to place legal hold");
-    res.status(500).json({ error: "Failed to place legal hold" });
+    return res.status(500).json({ error: "Failed to place legal hold" });
   }
 });
 
@@ -63,17 +63,17 @@ router.post("/legal-holds", (req: Request, res: Response) => {
  */
 router.get("/legal-holds/:holdId", (req: Request, res: Response) => {
   try {
-    const { holdId } = req.params;
+    const holdId = String(req.params.holdId);
     const hold = LegalHoldManager.getLegalHold(holdId);
 
     if (!hold) {
       return res.status(404).json({ error: "Legal hold not found" });
     }
 
-    res.json({ success: true, data: hold });
+    return res.json({ success: true, data: hold });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve legal hold");
-    res.status(500).json({ error: "Failed to retrieve legal hold" });
+    return res.status(500).json({ error: "Failed to retrieve legal hold" });
   }
 });
 
@@ -82,11 +82,11 @@ router.get("/legal-holds/:holdId", (req: Request, res: Response) => {
  */
 router.get("/legal-holds/case/:caseId", (req: Request, res: Response) => {
   try {
-    const { caseId } = req.params;
+    const caseId = String(req.params.caseId);
     const holds = LegalHoldManager.getActiveLegalHolds(caseId);
     const isUnderHold = holds.length > 0;
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         caseId,
@@ -97,7 +97,7 @@ router.get("/legal-holds/case/:caseId", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve legal holds for case");
-    res.status(500).json({ error: "Failed to retrieve legal holds" });
+    return res.status(500).json({ error: "Failed to retrieve legal holds" });
   }
 });
 
@@ -106,7 +106,7 @@ router.get("/legal-holds/case/:caseId", (req: Request, res: Response) => {
  */
 router.post("/legal-holds/:holdId/release", (req: Request, res: Response) => {
   try {
-    const { holdId } = req.params;
+    const holdId = String(req.params.holdId);
     const { reason } = req.body;
 
     if (!reason) {
@@ -121,14 +121,14 @@ router.post("/legal-holds/:holdId/release", (req: Request, res: Response) => {
       return res.status(404).json({ error: "Legal hold not found" });
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: "Legal hold released successfully",
       data: hold,
     });
   } catch (error) {
     logger.error({ error }, "Failed to release legal hold");
-    res.status(500).json({ error: "Failed to release legal hold" });
+    return res.status(500).json({ error: "Failed to release legal hold" });
   }
 });
 
@@ -144,14 +144,14 @@ router.get("/legal-holds", (req: Request, res: Response) => {
       caseId: caseId as string,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: holds,
       count: holds.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list legal holds");
-    res.status(500).json({ error: "Failed to list legal holds" });
+    return res.status(500).json({ error: "Failed to list legal holds" });
   }
 });
 
@@ -189,14 +189,14 @@ router.post("/retention-policies", (req: Request, res: Response) => {
       createdBy: actor,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Retention policy created successfully",
       data: policy,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create retention policy");
-    res.status(500).json({ error: "Failed to create retention policy" });
+    return res.status(500).json({ error: "Failed to create retention policy" });
   }
 });
 
@@ -205,7 +205,7 @@ router.post("/retention-policies", (req: Request, res: Response) => {
  */
 router.get("/retention-policies/:dataType", (req: Request, res: Response) => {
   try {
-    const { dataType } = req.params;
+    const dataType = String(req.params.dataType);
     const policy = RetentionPolicyManager.getPolicy(dataType);
 
     if (!policy) {
@@ -214,10 +214,10 @@ router.get("/retention-policies/:dataType", (req: Request, res: Response) => {
       });
     }
 
-    res.json({ success: true, data: policy });
+    return res.json({ success: true, data: policy });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve retention policy");
-    res.status(500).json({ error: "Failed to retrieve retention policy" });
+    return res.status(500).json({ error: "Failed to retrieve retention policy" });
   }
 });
 
@@ -228,14 +228,14 @@ router.get("/retention-policies", (_req: Request, res: Response) => {
   try {
     const policies = RetentionPolicyManager.listAllPolicies();
 
-    res.json({
+    return res.json({
       success: true,
       data: policies,
       count: policies.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list retention policies");
-    res.status(500).json({ error: "Failed to list retention policies" });
+    return res.status(500).json({ error: "Failed to list retention policies" });
   }
 });
 
@@ -258,7 +258,7 @@ router.post("/retention-check", (req: Request, res: Response) => {
       new Date(createdAt)
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         dataType,
@@ -269,7 +269,7 @@ router.post("/retention-check", (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error({ error }, "Failed to check retention");
-    res.status(500).json({ error: "Failed to check retention" });
+    return res.status(500).json({ error: "Failed to check retention" });
   }
 });
 
@@ -304,14 +304,14 @@ router.post("/deletions/schedule", (req: Request, res: Response) => {
       }
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Deletion scheduled successfully",
       data: event,
     });
   } catch (error) {
     logger.error({ error }, "Failed to schedule deletion");
-    res.status(500).json({ error: "Failed to schedule deletion" });
+    return res.status(500).json({ error: "Failed to schedule deletion" });
   }
 });
 
@@ -338,14 +338,14 @@ router.post("/deletions/execute", (req: Request, res: Response) => {
       actor
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: "Data deletion executed successfully",
       data: event,
     });
   } catch (error) {
     logger.error({ error }, "Failed to execute deletion");
-    res.status(500).json({ error: "Failed to execute deletion" });
+    return res.status(500).json({ error: "Failed to execute deletion" });
   }
 });
 
@@ -356,14 +356,14 @@ router.get("/deletions/pending", (_req: Request, res: Response) => {
   try {
     const pendingDeletions = DataDeletionManager.getPendingDeletions();
 
-    res.json({
+    return res.json({
       success: true,
       data: pendingDeletions,
       count: pendingDeletions.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve pending deletions");
-    res.status(500).json({ error: "Failed to retrieve pending deletions" });
+    return res.status(500).json({ error: "Failed to retrieve pending deletions" });
   }
 });
 
@@ -372,17 +372,17 @@ router.get("/deletions/pending", (_req: Request, res: Response) => {
  */
 router.get("/deletions/:targetId", (req: Request, res: Response) => {
   try {
-    const { targetId } = req.params;
+    const targetId = String(req.params.targetId);
     const history = DataDeletionManager.getDeletionHistory(targetId);
 
-    res.json({
+    return res.json({
       success: true,
       data: history,
       count: history.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve deletion history");
-    res.status(500).json({ error: "Failed to retrieve deletion history" });
+    return res.status(500).json({ error: "Failed to retrieve deletion history" });
   }
 });
 
@@ -418,14 +418,14 @@ router.post("/subject-access-requests", (req: Request, res: Response) => {
       notes,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Subject access request received",
       data: sar,
     });
   } catch (error) {
     logger.error({ error }, "Failed to create SAR");
-    res.status(500).json({ error: "Failed to create subject access request" });
+    return res.status(500).json({ error: "Failed to create subject access request" });
   }
 });
 
@@ -437,14 +437,14 @@ router.get("/subject-access-requests/pending", (_req: Request, res: Response) =>
   try {
     const pendingSARs = SARManager.getPendingSARs();
 
-    res.json({
+    return res.json({
       success: true,
       data: pendingSARs,
       count: pendingSARs.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve pending SARs");
-    res.status(500).json({ error: "Failed to retrieve pending subject access requests" });
+    return res.status(500).json({ error: "Failed to retrieve pending subject access requests" });
   }
 });
 
@@ -456,14 +456,14 @@ router.get("/subject-access-requests/overdue", (_req: Request, res: Response) =>
   try {
     const overdueSARs = SARManager.getOverdueSARs();
 
-    res.json({
+    return res.json({
       success: true,
       data: overdueSARs,
       count: overdueSARs.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve overdue SARs");
-    res.status(500).json({ error: "Failed to retrieve overdue subject access requests" });
+    return res.status(500).json({ error: "Failed to retrieve overdue subject access requests" });
   }
 });
 
@@ -479,14 +479,14 @@ router.get("/subject-access-requests", (req: Request, res: Response) => {
       requestType: requestType as string,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: sars,
       count: sars.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to list SARs");
-    res.status(500).json({ error: "Failed to list subject access requests" });
+    return res.status(500).json({ error: "Failed to list subject access requests" });
   }
 });
 
@@ -496,17 +496,17 @@ router.get("/subject-access-requests", (req: Request, res: Response) => {
  */
 router.get("/subject-access-requests/:sarId", (req: Request, res: Response) => {
   try {
-    const { sarId } = req.params;
+    const sarId = String(req.params.sarId);
     const sar = SARManager.getSAR(sarId);
 
     if (!sar) {
       return res.status(404).json({ error: "Subject access request not found" });
     }
 
-    res.json({ success: true, data: sar });
+    return res.json({ success: true, data: sar });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve SAR");
-    res.status(500).json({ error: "Failed to retrieve subject access request" });
+    return res.status(500).json({ error: "Failed to retrieve subject access request" });
   }
 });
 
@@ -515,7 +515,7 @@ router.get("/subject-access-requests/:sarId", (req: Request, res: Response) => {
  */
 router.post("/subject-access-requests/:sarId/process", (req: Request, res: Response) => {
   try {
-    const { sarId } = req.params;
+    const sarId = String(req.params.sarId);
     const { dataPackagePath } = req.body;
 
     const actor = (req as any).user?.id || "SYSTEM";
@@ -526,14 +526,14 @@ router.post("/subject-access-requests/:sarId/process", (req: Request, res: Respo
       return res.status(404).json({ error: "Subject access request not found" });
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: "Subject access request processed",
       data: sar,
     });
   } catch (error) {
     logger.error({ error }, "Failed to process SAR");
-    res.status(500).json({ error: "Failed to process subject access request" });
+    return res.status(500).json({ error: "Failed to process subject access request" });
   }
 });
 
@@ -555,14 +555,14 @@ router.get("/audit-trail", (req: Request, res: Response) => {
       endDate: endDate ? new Date(endDate as string) : undefined,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: auditTrail,
       count: auditTrail.length,
     });
   } catch (error) {
     logger.error({ error }, "Failed to retrieve audit trail");
-    res.status(500).json({ error: "Failed to retrieve audit trail" });
+    return res.status(500).json({ error: "Failed to retrieve audit trail" });
   }
 });
 

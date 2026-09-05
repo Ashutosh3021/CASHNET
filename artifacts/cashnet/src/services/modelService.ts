@@ -30,11 +30,23 @@ interface ModelStatus {
   };
 }
 
+// Resolve the API base URL with the project's actual build system in mind.
+// The app is built with Vite (import.meta.env.VITE_API_BASE_URL), but a
+// legacy CRA-style REACT_APP_API_URL is still honored for older tooling.
+function resolveBaseURL(): string {
+  const env =
+    (typeof import.meta !== 'undefined' &&
+      (import.meta as any).env?.VITE_API_BASE_URL) ||
+    process.env.REACT_APP_API_URL;
+  if (env && env.length > 0) return env.replace(/\/$/, '');
+  return '/api';
+}
+
 class ModelService {
   private apiClient: AxiosInstance;
   private baseURL: string;
 
-  constructor(baseURL: string = process.env.REACT_APP_API_URL || 'http://localhost:3000/api') {
+  constructor(baseURL: string = resolveBaseURL()) {
     this.baseURL = baseURL;
     this.apiClient = axios.create({
       baseURL,

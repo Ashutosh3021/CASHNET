@@ -60,3 +60,5 @@ data
 !data/
 !data/reference/
 !data/reference/banks.json
+node.log
+py.log
