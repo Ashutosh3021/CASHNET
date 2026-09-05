@@ -294,8 +294,10 @@ function SettingsPage() {
 
 function FundFlowRoute() {
   const cases = useListCases(); const selected = getCasesArray(cases.data)[0]?.id || '';
+  const [, navigate] = useLocation();
   if (cases.isLoading) return <LoadingState />;
-  return selected ? <FundFlowPage /> : <EmptyState title="Select a case to open fund flow" description="Fund flow is synchronized to a case. Ingest or select a case from the desk first." action={<Link href="/cases" className="mt-4 bg-slate-800 px-3 py-2 text-xs font-bold text-amber-300" data-testid="link-fund-flow-cases">Open case desk</Link>} />;
+  if (selected) { navigate(`/fund-flow/${selected}`); return null; }
+  return <EmptyState title="Select a case to open fund flow" description="Fund flow is synchronized to a case. Ingest or select a case from the desk first." action={<Link href="/cases" className="mt-4 bg-slate-800 px-3 py-2 text-xs font-bold text-amber-300" data-testid="link-fund-flow-cases">Open case desk</Link>} />;
 }
 
 function Router() {

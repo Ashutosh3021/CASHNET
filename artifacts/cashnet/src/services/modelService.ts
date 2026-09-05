@@ -30,15 +30,26 @@ interface ModelStatus {
   };
 }
 
-// Resolve the API base URL with the project's actual build system in mind.
-// The app is built with Vite (import.meta.env.VITE_API_BASE_URL), but a
-// legacy CRA-style REACT_APP_API_URL is still honored for older tooling.
+// Resolve the base URL for the model service.
+//
+// The generated API client (custom-fetch.ts) uses VITE_API_BASE_URL as a plain
+// origin (e.g. https://cashnet-node.onrender.com) and its generated paths
+// already include /api (e.g. /api/cases).
+//
+// This service calls paths like /models/predict/182, so it needs a base that
+// ends in /api. We derive that by taking the origin from VITE_API_BASE_URL and
+// appending /api, or fall back to /api for same-origin local dev.
 function resolveBaseURL(): string {
   const env =
     (typeof import.meta !== 'undefined' &&
       (import.meta as any).env?.VITE_API_BASE_URL) ||
     process.env.REACT_APP_API_URL;
-  if (env && env.length > 0) return env.replace(/\/$/, '');
+
+  if (env && env.length > 0) {
+    // Strip any trailing /api suffix so we never double it, then append /api
+    const base = env.replace(/\/$/, '').replace(/\/api$/, '');
+    return `${base}/api`;
+  }
   return '/api';
 }
 
