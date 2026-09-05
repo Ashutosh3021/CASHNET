@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { FileDownload, Print } from '@mui/icons-material';
+import { getBackendBase } from '@/lib/api-url';
 
 interface Report {
   reportId: string;
@@ -39,7 +40,7 @@ export const Reports: React.FC = () => {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch('/api/reports');
+      const response = await fetch(`${getBackendBase()}/reports`);
       const data = await response.json();
       setReports(data.reports || []);
     } catch (error) {
@@ -53,7 +54,7 @@ export const Reports: React.FC = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const caseId = urlParams.get('caseId');
       
-      const response = await fetch(`/api/cases/${caseId}/export`, {
+      const response = await fetch(`${getBackendBase()}/cases/${caseId}/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format: selectedFormat }),

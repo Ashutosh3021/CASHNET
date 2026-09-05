@@ -22,6 +22,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Save } from '@mui/icons-material';
+import { getBackendBase } from '@/lib/api-url';
 
 interface ProviderConfig {
   name: string;
@@ -57,7 +58,7 @@ export const Settings: React.FC = () => {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/settings');
+      const response = await fetch(`${getBackendBase()}/settings`);
       const data = await response.json();
       setProviders(data.providers || []);
       setPreferences(data.preferences || preferences);
@@ -70,7 +71,7 @@ export const Settings: React.FC = () => {
 
   const handleSaveSettings = async () => {
     try {
-      await fetch('/api/settings', {
+      await fetch(`${getBackendBase()}/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ providers, preferences }),

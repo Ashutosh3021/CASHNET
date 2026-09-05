@@ -20,6 +20,7 @@ import {
   Dialog,
 } from '@mui/material';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getBackendBase } from '@/lib/api-url';
 
 interface WalletData {
   address: string;
@@ -54,7 +55,7 @@ export const CryptoWalletAnalysis: React.FC = () => {
     setLoading(true);
     try {
       // Call API to fetch wallet analysis
-      const response = await fetch(`/api/wallets/analyze/${walletAddress}`);
+      const response = await fetch(`${getBackendBase()}/wallets/analyze/${walletAddress}`);
       const data = await response.json();
       
       setWalletData({
@@ -67,7 +68,7 @@ export const CryptoWalletAnalysis: React.FC = () => {
       });
 
       // Fetch transaction history
-      const txResponse = await fetch(`/api/wallets/${walletAddress}/transactions`);
+      const txResponse = await fetch(`${getBackendBase()}/wallets/${walletAddress}/transactions`);
       const txData = await txResponse.json();
       setTransactions(txData.transactions || []);
 

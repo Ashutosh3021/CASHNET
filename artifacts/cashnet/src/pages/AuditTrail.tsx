@@ -19,6 +19,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Download } from '@mui/icons-material';
+import { getBackendBase } from '@/lib/api-url';
 
 interface AuditEvent {
   eventId: string;
@@ -52,7 +53,7 @@ export const AuditTrail: React.FC = () => {
       if (filterAction) params.append('action', filterAction);
       if (filterStatus) params.append('status', filterStatus);
 
-      const response = await fetch(`/api/audit-trail?${params.toString()}`);
+      const response = await fetch(`${getBackendBase()}/audit-trail?${params.toString()}`);
       const data = await response.json();
       setEvents(data.events || []);
     } catch (error) {
@@ -64,7 +65,7 @@ export const AuditTrail: React.FC = () => {
 
   const handleDownloadLog = async () => {
     try {
-      const response = await fetch('/api/audit-trail/export', {
+      const response = await fetch(`${getBackendBase()}/audit-trail/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format: 'csv' }),

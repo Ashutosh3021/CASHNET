@@ -16,6 +16,7 @@ import {
   LinearProgress,
   Chip,
 } from '@mui/material';
+import { getBackendBase } from '@/lib/api-url';
 
 interface VASPCandidate {
   vaspName: string;
@@ -42,7 +43,7 @@ export const VASPAttribution: React.FC = () => {
   const fetchCandidates = async (id: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/cases/${id}/vasp-attribution`);
+      const response = await fetch(`${getBackendBase()}/cases/${id}/vasp-attribution`);
       const data = await response.json();
       setCandidates(data.candidates || []);
     } catch (error) {
@@ -54,7 +55,7 @@ export const VASPAttribution: React.FC = () => {
 
   const handleAdjudication = async (vaspName: string, approved: boolean) => {
     try {
-      await fetch(`/api/cases/${caseId}/adjudicate`, {
+      await fetch(`${getBackendBase()}/cases/${caseId}/adjudicate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vaspName, approved }),
