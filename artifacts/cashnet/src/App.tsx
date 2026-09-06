@@ -23,6 +23,7 @@ import NotFound from '@/pages/not-found';
 import HistoricalActivityPage from '@/components/historical-activity-page';
 import PredictiveEnginePage from '@/components/predictive-engine-page';
 import AlertsPage from '@/components/alerts-page';
+import LandingPage from '@/pages/landing/LandingPage';
 
 import { setBaseUrl } from '@workspace/api-client-react';
 
@@ -302,24 +303,29 @@ function FundFlowRoute() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch>
-    <Route path="/" component={DashboardPage} />
-    <Route path="/predictive-engine" component={PredictiveEnginePage} />
-    <Route path="/alerts" component={AlertsPage} />
-    <Route path="/cases" component={CasesPage} />
-    <Route path="/cases/:id" component={CaseWorkspacePage} />
-    <Route path="/fund-flow" component={FundFlowRoute} />
-    <Route path="/fund-flow/:caseId" component={FundFlowPage} />
-    <Route path="/crypto" component={WalletsPage} />
-    <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
-    <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
-    <Route path="/historical-activity" component={HistoricalActivityPage} />
-    <Route path="/interventions" component={InterventionsPage} />
-    <Route path="/reports" component={ReportsPage} />
-    <Route path="/audit" component={AuditPage} />
-    <Route path="/settings" component={SettingsPage} />
-    <Route component={NotFound} />
-  </Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Switch>
+    <Route path="/landing" component={LandingPage} />
+    <Route>
+      <Shell><Switch>
+        <Route path="/" component={DashboardPage} />
+        <Route path="/predictive-engine" component={PredictiveEnginePage} />
+        <Route path="/alerts" component={AlertsPage} />
+        <Route path="/cases" component={CasesPage} />
+        <Route path="/cases/:id" component={CaseWorkspacePage} />
+        <Route path="/fund-flow" component={FundFlowRoute} />
+        <Route path="/fund-flow/:caseId" component={FundFlowPage} />
+        <Route path="/crypto" component={WalletsPage} />
+        <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
+        <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
+        <Route path="/historical-activity" component={HistoricalActivityPage} />
+        <Route path="/interventions" component={InterventionsPage} />
+        <Route path="/reports" component={ReportsPage} />
+        <Route path="/audit" component={AuditPage} />
+        <Route path="/settings" component={SettingsPage} />
+        <Route component={NotFound} />
+      </Switch></Shell>
+    </Route>
+  </Switch></ErrorBoundary>;
 }
 
 function App() {
