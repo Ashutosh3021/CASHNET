@@ -304,10 +304,10 @@ function FundFlowRoute() {
 function Router() {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}><Switch>
-    <Route path="/landing" component={LandingPage} />
+    <Route path="/" component={LandingPage} />
     <Route>
       <Shell><Switch>
-        <Route path="/" component={DashboardPage} />
+        <Route path="/dashboard" component={DashboardPage} />
         <Route path="/predictive-engine" component={PredictiveEnginePage} />
         <Route path="/alerts" component={AlertsPage} />
         <Route path="/cases" component={CasesPage} />
