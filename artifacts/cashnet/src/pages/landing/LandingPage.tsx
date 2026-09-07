@@ -61,7 +61,7 @@ export default function LandingPage() {
               <a href="#features" className="text-[11px] font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Platform</a>
               <a href="#workflow" className="text-[11px] font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Workflow</a>
               <a href="#security" className="text-[11px] font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Security</a>
-              <Link href="/dashboard" className="flex items-center gap-2 bg-amber-400 px-5 py-2 text-xs font-extrabold text-slate-900 hover:bg-amber-300 transition-transform active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] rounded-sm">
+              <Link href="/login" className="flex items-center gap-2 bg-amber-400 px-5 py-2 text-xs font-extrabold text-slate-900 hover:bg-amber-300 transition-transform active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] rounded-sm">
                 Open Desk <ArrowRight size={14} strokeWidth={3} />
               </Link>
             </nav>
@@ -84,7 +84,7 @@ export default function LandingPage() {
             <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white tracking-wide border-b border-slate-700 pb-4">Platform Modules</a>
             <a href="#workflow" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white tracking-wide border-b border-slate-700 pb-4">Analysis Pipeline</a>
             <a href="#security" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white tracking-wide border-b border-slate-700 pb-4">Data Security</a>
-            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mt-4 flex items-center justify-center gap-2 bg-amber-400 px-6 py-4 text-sm font-extrabold text-slate-900 rounded-sm">
+            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="mt-4 flex items-center justify-center gap-2 bg-amber-400 px-6 py-4 text-sm font-extrabold text-slate-900 rounded-sm">
               Open Investigator Desk <ArrowRight size={18} />
             </Link>
           </div>
@@ -121,7 +121,7 @@ export default function LandingPage() {
           </p>
 
           <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 animate-fade-in-up delay-300 w-full sm:w-auto">
-            <Link href="/dashboard" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-400 px-8 py-3.5 text-sm font-extrabold text-slate-900 hover:bg-amber-300 transition-transform active:scale-95 rounded-sm shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-400 px-8 py-3.5 text-sm font-extrabold text-slate-900 hover:bg-amber-300 transition-transform active:scale-95 rounded-sm shadow-[0_0_15px_rgba(245,158,11,0.2)]">
               <Target size={16} strokeWidth={2.5} /> Open Platform
             </Link>
             <a href="#features">
@@ -338,7 +338,7 @@ export default function LandingPage() {
               <p className="text-slate-500 text-sm leading-relaxed mb-8 font-medium">
                 The investigator workspace provides an end-to-end toolkit, translating raw synthetic tables into connected, actionable insights.
               </p>
-              <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs font-bold text-slate-900 bg-amber-400 px-6 py-3 hover:bg-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)] rounded-sm transition-transform active:scale-95">
+              <Link href="/login" className="inline-flex items-center gap-2 text-xs font-bold text-slate-900 bg-amber-400 px-6 py-3 hover:bg-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)] rounded-sm transition-transform active:scale-95">
                 Enter Workspace <ArrowRight size={14} strokeWidth={2.5} />
               </Link>
             </div>
@@ -398,7 +398,7 @@ export default function LandingPage() {
             Enter the fully-functional synthetic workspace to trace fund flows and review model predictions.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/dashboard" className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[hsl(214,39%,17%)] text-amber-400 px-8 py-3.5 text-sm font-extrabold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 rounded-sm">
+            <Link href="/login" className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[hsl(214,39%,17%)] text-amber-400 px-8 py-3.5 text-sm font-extrabold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 rounded-sm">
               <Target size={16} strokeWidth={2.5} /> Open Investigator Desk
             </Link>
             <a href="https://github.com/Sandesh14015/CASHNET" target="_blank" rel="noopener noreferrer">

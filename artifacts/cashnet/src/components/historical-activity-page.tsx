@@ -16,13 +16,7 @@ const empty: Filters = { days: "90", state: "", district: "", city: "", fraudTyp
 const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
 const api = async <T,>(path: string, filters: Record<string, string>) => { const response = await fetch(`${getBackendBase()}${path}?${new URLSearchParams(Object.entries(filters).filter(([, value]) => value !== ""))}`); if (!response.ok) throw new Error("Historical activity data is unavailable"); return response.json() as Promise<T>; };
 
-// Resolve the backend base URL — honours VITE_API_BASE_URL (origin only, no /api suffix)
-// then appends /api, or falls back to relative /api for same-origin local dev.
-function getBackendBase(): string {
-  const env = typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL;
-  if (env && env.length > 0) return env.replace(/\/+$/, "").replace(/\/api$/, "") + "/api";
-  return "/api";
-}
+
 function Heat({ records }: { records: Txn[] }) { const map = useMap(); useEffect(() => { const make = (L as unknown as { heatLayer: (items: Array<[number, number, number]>, options: object) => L.Layer }).heatLayer; const layer = make(records.map((item) => [item.latitude, item.longitude, item.riskScore / 100]), { radius: 30, blur: 22, max: 1, gradient: { .2: "#22d3ee", .5: "#facc15", .75: "#f97316", 1: "#dc2626" } }).addTo(map); return () => { map.removeLayer(layer); }; }, [map, records]); return null; }
 function Center({ target }: { target?: [number, number] }) { const map = useMap(); useEffect(() => { if (target) map.flyTo(target, 12); }, [map, target]); return null; }
 

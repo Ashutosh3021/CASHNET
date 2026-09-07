@@ -5,7 +5,7 @@ import {
   ChevronRight, CircleDot, Clock3, Crosshair, Database, FileCheck2, FileText,
   Fingerprint, Globe2, LayoutDashboard, LockKeyhole, Menu, Network, PanelLeftClose,
   PanelLeftOpen, Pause, Plus, Radar, RefreshCw, Search, Send, Settings2, Shield,
-  Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned, Cpu
+  Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned, Cpu, LogOut
 } from 'lucide-react';
 import {
   useAddComplaint, useAnalyzeCase, useApproveIntervention, useCreateCase,
@@ -24,6 +24,9 @@ import HistoricalActivityPage from '@/components/historical-activity-page';
 import PredictiveEnginePage from '@/components/predictive-engine-page';
 import AlertsPage from '@/components/alerts-page';
 import LandingPage from '@/pages/landing/LandingPage';
+import Login from '@/pages/auth/Login';
+import FaceAuth from '@/pages/auth/FaceAuth';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 import { setBaseUrl } from '@workspace/api-client-react';
 
@@ -158,7 +161,7 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
   const section = location === '/' ? 'Overview' : titleCase(location.split('/')[1]);
   return <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between gap-3 border-b border-slate-200 bg-[hsl(var(--background))]/95 px-4 backdrop-blur md:px-7">
     <div className="flex items-center gap-3"><button className="text-slate-500 lg:hidden" onClick={onMenu} data-testid="button-open-mobile-nav"><Menu size={20} /></button><div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex"><span>Workspace</span><ChevronRight size={13} /><span className="font-bold text-slate-700">{section}</span></div><div className="flex items-center gap-2 sm:hidden"><CircleDot size={14} className="text-cyan-600" /><span className="font-extrabold tracking-[.12em] text-slate-800">CASHNET</span></div></div>
-    <div className="flex items-center gap-2 md:gap-4"><div className="hidden h-9 w-56 items-center gap-2 border border-slate-200 bg-white px-3 text-slate-400 md:flex"><Search size={15} /><input value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && search) setLocation(`/cases?search=${encodeURIComponent(search)}`); }} placeholder="Search cases, accounts..." className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-slate-400" data-testid="input-global-search" /><kbd className="font-mono-data text-[9px]">⌘K</kbd></div><button className="relative p-2 text-slate-500 hover:text-slate-800" data-testid="button-notifications"><Bell size={17} /><span className="absolute right-1 top-1 size-1.5 rounded-full bg-amber-500" /></button><div className="hidden h-8 w-px bg-slate-200 sm:block" /><div className="flex items-center gap-2"><div className="flex size-8 items-center justify-center rounded-full bg-slate-800 text-[10px] font-bold text-amber-300">AR</div><div className="hidden text-right sm:block"><div className="text-[11px] font-bold text-slate-700">A. Rao</div><div className="font-mono-data text-[9px] text-slate-400">Analyst / L3</div></div></div></div>
+    <div className="flex items-center gap-2 md:gap-4"><div className="hidden h-9 w-56 items-center gap-2 border border-slate-200 bg-white px-3 text-slate-400 md:flex"><Search size={15} /><input value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && search) setLocation(`/cases?search=${encodeURIComponent(search)}`); }} placeholder="Search cases, accounts..." className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-slate-400" data-testid="input-global-search" /><kbd className="font-mono-data text-[9px]">⌘K</kbd></div><button className="relative p-2 text-slate-500 hover:text-slate-800" data-testid="button-notifications"><Bell size={17} /><span className="absolute right-1 top-1 size-1.5 rounded-full bg-amber-500" /></button><div className="hidden h-8 w-px bg-slate-200 sm:block" /><div className="flex items-center gap-2"><div className="flex size-8 items-center justify-center rounded-full bg-slate-800 text-[10px] font-bold text-amber-300">AR</div><div className="hidden text-right sm:block"><div className="text-[11px] font-bold text-slate-700">A. Rao</div><div className="font-mono-data text-[9px] text-slate-400">Analyst / L3</div></div><button onClick={() => { localStorage.removeItem('cashnet_auth'); setLocation('/login'); }} className="ml-2 text-slate-400 hover:text-red-500" title="Logout" data-testid="button-logout"><LogOut size={16} /></button></div></div>
   </header>;
 }
 
@@ -305,25 +308,29 @@ function Router() {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}><Switch>
     <Route path="/" component={LandingPage} />
+    <Route path="/login" component={Login} />
+    <Route path="/face-auth" component={FaceAuth} />
     <Route>
-      <Shell><Switch>
-        <Route path="/dashboard" component={DashboardPage} />
-        <Route path="/predictive-engine" component={PredictiveEnginePage} />
-        <Route path="/alerts" component={AlertsPage} />
-        <Route path="/cases" component={CasesPage} />
-        <Route path="/cases/:id" component={CaseWorkspacePage} />
-        <Route path="/fund-flow" component={FundFlowRoute} />
-        <Route path="/fund-flow/:caseId" component={FundFlowPage} />
-        <Route path="/crypto" component={WalletsPage} />
-        <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
-        <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
-        <Route path="/historical-activity" component={HistoricalActivityPage} />
-        <Route path="/interventions" component={InterventionsPage} />
-        <Route path="/reports" component={ReportsPage} />
-        <Route path="/audit" component={AuditPage} />
-        <Route path="/settings" component={SettingsPage} />
-        <Route component={NotFound} />
-      </Switch></Shell>
+      <ProtectedRoute>
+        <Shell><Switch>
+          <Route path="/dashboard" component={DashboardPage} />
+          <Route path="/predictive-engine" component={PredictiveEnginePage} />
+          <Route path="/alerts" component={AlertsPage} />
+          <Route path="/cases" component={CasesPage} />
+          <Route path="/cases/:id" component={CaseWorkspacePage} />
+          <Route path="/fund-flow" component={FundFlowRoute} />
+          <Route path="/fund-flow/:caseId" component={FundFlowPage} />
+          <Route path="/crypto" component={WalletsPage} />
+          <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
+          <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
+          <Route path="/historical-activity" component={HistoricalActivityPage} />
+          <Route path="/interventions" component={InterventionsPage} />
+          <Route path="/reports" component={ReportsPage} />
+          <Route path="/audit" component={AuditPage} />
+          <Route path="/settings" component={SettingsPage} />
+          <Route component={NotFound} />
+        </Switch></Shell>
+      </ProtectedRoute>
     </Route>
   </Switch></ErrorBoundary>;
 }
