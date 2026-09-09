@@ -44,10 +44,7 @@ def binary_classification_metrics(
 
     if y_proba is not None:
         try:
-            if y_proba.ndim == 2:
-                y_proba_binary = y_proba[:, 1]
-            else:
-                y_proba_binary = y_proba
+            y_proba_binary = y_proba[:, 1] if y_proba.ndim == 2 else y_proba
             metrics["roc_auc"] = float(roc_auc_score(y_true, y_proba_binary))
         except (ValueError, IndexError):
             metrics["roc_auc"] = None
@@ -94,7 +91,9 @@ def multiclass_classification_metrics(
                 try:
                     metrics[f"top_{k}_accuracy"] = float(
                         top_k_accuracy_score(
-                            y_true, y_proba, k=k,
+                            y_true,
+                            y_proba,
+                            k=k,
                             labels=np.arange(y_proba.shape[1]),
                         )
                     )
@@ -104,11 +103,14 @@ def multiclass_classification_metrics(
         # ROC-AUC (one-vs-rest)
         try:
             from sklearn.preprocessing import label_binarize
+
             classes = np.unique(y_true)
             if len(classes) > 2:
                 y_true_bin = label_binarize(y_true, classes=classes)
                 metrics["roc_auc_ovr"] = float(
-                    roc_auc_score(y_true_bin, y_proba, average="macro", multi_class="ovr")
+                    roc_auc_score(
+                        y_true_bin, y_proba, average="macro", multi_class="ovr"
+                    )
                 )
         except (ValueError, IndexError):
             metrics["roc_auc_ovr"] = None
@@ -131,7 +133,9 @@ def location_prediction_metrics(
     }
 
     # City accuracy
-    correct = sum(1 for t, p in zip(y_true_cities, y_pred_cities) if t == p)
+    correct = sum(
+        1 for t, p in zip(y_true_cities, y_pred_cities, strict=False) if t == p
+    )
     metrics["city_accuracy"] = correct / len(y_true_cities) if y_true_cities else 0
 
     # Top-K city accuracy
@@ -146,7 +150,9 @@ def location_prediction_metrics(
                 try:
                     metrics[f"top_{k}_city_accuracy"] = float(
                         top_k_accuracy_score(
-                            y_true_idx[valid], y_proba[valid], k=k,
+                            y_true_idx[valid],
+                            y_proba[valid],
+                            k=k,
                             labels=np.arange(y_proba.shape[1]),
                         )
                     )
@@ -156,10 +162,15 @@ def location_prediction_metrics(
     # Distance error if coordinates available
     if true_coords and pred_coords and len(true_coords) == len(pred_coords):
         distances = []
-        for (lat1, lng1), (lat2, lng2) in zip(true_coords, pred_coords):
+        for (lat1, lng1), (lat2, lng2) in zip(true_coords, pred_coords, strict=False):
             dlat = (lat2 - lat1) * np.pi / 180
             dlng = (lng2 - lng1) * np.pi / 180
-            a = np.sin(dlat / 2) ** 2 + np.cos(lat1 * np.pi / 180) * np.cos(lat2 * np.pi / 180) * np.sin(dlng / 2) ** 2
+            a = (
+                np.sin(dlat / 2) ** 2
+                + np.cos(lat1 * np.pi / 180)
+                * np.cos(lat2 * np.pi / 180)
+                * np.sin(dlng / 2) ** 2
+            )
             dist_km = 6371 * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
             distances.append(dist_km)
 

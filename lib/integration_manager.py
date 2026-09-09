@@ -30,39 +30,51 @@ class IntegrationManager:
         results = []
 
         # NCRP status
-        results.append({
-            "name": "ncrp",
-            "enabled": self.config.ncrp.enabled,
-            "connected": False,
-            "status": "NOT_CONNECTED" if self.config.ncrp.enabled else "NOT_CONFIGURED",
-            "requires_authorization": True,
-            "message": "NCRP requires authorized API access. Not connected.",
-        })
+        results.append(
+            {
+                "name": "ncrp",
+                "enabled": self.config.ncrp.enabled,
+                "connected": False,
+                "status": (
+                    "NOT_CONNECTED" if self.config.ncrp.enabled else "NOT_CONFIGURED"
+                ),
+                "requires_authorization": True,
+                "message": "NCRP requires authorized API access. Not connected.",
+            }
+        )
 
         # SAHYOG status
-        results.append({
-            "name": "sahyog",
-            "enabled": self.config.sahyog.enabled,
-            "connected": False,
-            "status": "NOT_CONNECTED" if self.config.sahyog.enabled else "NOT_CONFIGURED",
-            "requires_authorization": True,
-            "message": "SAHYOG requires authorized API access. Not connected.",
-        })
+        results.append(
+            {
+                "name": "sahyog",
+                "enabled": self.config.sahyog.enabled,
+                "connected": False,
+                "status": (
+                    "NOT_CONNECTED" if self.config.sahyog.enabled else "NOT_CONFIGURED"
+                ),
+                "requires_authorization": True,
+                "message": "SAHYOG requires authorized API access. Not connected.",
+            }
+        )
 
         # VASP status
         vasp_connected = self.config.vasp.enabled and bool(self.config.vasp.api_url)
-        results.append({
-            "name": "vasp",
-            "enabled": self.config.vasp.enabled,
-            "connected": vasp_connected,
-            "status": "CONFIGURED" if vasp_connected else "NOT_CONFIGURED",
-            "requires_authorization": False,
-            "message": "VASP provider" if vasp_connected else "VASP not configured",
-        })
+        results.append(
+            {
+                "name": "vasp",
+                "enabled": self.config.vasp.enabled,
+                "connected": vasp_connected,
+                "status": "CONFIGURED" if vasp_connected else "NOT_CONFIGURED",
+                "requires_authorization": False,
+                "message": "VASP provider" if vasp_connected else "VASP not configured",
+            }
+        )
 
         return {"integrations": results}
 
-    def submit_case_sync(self, system_name: str, case_data: dict[str, Any]) -> dict[str, Any]:
+    def submit_case_sync(
+        self, system_name: str, case_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Synchronous case submission (for testing)."""
         if system_name in ("ncrp", "sahyog"):
             return {

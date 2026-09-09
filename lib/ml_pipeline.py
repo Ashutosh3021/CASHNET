@@ -13,13 +13,10 @@ Each model must have:
 
 from __future__ import annotations
 
-import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +87,9 @@ def save_model_artifact(
     return path
 
 
-def load_model_artifact(model_id: str, version: str | None = None) -> dict[str, Any] | None:
+def load_model_artifact(
+    model_id: str, version: str | None = None
+) -> dict[str, Any] | None:
     """Load a model artifact by ID and optional version."""
     import pickle
 
