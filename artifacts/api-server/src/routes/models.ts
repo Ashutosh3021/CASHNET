@@ -51,7 +51,7 @@ router.post('/predict/182', async (req: Request, res: Response) => {
 
     const response = await axios.post(`${PYTHON_SERVICE_URL}/models/predict/182`, {
       record,
-    });
+    }, { timeout: 30_000 });
 
     return res.json(response.data);
   } catch (error: any) {
@@ -76,7 +76,7 @@ router.post('/predict/183', async (req: Request, res: Response) => {
 
     const response = await axios.post(`${PYTHON_SERVICE_URL}/models/predict/183`, {
       record,
-    });
+    }, { timeout: 30_000 });
 
     return res.json(response.data);
   } catch (error: any) {
@@ -101,7 +101,7 @@ router.post('/predict/184', async (req: Request, res: Response) => {
 
     const response = await axios.post(`${PYTHON_SERVICE_URL}/models/predict/184`, {
       record,
-    });
+    }, { timeout: 30_000 });
 
     return res.json(response.data);
   } catch (error: any) {
@@ -133,7 +133,8 @@ router.post('/batch-predict', async (req: Request, res: Response) => {
         try {
           const response = await axios.post(
             `${PYTHON_SERVICE_URL}/models/predict/${modelId}`,
-            { record }
+            { record },
+            { timeout: 30_000 }
           );
           batchResults.push(response.data);
         } catch (error: any) {
@@ -206,6 +207,61 @@ router.get('/health', async (req: Request, res: Response) => {
       error: 'Python service unreachable',
       details: error.message,
       timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+/**
+ * GET /models/info
+ * Get information about available models
+ */
+router.get('/info', async (req: Request, res: Response) => {
+  try {
+    const response = await axios.get(`${PYTHON_SERVICE_URL}/models/info`, {
+      timeout: 5000,
+    });
+    return res.json(response.data);
+  } catch (error: any) {
+    return res.status(503).json({
+      error: 'Python service unreachable',
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * GET /models/evaluation/:modelId
+ * Get evaluation metrics for a specific model
+ */
+router.get('/evaluation/:modelId', async (req: Request, res: Response) => {
+  try {
+    const { modelId } = req.params;
+    const response = await axios.get(`${PYTHON_SERVICE_URL}/models/evaluation/${modelId}`, {
+      timeout: 10000,
+    });
+    return res.json(response.data);
+  } catch (error: any) {
+    return res.status(503).json({
+      error: 'Failed to get model evaluation',
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * GET /models/provenance
+ * Get provenance information for all models
+ */
+router.get('/provenance', async (req: Request, res: Response) => {
+  try {
+    const response = await axios.get(`${PYTHON_SERVICE_URL}/models/provenance`, {
+      timeout: 10000,
+    });
+    return res.json(response.data);
+  } catch (error: any) {
+    return res.status(503).json({
+      error: 'Failed to get model provenance',
+      details: error.message,
     });
   }
 });

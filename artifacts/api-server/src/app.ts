@@ -26,7 +26,18 @@ app.use(
     },
   }),
 );
-app.use(cors());
+
+// CORS: allow frontend origin(s) from env, fallback to all (dev only)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : [];
+
+app.use(
+  cors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : undefined,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

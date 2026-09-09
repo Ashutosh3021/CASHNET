@@ -38,7 +38,14 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+
+# CORS: only allow the Node.js backend that proxies model calls
+_cors_origins = os.environ.get("CORS_ORIGIN", "")
+if _cors_origins:
+    allowed = [o.strip() for o in _cors_origins.split(",") if o.strip()]
+    CORS(app, origins=allowed)
+else:
+    CORS(app)
 
 # Ensure directories exist
 io.ensure_dirs()

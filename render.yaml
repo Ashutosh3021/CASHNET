@@ -9,13 +9,17 @@ services:
     buildCommand: cd artifacts/api-server && npm install && npm run build
     startCommand: cd artifacts/api-server && node dist/index.js
     autoDeployTrigger: commit
-    # PORT is set by Render automatically; do not hardcode it here. The Node
-    # server reads process.env.PORT (see artifacts/api-server/src/index.ts).
+    healthCheckPath: /api/healthz
+    # PORT is set by Render automatically; do not hardcode it here.
     envVars:
       - key: NODE_ENV
         value: production
       - key: PYTHON_SERVICE_URL
         sync: false
+      - key: CORS_ORIGIN
+        value: https://cashnet-server.vercel.app
+      - key: CASHNET_DATA_MODE
+        value: synthetic
       - key: ENABLE_PII_MASKING
         value: "true"
       - key: LOG_LEVEL
@@ -27,9 +31,9 @@ services:
     runtime: python
     pythonVersion: 3.11.9
     buildCommand: pip install -r requirements.txt && pip install flask flask-cors
-    # model_server.py reads PORT from the environment (Render sets it).
     startCommand: python scripts/model_server.py
     autoDeployTrigger: commit
+    healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
         value: production
@@ -49,4 +53,4 @@ services:
         destination: /index.html
 
 # Set these in the Render dashboard after first deploy:
-#   PYTHON_SERVICE_URL  ->  URL of the cashnet-models service
+#   PYTHON_SERVICE_URL  ->  URL of the cashnet-models service (e.g. https://cashnet-py.onrender.com)

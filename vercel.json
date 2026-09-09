@@ -1,15 +1,20 @@
 {
-    "framework":  null,
-    "buildCommand":  "pnpm --filter @workspace/cashnet run build",
-    "installCommand":  "pnpm install",
-    "outputDirectory":  "artifacts/cashnet/dist/public",
-    "routes":  [
-                   {
-                       "handle":  "filesystem"
-                   },
-                   {
-                       "src":  "/(.*)",
-                       "dest":  "/index.html"
-                   }
-               ]
+    "framework": null,
+    "buildCommand": "pnpm --filter @workspace/cashnet run build",
+    "installCommand": "pnpm install",
+    "outputDirectory": "artifacts/cashnet/dist/public",
+    "build": {
+        "env": {
+            "VITE_API_BASE_URL": "https://cashnet-node.onrender.com"
+        }
+    },
+    "routes": [
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
+        }
+    ]
 }
