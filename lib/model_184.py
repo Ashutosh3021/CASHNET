@@ -34,6 +34,15 @@ CITY_MAP = {
     "GUR": "Gurugram",
 }
 
+CITY_COORDINATES: dict[str, tuple[float, float]] = {
+    "Delhi": (28.6139, 77.2090),
+    "Mumbai": (19.0760, 72.8777),
+    "Bengaluru": (12.9716, 77.5946),
+    "Ahmedabad": (23.0225, 72.5714),
+    "Hyderabad": (17.3850, 78.4867),
+    "Gurugram": (28.4595, 77.0266),
+}
+
 
 def _atm_city(atm_id: str) -> str | None:
     if not atm_id or "-" not in atm_id:
@@ -165,6 +174,23 @@ class Model184:
         self.trained = True
         return self
 
+    def _lookup_coordinates(self, city_name: str) -> dict[str, float] | None:
+        """Return {lat, lng} for a known city, or None if not in CITY_COORDINATES."""
+        if not city_name or city_name == "unknown":
+            return None
+        coords = CITY_COORDINATES.get(city_name)
+        if coords:
+            return {"lat": coords[0], "lng": coords[1]}
+        return None
+
+    def _source_coordinates(self, record: dict[str, Any]) -> dict[str, float] | None:
+        """Extract source city from record and look up its coordinates."""
+        src_city = (
+            (record.get("bank_transaction_data", {}) or {})
+            .get("source_account", {}) or {}
+        ).get("city", "")
+        return self._lookup_coordinates(src_city)
+
     def predict(self, record: dict[str, Any], threshold: float = 0.7) -> dict[str, Any]:
         f = _tx_features(record)
         Xr = _vectorize([f], self._risk_cols if self._risk_cols else None)
@@ -188,6 +214,10 @@ class Model184:
         risk_score = float(risk_conf) if is_susp else float(0.3 * risk_conf)
         confidence = float(min(risk_conf, city_conf))
         needs_review = confidence < threshold
+
+        # Look up coordinates for predicted and source cities
+        predicted_coords = self._lookup_coordinates(pred_city)
+        source_coords = self._source_coordinates(record)
 
         payload = empty_contract(confidence=confidence, needs_review=needs_review)
         payload["risk_object"] = {
@@ -214,6 +244,13 @@ class Model184:
                 "atms_in_city": self.atm_counts.get(pred_city.lower(), 0),
             },
         }
+        # Add coordinates to dashboard metrics if available
+        if predicted_coords:
+            payload["dashboard"]["metrics"]["predicted_lat"] = predicted_coords["lat"]
+            payload["dashboard"]["metrics"]["predicted_lng"] = predicted_coords["lng"]
+            payload["predicted_coordinates"] = predicted_coords
+        if source_coords:
+            payload["source_coordinates"] = source_coords
         actions = []
         if is_susp:
             actions.append(

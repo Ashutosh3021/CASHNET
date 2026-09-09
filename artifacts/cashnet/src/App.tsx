@@ -23,6 +23,7 @@ import NotFound from '@/pages/not-found';
 import HistoricalActivityPage from '@/components/historical-activity-page';
 import PredictiveEnginePage from '@/components/predictive-engine-page';
 import AlertsPage from '@/components/alerts-page';
+import CorridorPrediction from '@/pages/CorridorPrediction';
 import LandingPage from '@/pages/landing/LandingPage';
 import Login from '@/pages/auth/Login';
 import FaceAuth from '@/pages/auth/FaceAuth';
@@ -99,6 +100,7 @@ const navGroups = [
   { label: 'I4C Problem Deliverables', items: [
     { href: '/predictive-engine', label: 'a. Predictive Engine (Model 184)', icon: Cpu },
     { href: '/historical-activity', label: 'b. Risk Heatmap Dashboard (GIS)', icon: MapPinned },
+    { href: '/corridor', label: 'b.2 ATM Corridor Prediction', icon: Crosshair },
     { href: '/cases', label: 'c. Law Enforcement Interface', icon: Fingerprint },
     { href: '/alerts', label: 'd. Alert & Notification System', icon: Bell },
   ] },
@@ -304,6 +306,11 @@ function FundFlowRoute() {
   return <EmptyState title="Select a case to open fund flow" description="Fund flow is synchronized to a case. Ingest or select a case from the desk first." action={<Link href="/cases" className="mt-4 bg-slate-800 px-3 py-2 text-xs font-bold text-amber-300" data-testid="link-fund-flow-cases">Open case desk</Link>} />;
 }
 
+function CorridorRoute() {
+  const params = useParams<{ caseId?: string }>();
+  return <CorridorPrediction caseId={params.caseId} />;
+}
+
 function Router() {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}><Switch>
@@ -324,6 +331,8 @@ function Router() {
           <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
           <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
           <Route path="/historical-activity" component={HistoricalActivityPage} />
+          <Route path="/corridor/:caseId" component={CorridorRoute} />
+          <Route path="/corridor" component={CorridorRoute} />
           <Route path="/interventions" component={InterventionsPage} />
           <Route path="/reports" component={ReportsPage} />
           <Route path="/audit" component={AuditPage} />

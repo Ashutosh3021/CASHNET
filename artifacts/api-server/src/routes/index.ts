@@ -8,6 +8,7 @@ import casesExtendedRouter from "./cases-extended";
 import evidencePackagesRouter from "./evidence-packages";
 import actionRequestsRouter from "./action-requests";
 import modelsRouter from "./models";
+import corridorRouter from "./corridor";
 
 const router: IRouter = Router();
 
@@ -15,6 +16,7 @@ router.use("/integrations", integrationsRouter);
 router.use(healthRouter);
 router.use(cashnetRouter);
 router.use(geospatialRouter);
+router.use(corridorRouter);
 router.use(legalHoldRouter);
 router.use(casesExtendedRouter);
 router.use(evidencePackagesRouter);

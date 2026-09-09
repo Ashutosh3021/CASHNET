@@ -55,6 +55,7 @@ generic
 docs
 data
 *.pyc
+**.cpython-311.pyc
 .kiro
 
 !data/

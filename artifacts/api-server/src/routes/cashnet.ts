@@ -158,9 +158,9 @@ router.post("/cases/:caseId/analyze", async (req, res) => {
       hotspots: [
         {
           id: `live-${d.id}`,
-          city: d.city || "unknown",
-          lat: 28.61,
-          lng: 77.2,
+          city: prediction.predicted_withdrawal_city || d.city || "unknown",
+          lat: prediction.predicted_coordinates?.lat ?? 28.61,
+          lng: prediction.predicted_coordinates?.lng ?? 77.2,
           probability: confidence,
           risk: scorePct,
           amount: d.amount,
@@ -173,6 +173,7 @@ router.post("/cases/:caseId/analyze", async (req, res) => {
       ],
       generatedAt: prediction.timestamp || new Date().toISOString(),
       modelVersion: String(prediction.model_id ?? 184),
+      source_coordinates: prediction.source_coordinates ?? null,
     };
     d.audit.push({
       action: "CASE_ANALYSIS_EXECUTED",
