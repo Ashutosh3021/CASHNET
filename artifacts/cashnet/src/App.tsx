@@ -423,7 +423,7 @@ function ReportsPage() {
         </div>
       </div>
     </div>
-  </div;
+  </div>
 }
 function AuditPage() {
   const cases = useListCases(); const selected = getCasesArray(cases.data)[0]?.id || ''; const detail = useGetCase(selected);
