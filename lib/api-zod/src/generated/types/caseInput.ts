@@ -16,6 +16,9 @@ export interface CaseInput {
   description: string;
   victimCity?: string;
   victimState?: string;
+  victimLat?: number;
+  victimLng?: number;
+  pinCode?: string;
   account?: string;
   wallet?: string;
 }

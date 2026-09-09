@@ -7,7 +7,7 @@ import {
   Popup,
   TileLayer,
 } from "react-leaflet";
-import { Crosshair } from "lucide-react";
+import { Crosshair, Search } from "lucide-react";
 import { getBackendBase } from "@/lib/api-url";
 
 type CorridorAtm = {
@@ -36,6 +36,15 @@ type CorridorResponse = {
   dataSource: "SYNTHETIC";
 };
 
+type CaseListItem = {
+  id: string;
+  reference: string;
+  title: string;
+  victimLat?: number;
+  victimLng?: number;
+  pinCode?: string;
+};
+
 function scoreColor(score: number): string {
   if (score >= 70) return "#dc2626";
   if (score >= 40) return "#f59e0b";
@@ -52,6 +61,8 @@ const DEFAULT_SOURCE = { lat: 28.6139, lng: 77.209 };
 const DEFAULT_DEST = { lat: 12.9716, lng: 77.5946 };
 
 export default function CorridorPrediction({ caseId }: { caseId?: string }) {
+  const [caseList, setCaseList] = useState<CaseListItem[]>([]);
+  const [selectedCaseId, setSelectedCaseId] = useState(caseId || "");
   const [sourceLat, setSourceLat] = useState(String(DEFAULT_SOURCE.lat));
   const [sourceLng, setSourceLng] = useState(String(DEFAULT_SOURCE.lng));
   const [destLat, setDestLat] = useState(String(DEFAULT_DEST.lat));
@@ -62,42 +73,68 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
   const [error, setError] = useState("");
   const [caseLabel, setCaseLabel] = useState("");
 
+  // Load case list for dropdown
   useEffect(() => {
-    if (!caseId) return;
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${getBackendBase()}/cases/${caseId}`);
+        const res = await fetch(`${getBackendBase()}/cases`);
+        if (!res.ok) return;
+        const list = await res.json() as CaseListItem[];
+        if (!cancelled) setCaseList(list);
+      } catch { /* silent */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Auto-fill from case data when caseId changes
+  useEffect(() => {
+    const cid = caseId || selectedCaseId;
+    if (!cid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${getBackendBase()}/cases/${cid}`);
         if (!res.ok) return;
         const detail = await res.json() as {
           reference?: string;
           title?: string;
+          victimLat?: number;
+          victimLng?: number;
+          pinCode?: string;
+          city?: string;
+          state?: string;
           predictions?: {
             source_coordinates?: { lat: number; lng: number } | null;
-            hotspots?: Array<{ lat: number; lng: number }>;
+            hotspots?: Array<{ lat: number; lng: number; city?: string }>;
           };
         };
         if (cancelled) return;
 
-        const src = detail.predictions?.source_coordinates;
+        // Origin: use victim location from complaint (browser geolocation)
+        const srcLat = detail.victimLat || detail.predictions?.source_coordinates?.lat;
+        const srcLng = detail.victimLng || detail.predictions?.source_coordinates?.lng;
+        if (srcLat && srcLng) {
+          setSourceLat(String(srcLat));
+          setSourceLng(String(srcLng));
+        }
+
+        // Destination: use first predicted hotspot (where money is heading)
         const hotspots = detail.predictions?.hotspots;
         const dest = hotspots?.[0];
-
-        if (src && typeof src.lat === "number" && typeof src.lng === "number") {
-          setSourceLat(String(src.lat));
-          setSourceLng(String(src.lng));
-        }
         if (dest && typeof dest.lat === "number" && typeof dest.lng === "number") {
           setDestLat(String(dest.lat));
           setDestLng(String(dest.lng));
         }
-        setCaseLabel(detail.reference || detail.title || caseId);
+
+        const label = detail.reference || detail.title || cid;
+        setCaseLabel(label);
       } catch {
         // silent — manual input stays available
       }
     })();
     return () => { cancelled = true; };
-  }, [caseId]);
+  }, [caseId, selectedCaseId]);
 
   const analyze = async () => {
     setLoading(true);
@@ -139,8 +176,8 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
           </h1>
           <p className="mt-2 max-w-3xl text-xs text-slate-500">
             {caseLabel
-              ? <>Coordinates pulled from case <b>{caseLabel}</b> model predictions. Adjust and re-analyze as needed.</>
-              : <>Given a source and destination point, identifies synthetic ATMs along the corridor ranked by vulnerability score.</>}
+              ? <>Coordinates pulled from case <b>{caseLabel}</b> — origin from victim location, destination from predicted hotspot. Adjust and re-analyze as needed.</>
+              : <>Select a complaint or enter coordinates manually. Given a source and destination point, identifies synthetic ATMs along the corridor ranked by vulnerability score.</>}
           </p>
         </div>
       </header>
@@ -149,54 +186,28 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
         <div className="mb-3 text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">
           Corridor parameters{caseLabel ? ` / ${caseLabel}` : ""}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <div>
+
+        {/* Complaint ID selector */}
+        <div className="mb-3 grid gap-3 sm:grid-cols-3">
+          <div className="sm:col-span-2">
             <label className="mb-1 block text-[10px] font-bold text-slate-500">
-              Source lat
+              Complaint ID
             </label>
-            <input
-              type="number"
-              step="0.0001"
-              value={sourceLat}
-              onChange={(e) => setSourceLat(e.target.value)}
-              className="field w-full text-xs"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[10px] font-bold text-slate-500">
-              Source lng
-            </label>
-            <input
-              type="number"
-              step="0.0001"
-              value={sourceLng}
-              onChange={(e) => setSourceLng(e.target.value)}
-              className="field w-full text-xs"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[10px] font-bold text-slate-500">
-              Dest lat
-            </label>
-            <input
-              type="number"
-              step="0.0001"
-              value={destLat}
-              onChange={(e) => setDestLat(e.target.value)}
-              className="field w-full text-xs"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[10px] font-bold text-slate-500">
-              Dest lng
-            </label>
-            <input
-              type="number"
-              step="0.0001"
-              value={destLng}
-              onChange={(e) => setDestLng(e.target.value)}
-              className="field w-full text-xs"
-            />
+            <div className="flex gap-2">
+              <select
+                value={selectedCaseId}
+                onChange={(e) => setSelectedCaseId(e.target.value)}
+                className="field min-w-0 flex-1 text-xs"
+                data-testid="select-corridor-complaint"
+              >
+                <option value="">— Select a complaint to auto-fill —</option>
+                {caseList.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.reference} · {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-[10px] font-bold text-slate-500">
@@ -220,6 +231,58 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
                 {loading ? "Running" : "Analyze"}
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Coordinates (auto-filled or manual) */}
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div>
+            <label className="mb-1 block text-[10px] font-bold text-slate-500">
+              Origin lat{caseLabel ? " (victim)" : ""}
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              value={sourceLat}
+              onChange={(e) => setSourceLat(e.target.value)}
+              className="field w-full text-xs"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-[10px] font-bold text-slate-500">
+              Origin lng{caseLabel ? " (victim)" : ""}
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              value={sourceLng}
+              onChange={(e) => setSourceLng(e.target.value)}
+              className="field w-full text-xs"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-[10px] font-bold text-slate-500">
+              Dest lat{caseLabel ? " (hotspot)" : ""}
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              value={destLat}
+              onChange={(e) => setDestLat(e.target.value)}
+              className="field w-full text-xs"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-[10px] font-bold text-slate-500">
+              Dest lng{caseLabel ? " (hotspot)" : ""}
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              value={destLng}
+              onChange={(e) => setDestLng(e.target.value)}
+              className="field w-full text-xs"
+            />
           </div>
         </div>
         {error && (
@@ -284,7 +347,7 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
                   }}
                 >
                   <Popup>
-                    <b>SOURCE</b>
+                    <b>ORIGIN (VICTIM LOCATION)</b>
                     <br />
                     {data.sourcePoint.lat.toFixed(4)},{" "}
                     {data.sourcePoint.lng.toFixed(4)}
@@ -303,7 +366,7 @@ export default function CorridorPrediction({ caseId }: { caseId?: string }) {
                   }}
                 >
                   <Popup>
-                    <b>DESTINATION</b>
+                    <b>DESTINATION (PREDICTED HOTSPOT)</b>
                     <br />
                     {data.destPoint.lat.toFixed(4)},{" "}
                     {data.destPoint.lng.toFixed(4)}

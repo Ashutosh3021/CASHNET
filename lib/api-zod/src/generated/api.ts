@@ -80,6 +80,9 @@ export const CreateCaseBody = zod.object({
   "description": zod.string().min(createCaseBodyDescriptionMin),
   "victimCity": zod.string().optional(),
   "victimState": zod.string().optional(),
+  "victimLat": zod.number().optional(),
+  "victimLng": zod.number().optional(),
+  "pinCode": zod.string().optional(),
   "account": zod.string().optional(),
   "wallet": zod.string().optional()
 })
