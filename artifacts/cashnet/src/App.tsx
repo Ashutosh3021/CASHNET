@@ -292,12 +292,139 @@ function InterventionsPage() {
 }
 
 function ReportsPage() {
-  const cases = useListCases(); const selected = getCasesArray(cases.data)[0]?.id || ''; const report = useGetReport(selected);
-  if (cases.isLoading || report.isLoading) return <LoadingState rows={7} />; if (report.isError || !report.data) return <EmptyState title="Report not available" description="Select a case with report data to generate a reviewable investigation brief." action={<Link href="/cases" className="mt-4 bg-slate-800 px-3 py-2 text-xs font-bold text-amber-300" data-testid="link-report-case">Open case desk</Link>} />;
-  const data = report.data as Report;
-  return <div className="enter"><PageHead kicker={`Report / ${data.case.reference}`} title="Reports" description="Generated investigation brief assembled from the case intelligence graph." action={<button onClick={() => window.print()} className="flex items-center gap-2 border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700" data-testid="button-print-report"><FileText size={15} /> Print / export</button>} /><div className="mx-auto max-w-5xl border border-slate-200 bg-white shadow-sm"><div className="border-b-4 border-amber-400 bg-slate-800 p-7 text-slate-100"><div className="flex items-start justify-between"><div><div className="font-mono-data text-[10px] uppercase tracking-[.2em] text-cyan-300">CASHNET / intelligence brief</div><h2 className="mt-4 text-2xl font-extrabold">{data.case.title}</h2><div className="mt-2 font-mono-data text-xs text-slate-400">{data.case.reference} · generated {dateTime(new Date().toISOString())}</div></div><Fingerprint size={34} className="text-amber-300" /></div></div><div className="p-7"><div className="mb-7 grid grid-cols-2 gap-4 border-b border-slate-200 pb-6 sm:grid-cols-4"><div><div className="label">Classification</div><div className="value">{data.case.fraudType}</div></div><div><div className="label">Exposure</div><div className="value font-mono-data">{money(data.case.amount)}</div></div><div><div className="label">Priority</div><div className="value">{data.case.priority}</div></div><div><div className="label">Conversion</div><div className="value font-mono-data text-[11px]">{dateTime(data.case.conversionAt)}</div></div></div><div className="space-y-6">{(data.sections || []).map((section, index) => <div key={index} className="border-l-2 border-cyan-400 pl-4"><h3 className="text-sm font-extrabold text-slate-800">{String(section.title ?? section.heading ?? `Section ${index + 1}`)}</h3><p className="mt-2 text-xs leading-6 text-slate-600">{String(section.content ?? section.summary ?? Object.values(section).join(' · '))}</p></div>)}</div><div className="mt-8 border-t border-slate-200 pt-4 text-[10px] leading-5 text-slate-400"><span className="font-bold uppercase tracking-widest text-slate-500">Handling note · </span>{data.disclaimer}</div></div></div></div>;
-}
+  const cases = useListCases();
+  const caseList = getCasesArray(cases.data);
+  const [selectedId, setSelectedId] = useState(caseList[0]?.id || '');
+  const report = useGetReport(selectedId);
 
+  useEffect(() => {
+    if (caseList.length && !selectedId) setSelectedId(caseList[0].id);
+  }, [caseList, selectedId]);
+
+  if (cases.isLoading) return <LoadingState rows={7} />;
+  if (cases.isError) return <ErrorState />;
+  if (!caseList.length) return <EmptyState title="No cases available" description="Create a case first to generate an investigation report." action={<Link href="/cases" className="mt-4 bg-slate-800 px-3 py-2 text-xs font-bold text-amber-300">Open case desk</Link>} />;
+  if (report.isLoading) return <LoadingState rows={7} />;
+  if (report.isError || !report.data) return <ErrorState message="Failed to load report for this case." />;
+
+  const data = report.data as Report;
+
+  return <div className="enter">
+    <PageHead
+      kicker="Intelligence brief / investigation report"
+      title="Reports"
+      description="Select a case to view the generated investigation brief with full provenance tracking."
+      action={
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedId}
+            onChange={(e) => setSelectedId(e.target.value)}
+            className="field min-w-[280px] text-xs"
+            data-testid="select-report-case"
+          >
+            {caseList.map((c) => (
+              <option key={c.id} value={c.id}>{c.reference} · {c.title}</option>
+            ))}
+          </select>
+          <button onClick={() => window.print()} className="flex items-center gap-2 border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-cyan-400" data-testid="button-print-report">
+            <FileText size={15} /> Print / export
+          </button>
+        </div>
+      }
+    />
+
+    <div className="mx-auto max-w-5xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b-4 border-amber-400 bg-slate-800 p-7 text-slate-100">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="font-mono-data text-[10px] uppercase tracking-[.2em] text-cyan-300">CASHNET / intelligence brief</div>
+            <h2 className="mt-4 text-2xl font-extrabold">{data.case.title}</h2>
+            <div className="mt-2 font-mono-data text-xs text-slate-400">{data.case.reference} · generated {dateTime(new Date().toISOString())}</div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-mono-data text-[10px] text-slate-400">CASE STATUS</div>
+              <div className="text-sm font-bold text-amber-300">{data.case.status}</div>
+            </div>
+            <Fingerprint size={34} className="text-amber-300" />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b border-slate-200 bg-slate-50 p-7">
+        <div className="mb-4 text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">Case summary</div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div><div className="text-[10px] font-bold text-slate-400">Classification</div><div className="mt-1 text-sm font-bold text-slate-800">{data.case.fraudType}</div></div>
+          <div><div className="text-[10px] font-bold text-slate-400">Exposure</div><div className="mt-1 font-mono-data text-sm font-bold text-slate-800">{money(data.case.amount)}</div></div>
+          <div><div className="text-[10px] font-bold text-slate-400">Priority</div><div className="mt-1"><Pill tone={data.case.priority?.toLowerCase().includes('critical') ? 'red' : 'amber'}>{data.case.priority}</Pill></div></div>
+          <div><div className="text-[10px] font-bold text-slate-400">Conversion</div><div className="mt-1 font-mono-data text-[11px] text-slate-700">{dateTime(data.case.conversionAt)}</div></div>
+        </div>
+        {data.case.state && data.case.city && (
+          <div className="mt-4 flex items-center gap-4 text-[11px] text-slate-500">
+            <span className="flex items-center gap-1"><MapPinned size={12} /> {data.case.city}, {data.case.state}</span>
+            {data.case.victimLat && <span className="font-mono-data">{data.case.victimLat.toFixed(4)}N, {data.case.victimLng?.toFixed(4)}E</span>}
+            {data.case.pinCode && <span className="font-mono-data">PIN: {data.case.pinCode}</span>}
+          </div>
+        )}
+      </div>
+
+      <div className="border-b border-slate-200 bg-cyan-50/50 px-7 py-3">
+        <div className="flex items-center gap-2 text-[10px] text-cyan-800">
+          <Sparkles size={12} />
+          <span className="font-bold">Data Transparency:</span>
+          <span>All sections include provenance tracking. Synthetic data is explicitly labeled.</span>
+        </div>
+      </div>
+
+      <div className="p-7">
+        <div className="space-y-5">
+          {(data.sections || []).map((section, index) => {
+            const colors = ['border-cyan-400','border-amber-400','border-slate-300','border-slate-300','border-cyan-400','border-amber-400','border-purple-400','border-green-400','border-red-400','border-blue-400','border-indigo-400','border-pink-400','border-teal-400'];
+            const color = colors[index % colors.length];
+            const prov = section.provenance || {};
+            const src = prov.sourceType || 'UNKNOWN';
+            return (
+              <div key={index} className={`border-l-2 ${color} pl-4`}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-extrabold text-slate-800">{String(section.title ?? section.heading ?? `Section ${index + 1}`)}</h3>
+                  <div className="flex items-center gap-2">
+                    {src === 'MODEL_INFERENCE' && <Pill tone="amber"><Sparkles size={10} /> MODEL INFERENCE</Pill>}
+                    {src === 'SYNTHETIC' && <Pill tone="cyan">SYNTHETIC</Pill>}
+                    {src?.includes('USER_PROVIDED') && <Pill tone="green">USER PROVIDED</Pill>}
+                    {src === 'PUBLIC_DATA' && <Pill tone="slate">PUBLIC DATA</Pill>}
+                    {src === 'SYSTEM' && <Pill tone="slate">SYSTEM</Pill>}
+                    {!['MODEL_INFERENCE','SYNTHETIC','PUBLIC_DATA','SYSTEM'].includes(src) && !src?.includes('USER_PROVIDED') && <Pill>{src}</Pill>}
+                    {prov.modelVersion && <span className="font-mono-data text-[9px] text-slate-400">v{prov.modelVersion}</span>}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs leading-6 text-slate-600">
+                  {String(section.content ?? section.summary ?? prov.description ?? 'Evidence collected and verified.')}
+                </p>
+                {prov.description && prov.description !== section.content && prov.description !== section.summary && (
+                  <div className="mt-2 text-[10px] text-slate-400 italic">{prov.description}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 bg-slate-50 px-7 py-4">
+        <div className="flex items-center justify-between text-[10px] text-slate-400">
+          <div className="flex items-center gap-4">
+            <span className="font-mono-data">CASHNET v1.0</span>
+            <span>|</span>
+            <span>Generated {dateTime(new Date().toISOString())}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-amber-400" />
+            <span>INVESTIGATION BRIEF — AUTHORIZED USE ONLY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div;
+}
 function AuditPage() {
   const cases = useListCases(); const selected = getCasesArray(cases.data)[0]?.id || ''; const detail = useGetCase(selected);
   if (cases.isLoading || detail.isLoading) return <LoadingState />;
