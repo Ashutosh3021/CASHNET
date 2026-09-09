@@ -186,8 +186,8 @@ class Model184:
     def _source_coordinates(self, record: dict[str, Any]) -> dict[str, float] | None:
         """Extract source city from record and look up its coordinates."""
         src_city = (
-            (record.get("bank_transaction_data", {}) or {})
-            .get("source_account", {}) or {}
+            (record.get("bank_transaction_data", {}) or {}).get("source_account", {})
+            or {}
         ).get("city", "")
         return self._lookup_coordinates(src_city)
 
