@@ -369,35 +369,35 @@ function CorridorRoute() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Switch>
-    <Route path="/" component={LandingPage} />
-    <Route path="/login" component={Login} />
-    <Route path="/face-auth" component={FaceAuth} />
-    <Route>
-      <ProtectedRoute>
-        <Shell><Switch>
-          <Route path="/dashboard" component={DashboardPage} />
-          <Route path="/predictive-engine" component={PredictiveEnginePage} />
-          <Route path="/alerts" component={AlertsPage} />
-          <Route path="/cases" component={CasesPage} />
-          <Route path="/cases/:id" component={CaseWorkspacePage} />
-          <Route path="/fund-flow" component={FundFlowRoute} />
-          <Route path="/fund-flow/:caseId" component={FundFlowPage} />
-          <Route path="/crypto" component={WalletsPage} />
-          <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
-          <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
-          <Route path="/historical-activity" component={HistoricalActivityPage} />
-          <Route path="/corridor/:caseId" component={CorridorRoute} />
-          <Route path="/corridor" component={CorridorRoute} />
-          <Route path="/interventions" component={InterventionsPage} />
-          <Route path="/reports" component={ReportsPage} />
-          <Route path="/audit" component={AuditPage} />
-          <Route path="/settings" component={SettingsPage} />
-          <Route component={NotFound} />
-        </Switch></Shell>
-      </ProtectedRoute>
-    </Route>
-  </Switch></ErrorBoundary>;
+
+  if (location === '/') return <ErrorBoundary resetKey={location}><LandingPage /></ErrorBoundary>;
+  if (location === '/login') return <ErrorBoundary resetKey={location}><Login /></ErrorBoundary>;
+  if (location === '/face-auth') return <ErrorBoundary resetKey={location}><FaceAuth /></ErrorBoundary>;
+
+  return <ErrorBoundary resetKey={location}>
+    <ProtectedRoute>
+      <Shell><Switch>
+        <Route path="/dashboard" component={DashboardPage} />
+        <Route path="/predictive-engine" component={PredictiveEnginePage} />
+        <Route path="/alerts" component={AlertsPage} />
+        <Route path="/cases" component={CasesPage} />
+        <Route path="/cases/:id" component={CaseWorkspacePage} />
+        <Route path="/fund-flow" component={FundFlowRoute} />
+        <Route path="/fund-flow/:caseId" component={FundFlowPage} />
+        <Route path="/crypto" component={WalletsPage} />
+        <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
+        <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
+        <Route path="/historical-activity" component={HistoricalActivityPage} />
+        <Route path="/corridor/:caseId" component={CorridorRoute} />
+        <Route path="/corridor" component={CorridorRoute} />
+        <Route path="/interventions" component={InterventionsPage} />
+        <Route path="/reports" component={ReportsPage} />
+        <Route path="/audit" component={AuditPage} />
+        <Route path="/settings" component={SettingsPage} />
+        <Route component={NotFound} />
+      </Switch></Shell>
+    </ProtectedRoute>
+  </ErrorBoundary>;
 }
 
 function App() {
