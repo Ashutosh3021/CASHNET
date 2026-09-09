@@ -286,6 +286,56 @@ def models_info():
     )
 
 
+@app.route("/models/evaluation/<int:model_id>", methods=["GET"])
+def model_evaluation(model_id):
+    """Get evaluation metrics for a specific model."""
+    try:
+        model, metadata = mm.load_or_train_model(model_id)
+        eval_info = {
+            "model_id": model_id,
+            "metadata": metadata,
+            "provenance": {
+                "dataSource": "MODEL_INFERENCE",
+                "sourceName": f"CASHNET Model {model_id}",
+                "sourceReference": metadata.get("timestamp"),
+                "confidence": metadata.get("accuracy", 0),
+            },
+        }
+        # Add model-specific metrics if available
+        if hasattr(model, "metrics"):
+            eval_info["evaluation_metrics"] = model.metrics
+        if hasattr(model, "train_metrics"):
+            eval_info["train_metrics"] = model.train_metrics
+        return jsonify(make_serialisable(eval_info)), 200
+    except (ValueError, KeyError) as e:
+        logger.exception(f"Error getting evaluation for model {model_id}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/models/provenance", methods=["GET"])
+def models_provenance():
+    """Get provenance information for all models."""
+    try:
+        status = mm.get_model_status()
+        provenance = {}
+        for model_id, info in status.items():
+            provenance[model_id] = {
+                "model_id": model_id,
+                "loaded": info.get("loaded", False),
+                "provenance": {
+                    "dataSource": "MODEL_INFERENCE",
+                    "sourceName": f"CASHNET Model {model_id}",
+                    "sourceReference": info.get("metadata", {}).get("timestamp"),
+                    "confidence": info.get("metadata", {}).get("accuracy", 0),
+                    "trainingData": info.get("metadata", {}).get("type", "unknown"),
+                },
+            }
+        return jsonify(make_serialisable(provenance)), 200
+    except (ValueError, KeyError) as e:
+        logger.exception("Error getting model provenance")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors."""

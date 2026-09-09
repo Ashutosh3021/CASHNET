@@ -293,9 +293,65 @@ function AuditPage() {
   return <div className="enter"><PageHead kicker={`Chain of custody / ${detail.data?.reference || 'case selection'}`} title="Audit trail" description="Immutable-looking activity view sourced from the selected case record. Use it to validate analyst actions and provider events." action={<Pill tone="cyan"><FileCheck2 size={12} /> Evidence log</Pill>} /><Panel title="Recorded actions" eyebrow={`${audit.length} events / chronological`}><div className="divide-y divide-slate-100">{audit.map((event, index) => <div className="grid gap-3 p-4 sm:grid-cols-[150px_1fr_150px_110px] sm:items-center" key={index} data-testid={`row-audit-${index}`}><div className="font-mono-data text-[10px] text-slate-500">{dateTime(event.timestamp)}</div><div className="flex items-center gap-2 text-xs font-bold text-slate-800"><span className="flex size-6 items-center justify-center rounded-full bg-cyan-100 text-cyan-700"><Activity size={12} /></span>{event.action}</div><div className="text-xs text-slate-500">{event.actor}</div><Pill>{event.source}</Pill></div>)}{!audit.length && <EmptyState title="Audit trail is empty" description="Actions will appear once an authorized workflow has been initiated." />}</div></Panel></div>;
 }
 
+function DataSourceStatusPanel() {
+  const [sources, setSources] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fetchStatus = async () => {
+    try {
+      const base = import.meta.env.VITE_API_BASE_URL || '';
+      const url = base ? `${base}/api/data-sources` : '/api/data-sources';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setSources(data.sources || []);
+    } catch { setError(true); } finally { setLoading(false); }
+  };
+
+  useState(() => { fetchStatus(); });
+
+  const statusIcon = (s: string) => {
+    if (s === 'CONNECTED') return <span className="size-2 rounded-full bg-emerald-500" />;
+    if (s === 'SYNTHETIC_FALLBACK') return <span className="size-2 rounded-full bg-amber-400" />;
+    if (s === 'NOT_CONNECTED') return <span className="size-2 rounded-full bg-red-500" />;
+    return <span className="size-2 rounded-full bg-slate-300" />;
+  };
+
+  const statusLabel = (s: string) => {
+    const map: Record<string, string> = { CONNECTED: 'Connected', NOT_CONFIGURED: 'Not configured', UNAVAILABLE: 'Unavailable', SYNTHETIC_FALLBACK: 'Synthetic demo', DEMO_MODE: 'Demo mode', NOT_CONNECTED: 'Not connected' };
+    return map[s] || s;
+  };
+
+  const statusTone = (s: string): 'green' | 'amber' | 'red' | 'slate' => {
+    if (s === 'CONNECTED') return 'green';
+    if (s === 'SYNTHETIC_FALLBACK') return 'amber';
+    if (s === 'NOT_CONNECTED') return 'red';
+    return 'slate';
+  };
+
+  if (loading) return <Panel title="Data Source Status" eyebrow="System / connection health"><LoadingState rows={4} /></Panel>;
+  if (error) return <Panel title="Data Source Status" eyebrow="System / connection health"><div className="p-5 text-xs text-red-600">Failed to load data source status.</div></Panel>;
+
+  return <Panel title="Data Source Status" eyebrow="System / connection health" action={<button onClick={fetchStatus} className="text-[10px] font-bold text-cyan-700" data-testid="button-refresh-sources"><RefreshCw size={13} /> Refresh</button>}>
+    <div className="divide-y divide-slate-100">{sources.map((source: any, i: number) => <div key={i} className="flex items-center gap-3 p-4" data-testid={`row-source-${i}`}>
+      {statusIcon(source.status)}
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-bold text-slate-800">{source.name}</div>
+        <div className="mt-0.5 text-[10px] text-slate-500">{source.message}</div>
+      </div>
+      <Pill tone={statusTone(source.status)}>{statusLabel(source.status)}</Pill>
+      {source.requiresAuthorization && <Pill tone="red">Auth required</Pill>}
+    </div>)}</div>
+    <div className="border-t border-slate-100 p-4 text-[10px] text-slate-400">
+      CASHNET explicitly distinguishes real data sources from synthetic demo data. NCRP and SAHYOG integrations require authorized government API access.
+    </div>
+  </Panel>;
+}
+
 function SettingsPage() {
   const health = useHealthCheck(); const [synthetic, setSynthetic] = useState(true); const [provider, setProvider] = useState('Primary intelligence mesh');
-  return <div className="enter"><PageHead kicker="Control plane / local preferences" title="Settings" description="Configure how synthetic labels and provider health are presented in this workspace." action={<Pill tone={health.isError ? 'red' : 'green'}><span className="size-1.5 rounded-full bg-current" />{health.isLoading ? 'Checking' : health.data?.status || 'Connected'}</Pill>} /><div className="grid gap-5 lg:grid-cols-2"><Panel title="Synthetic data policy" eyebrow="Display / inference labeling"><div className="space-y-5 p-5"><div className="flex items-center justify-between gap-5"><div><div className="text-sm font-bold text-slate-800">Always label model inference</div><div className="mt-1 text-xs leading-5 text-slate-500">Keep synthetic, predicted and model-assisted content visibly marked throughout the workspace.</div></div><button onClick={() => setSynthetic(!synthetic)} className={`relative h-6 w-11 rounded-full ${synthetic ? 'bg-cyan-600' : 'bg-slate-300'}`} data-testid="button-toggle-synthetic"><span className={`absolute top-1 size-4 rounded-full bg-white transition-transform ${synthetic ? 'left-6' : 'left-1'}`} /></button></div><div className="border border-cyan-200 bg-cyan-50 p-3 text-[11px] leading-5 text-cyan-900"><Sparkles size={14} className="mr-2 inline" />{synthetic ? 'Labels are active: synthetic / model inference content is marked.' : 'Labels are hidden in the presentation layer. Source data remains unchanged.'}</div></div></Panel><Panel title="Provider routing" eyebrow="Connection / health"><div className="space-y-4 p-5"><label className="label">Active provider<select value={provider} onChange={(e) => setProvider(e.target.value)} className="field mt-2" data-testid="select-provider"><option>Primary intelligence mesh</option><option>Evidence vault mirror</option><option>Restricted training sandbox</option></select></label><div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs"><span className="text-slate-500">API health status</span><span className="font-mono-data font-bold text-cyan-700">{health.data?.status || (health.isError ? 'Unavailable' : 'Checking...')}</span></div><button onClick={() => health.refetch()} className="flex items-center gap-2 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700" data-testid="button-refresh-health"><RefreshCw size={13} /> Refresh health</button></div></Panel></div><div className="mt-5 border border-slate-200 bg-slate-800 p-5 text-slate-200"><div className="flex items-center gap-2 text-xs font-bold"><Shield size={15} className="text-amber-300" /> Access boundary</div><p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400">CASHNET is an authorized investigation workspace. Provider responses are presented for analyst review; model predictions do not replace human approval or institutional procedure.</p></div></div>;
+  return <div className="enter"><PageHead kicker="Control plane / local preferences" title="Settings" description="Configure how synthetic labels and provider health are presented in this workspace." action={<Pill tone={health.isError ? 'red' : 'green'}><span className="size-1.5 rounded-full bg-current" />{health.isLoading ? 'Checking' : health.data?.status || 'Connected'}</Pill>} /><div className="grid gap-5 lg:grid-cols-2"><Panel title="Synthetic data policy" eyebrow="Display / inference labeling"><div className="space-y-5 p-5"><div className="flex items-center justify-between gap-5"><div><div className="text-sm font-bold text-slate-800">Always label model inference</div><div className="mt-1 text-xs leading-5 text-slate-500">Keep synthetic, predicted and model-assisted content visibly marked throughout the workspace.</div></div><button onClick={() => setSynthetic(!synthetic)} className={`relative h-6 w-11 rounded-full ${synthetic ? 'bg-cyan-600' : 'bg-slate-300'}`} data-testid="button-toggle-synthetic"><span className={`absolute top-1 size-4 rounded-full bg-white transition-transform ${synthetic ? 'left-6' : 'left-1'}`} /></button></div><div className="border border-cyan-200 bg-cyan-50 p-3 text-[11px] leading-5 text-cyan-900"><Sparkles size={14} className="mr-2 inline" />{synthetic ? 'Labels are active: synthetic / model inference content is marked.' : 'Labels are hidden in the presentation layer. Source data remains unchanged.'}</div></div></Panel><Panel title="Provider routing" eyebrow="Connection / health"><div className="space-y-4 p-5"><label className="label">Active provider<select value={provider} onChange={(e) => setProvider(e.target.value)} className="field mt-2" data-testid="select-provider"><option>Primary intelligence mesh</option><option>Evidence vault mirror</option><option>Restricted training sandbox</option></select></label><div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs"><span className="text-slate-500">API endpoint</span><span className="font-mono-data font-bold text-slate-700">{health.data?.status === 'healthy' ? 'Connected' : 'Unreachable'}</span></div></div></Panel></div><div className="mt-5"><DataSourceStatusPanel /></div></div>;
 }
 
 function FundFlowRoute() {

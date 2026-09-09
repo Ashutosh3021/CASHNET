@@ -1,0 +1,20 @@
+{
+  "name": "CASHNET Transaction Schema",
+  "description": "Expected fields for ingested transaction data",
+  "fields": [
+    { "name": "id", "type": "string", "required": false, "sourceFields": ["id", "record_id", "transaction_id"] },
+    { "name": "case_id", "type": "string", "required": false, "sourceFields": ["case_id", "caseId"] },
+    { "name": "transaction_id", "type": "string", "required": false, "sourceFields": ["transaction_id", "txn_id", "tx_hash"] },
+    { "name": "transaction_type", "type": "string", "required": false, "sourceFields": ["transaction_type", "type", "tx_type"] },
+    { "name": "amount", "type": "number", "required": false, "sourceFields": ["amount", "value", "transaction_amount"] },
+    { "name": "timestamp", "type": "date", "required": false, "sourceFields": ["timestamp", "date", "transaction_date", "time"] },
+    { "name": "latitude", "type": "coordinates", "required": true, "sourceFields": ["latitude", "lat", "Latitude"] },
+    { "name": "longitude", "type": "coordinates", "required": true, "sourceFields": ["longitude", "lng", "lon", "Longitude"] },
+    { "name": "state", "type": "string", "required": false, "sourceFields": ["state", "State"] },
+    { "name": "district", "type": "string", "required": false, "sourceFields": ["district", "District"] },
+    { "name": "city", "type": "string", "required": false, "sourceFields": ["city", "City"] },
+    { "name": "pincode", "type": "string", "required": false, "sourceFields": ["pincode", "pin", "postal_code"] },
+    { "name": "risk_score", "type": "number", "required": false, "sourceFields": ["risk_score", "risk", "riskScore"] },
+    { "name": "fraud_type", "type": "string", "required": false, "sourceFields": ["fraud_type", "category", "type_fraud"] }
+  ]
+}

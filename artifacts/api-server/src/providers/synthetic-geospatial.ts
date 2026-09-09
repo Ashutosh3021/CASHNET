@@ -1,10 +1,16 @@
 /**
  * Deterministic synthetic geographic intelligence provider.
  *
- * It deliberately contains no real banking, NCRP, I4C, UPI or ATM data.
- * Replace this module with an authorised provider behind the same route
- * contract before using the application outside the demonstration setting.
+ * This module deliberately contains no real banking, NCRP, I4C, UPI or ATM data.
+ * It is retained as a DEMO/FALLBACK provider.
+ *
+ * The analytical logic (haversine, filtering, clustering, proximity) has been
+ * extracted to services/geospatial/ for reuse across all providers.
+ *
+ * All records are marked dataSource: "SYNTHETIC" with explicit provenance.
  */
+import type { DataProvenance } from "./provider-types";
+
 export type RiskCategory = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type LocationType = "ATM" | "BANK_BRANCH" | "MERCHANT" | "UPI_MERCHANT" | "UNKNOWN" | "OTHER";
 
@@ -14,9 +20,10 @@ export interface HistoricalTransaction {
   destinationEntityId: string; latitude: number; longitude: number; state: string;
   district: string; city: string; pincode: string; locationType: LocationType;
   riskScore: number; riskCategory: RiskCategory; fraudType: string; dataSource: "SYNTHETIC"; createdAt: string;
+  provenance?: DataProvenance;
 }
-export interface PointOfInterest { id: string; name: string; bankName: string; ifsc?: string; latitude: number; longitude: number; city: string; district: string; state: string; pincode: string; status?: string; dataSource: "SYNTHETIC"; }
-export interface HistoricalHotspot { clusterId: string; transactionCount: number; totalAmount: number; averageAmount: number; maximumAmount: number; riskAverage: number; riskMax: number; firstTransaction: string; lastTransaction: string; centroidLatitude: number; centroidLongitude: number; radiusKm: number; fraudTypeDistribution: Record<string, number>; primaryFraudType: string; historicalScore: number; city: string; nearbyAtmCount: number; nearbyBranchCount: number; }
+export interface PointOfInterest { id: string; name: string; bankName: string; ifsc?: string; latitude: number; longitude: number; city: string; district: string; state: string; pincode: string; status?: string; dataSource: "SYNTHETIC"; provenance?: DataProvenance; }
+export interface HistoricalHotspot { clusterId: string; transactionCount: number; totalAmount: number; averageAmount: number; maximumAmount: number; riskAverage: number; riskMax: number; firstTransaction: string; lastTransaction: string; centroidLatitude: number; centroidLongitude: number; radiusKm: number; fraudTypeDistribution: Record<string, number>; primaryFraudType: string; historicalScore: number; city: string; nearbyAtmCount: number; nearbyBranchCount: number; provenance?: DataProvenance; }
 
 type City = { city: string; state: string; district: string; pincode: string; lat: number; lng: number; weight: number };
 const cities: City[] = [
@@ -46,6 +53,14 @@ export function haversineKm(aLat: number, aLng: number, bLat: number, bLng: numb
 
 function weightedCity(r: () => number) { const total = cities.reduce((sum, city) => sum + city.weight, 0); let target = r() * total; for (const city of cities) { target -= city.weight; if (target <= 0) return city; } return cities[0]!; }
 
+const SYNTHETIC_PROVENANCE: DataProvenance = {
+  dataSource: "SYNTHETIC",
+  sourceName: "CASHNET Synthetic Demo Data",
+  sourceReference: null,
+  retrievedAt: new Date().toISOString(),
+  confidence: 0.0,
+};
+
 export function createSyntheticGeoData() {
   const r = random(); const records: HistoricalTransaction[] = []; const now = Date.UTC(2026, 7, 28, 12, 0, 0);
   for (let index = 0; index < 520; index++) {
@@ -53,10 +68,10 @@ export function createSyntheticGeoData() {
     const bearing = r() * Math.PI * 2; const latitude = city.lat + (offsetKm * Math.cos(bearing)) / 111.32; const longitude = city.lng + (offsetKm * Math.sin(bearing)) / (111.32 * Math.cos(city.lat * Math.PI / 180));
     const riskScore = Math.min(99, Math.max(35, Math.round(57 + r() * 38 + (isolated ? -10 : 0)))); const riskCategory: RiskCategory = riskScore >= 88 ? "CRITICAL" : riskScore >= 72 ? "HIGH" : riskScore >= 52 ? "MEDIUM" : "LOW";
     const daysAgo = Math.floor(r() * 90); const timestamp = new Date(now - daysAgo * 86400000 - Math.floor(r() * 86400000)).toISOString();
-    records.push({ id: `HST-${String(index + 1).padStart(5, "0")}`, caseId: index % 7 === 0 ? "CASE-CASHNET-001" : `CASE-SYN-${String((index % 36) + 1).padStart(3, "0")}`, transactionId: `TXN-HIST-${String(index + 1).padStart(5, "0")}`, transactionType: choose(["ATM_WITHDRAWAL", "TRANSFER", "CARD_PAYMENT", "UPI_TRANSFER"], r), amount: Math.round(8000 + r() * r() * 260000), currency: "INR", timestamp, sourceEntityId: `SRC-${Math.floor(r() * 1800)}`, destinationEntityId: `DST-${Math.floor(r() * 1800)}`, latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)), state: city.state, district: city.district, city: city.city, pincode: city.pincode, locationType: choose(locationTypes, r), riskScore, riskCategory, fraudType: choose(fraudTypes, r), dataSource: "SYNTHETIC", createdAt: timestamp });
+    records.push({ id: `HST-${String(index + 1).padStart(5, "0")}`, caseId: index % 7 === 0 ? "CASE-CASHNET-001" : `CASE-SYN-${String((index % 36) + 1).padStart(3, "0")}`, transactionId: `TXN-HIST-${String(index + 1).padStart(5, "0")}`, transactionType: choose(["ATM_WITHDRAWAL", "TRANSFER", "CARD_PAYMENT", "UPI_TRANSFER"], r), amount: Math.round(8000 + r() * r() * 260000), currency: "INR", timestamp, sourceEntityId: `SRC-${Math.floor(r() * 1800)}`, destinationEntityId: `DST-${Math.floor(r() * 1800)}`, latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)), state: city.state, district: city.district, city: city.city, pincode: city.pincode, locationType: choose(locationTypes, r), riskScore, riskCategory, fraudType: choose(fraudTypes, r), dataSource: "SYNTHETIC", createdAt: timestamp, provenance: { ...SYNTHETIC_PROVENANCE, retrievedAt: timestamp } });
   }
-  const atms: PointOfInterest[] = Array.from({ length: 210 }, (_, index) => { const city = cities[index % cities.length]!; const angle = r() * Math.PI * 2; const distance = r() * 5; return { id: `ATM-${String(index + 1).padStart(3, "0")}`, name: `Synthetic ATM ${String(index + 1).padStart(3, "0")}`, bankName: choose(["Synthetic National Bank", "Demo Cooperative Bank", "Prototype Bank"], r), latitude: Number((city.lat + distance * Math.cos(angle) / 111.32).toFixed(6)), longitude: Number((city.lng + distance * Math.sin(angle) / (111.32 * Math.cos(city.lat * Math.PI / 180))).toFixed(6)), city: city.city, district: city.district, state: city.state, pincode: city.pincode, status: "ACTIVE", dataSource: "SYNTHETIC" }; });
-  const branches: PointOfInterest[] = Array.from({ length: 60 }, (_, index) => { const city = cities[index % cities.length]!; const angle = r() * Math.PI * 2; const distance = r() * 4; return { id: `BRANCH-${String(index + 1).padStart(3, "0")}`, name: `${city.city} Synthetic Branch ${String(index + 1).padStart(2, "0")}`, bankName: choose(["Synthetic National Bank", "Demo Cooperative Bank", "Prototype Bank"], r), ifsc: `SYNB0${String(index + 1).padStart(6, "0")}`, latitude: Number((city.lat + distance * Math.cos(angle) / 111.32).toFixed(6)), longitude: Number((city.lng + distance * Math.sin(angle) / (111.32 * Math.cos(city.lat * Math.PI / 180))).toFixed(6)), city: city.city, district: city.district, state: city.state, pincode: city.pincode, dataSource: "SYNTHETIC" }; });
+  const atms: PointOfInterest[] = Array.from({ length: 210 }, (_, index) => { const city = cities[index % cities.length]!; const angle = r() * Math.PI * 2; const distance = r() * 5; return { id: `ATM-${String(index + 1).padStart(3, "0")}`, name: `Synthetic ATM ${String(index + 1).padStart(3, "0")}`, bankName: choose(["Synthetic National Bank", "Demo Cooperative Bank", "Prototype Bank"], r), latitude: Number((city.lat + distance * Math.cos(angle) / 111.32).toFixed(6)), longitude: Number((city.lng + distance * Math.sin(angle) / (111.32 * Math.cos(city.lat * Math.PI / 180))).toFixed(6)), city: city.city, district: city.district, state: city.state, pincode: city.pincode, status: "ACTIVE", dataSource: "SYNTHETIC", provenance: SYNTHETIC_PROVENANCE }; });
+  const branches: PointOfInterest[] = Array.from({ length: 60 }, (_, index) => { const city = cities[index % cities.length]!; const angle = r() * Math.PI * 2; const distance = r() * 4; return { id: `BRANCH-${String(index + 1).padStart(3, "0")}`, name: `${city.city} Synthetic Branch ${String(index + 1).padStart(2, "0")}`, bankName: choose(["Synthetic National Bank", "Demo Cooperative Bank", "Prototype Bank"], r), ifsc: `SYNB0${String(index + 1).padStart(6, "0")}`, latitude: Number((city.lat + distance * Math.cos(angle) / 111.32).toFixed(6)), longitude: Number((city.lng + distance * Math.sin(angle) / (111.32 * Math.cos(city.lat * Math.PI / 180))).toFixed(6)), city: city.city, district: city.district, state: city.state, pincode: city.pincode, dataSource: "SYNTHETIC", provenance: SYNTHETIC_PROVENANCE }; });
   return { records, atms, branches };
 }
 
@@ -71,7 +86,7 @@ export function detectHotspots(records: HistoricalTransaction[], atms: PointOfIn
   for (let i = 0; i < records.length; i++) { if (visited.has(i)) continue; visited.add(i); const near = neighbours(i); if (near.length < minPoints) continue; const memberIds = new Set(near); const queue = [...near]; while (queue.length) { const point = queue.pop()!; if (!visited.has(point)) { visited.add(point); const more = neighbours(point); if (more.length >= minPoints) for (const item of more) { if (!memberIds.has(item)) { memberIds.add(item); queue.push(item); } } } } clusters.push([...memberIds].map((id) => records[id]!)); }
   const raw = clusters.map((cluster, index) => { const count = cluster.length; const totalAmount = cluster.reduce((sum, item) => sum + item.amount, 0); const centroidLatitude = cluster.reduce((sum, item) => sum + item.latitude, 0) / count; const centroidLongitude = cluster.reduce((sum, item) => sum + item.longitude, 0) / count; const riskAverage = cluster.reduce((sum, item) => sum + item.riskScore, 0) / count; const fraudTypeDistribution = cluster.reduce<Record<string, number>>((map, item) => ({ ...map, [item.fraudType]: (map[item.fraudType] ?? 0) + 1 }), {}); const primaryFraudType = Object.entries(fraudTypeDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "OTHER"; return { clusterId: `HSP-${String(index + 1).padStart(2, "0")}`, transactionCount: count, totalAmount, averageAmount: Math.round(totalAmount / count), maximumAmount: Math.max(...cluster.map((item) => item.amount)), riskAverage: Math.round(riskAverage), riskMax: Math.max(...cluster.map((item) => item.riskScore)), firstTransaction: cluster.map((item) => item.timestamp).sort()[0]!, lastTransaction: cluster.map((item) => item.timestamp).sort().at(-1)!, centroidLatitude, centroidLongitude, radiusKm: Math.max(...cluster.map((item) => haversineKm(centroidLatitude, centroidLongitude, item.latitude, item.longitude))), fraudTypeDistribution, primaryFraudType, city: cluster[0]!.city, density: count / Math.max(.25, Math.PI * Math.max(.25, Math.max(...cluster.map((item) => haversineKm(centroidLatitude, centroidLongitude, item.latitude, item.longitude))) ** 2)), recency: Math.max(...cluster.map((item) => Date.parse(item.timestamp))) }; });
   const maximumDensity = Math.max(...raw.map((item) => item.density), 1); const maximumAmount = Math.max(...raw.map((item) => item.totalAmount), 1); const newest = Math.max(...raw.map((item) => item.recency), 1); const oldest = Math.min(...raw.map((item) => item.recency), newest);
-  return raw.map(({ density, recency, ...item }) => ({ ...item, historicalScore: Math.round(Math.min(100, 100 * (.4 * density / maximumDensity + .25 * item.riskAverage / 100 + .2 * item.totalAmount / maximumAmount + .15 * (newest === oldest ? 1 : (recency - oldest) / (newest - oldest))))), nearbyAtmCount: atms.filter((poi) => haversineKm(item.centroidLatitude, item.centroidLongitude, poi.latitude, poi.longitude) <= 2).length, nearbyBranchCount: branches.filter((poi) => haversineKm(item.centroidLatitude, item.centroidLongitude, poi.latitude, poi.longitude) <= 2).length, })) satisfies HistoricalHotspot[];
+  return raw.map(({ density, recency, ...item }) => ({ ...item, historicalScore: Math.round(Math.min(100, 100 * (.4 * density / maximumDensity + .25 * item.riskAverage / 100 + .2 * item.totalAmount / maximumAmount + .15 * (newest === oldest ? 1 : (recency - oldest) / (newest - oldest))))), nearbyAtmCount: atms.filter((poi) => haversineKm(item.centroidLatitude, item.centroidLongitude, poi.latitude, poi.longitude) <= 2).length, nearbyBranchCount: branches.filter((poi) => haversineKm(item.centroidLatitude, item.centroidLongitude, poi.latitude, poi.longitude) <= 2).length, provenance: SYNTHETIC_PROVENANCE })) satisfies HistoricalHotspot[];
 }
 
 export function nearby<T extends { latitude: number; longitude: number }>(items: T[], latitude: number, longitude: number, radiusKm: number) { return items.filter((item) => haversineKm(latitude, longitude, item.latitude, item.longitude) <= radiusKm).map((item) => ({ ...item, distanceKm: Number(haversineKm(latitude, longitude, item.latitude, item.longitude).toFixed(2)) })).sort((a, b) => a.distanceKm - b.distanceKm); }

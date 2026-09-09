@@ -28,14 +28,16 @@ describe("IntegrationManager", () => {
       expect(result.error).toBeDefined();
     });
 
-    it("should return success with externalId for valid connector", async () => {
+    it("NCRP must ALWAYS return error — never generates a fake external ID", async () => {
+      // NCRP requires authorized government API access which is NOT configured.
+      // This test asserts that no fake NCRP case ID is ever generated.
       const result = await integrationManager.submitCase("ncrp", {
         caseId: "TEST-001",
       });
-      if (result.status === "success") {
-        expect(result.externalId).toBeDefined();
-        expect(result.externalId).toMatch(/^NCRP-/);
-      }
+      expect(result.status).toBe("error");
+      expect(result.externalId).toBeUndefined();
+      expect(result.error).toBeDefined();
+      expect(result.error).toMatch(/not available|not configured|NCRP/i);
     });
   });
 

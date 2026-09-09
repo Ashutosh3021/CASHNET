@@ -9,6 +9,8 @@ import evidencePackagesRouter from "./evidence-packages";
 import actionRequestsRouter from "./action-requests";
 import modelsRouter from "./models";
 import corridorRouter from "./corridor";
+import blockchainRouter from "./blockchain";
+import dataSourcesRouter from "./data-sources";
 
 const router: IRouter = Router();
 
@@ -22,5 +24,7 @@ router.use(casesExtendedRouter);
 router.use(evidencePackagesRouter);
 router.use(actionRequestsRouter);
 router.use("/models", modelsRouter);
+router.use("/blockchain", blockchainRouter);
+router.use(dataSourcesRouter);
 
 export default router;
