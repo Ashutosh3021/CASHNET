@@ -370,7 +370,19 @@ function CorridorRoute() {
 function Router() {
   const [location] = useLocation();
 
-  if (location === '/') return <ErrorBoundary resetKey={location}><LandingPage /></ErrorBoundary>;
+  if (location === '/') {
+    const authData = localStorage.getItem('cashnet_auth');
+    let isAuthenticated = false;
+    if (authData) {
+      try {
+        isAuthenticated = !!JSON.parse(authData).authenticated;
+      } catch {
+        // Treat malformed auth data as logged out.
+      }
+    }
+    if (!isAuthenticated) return <ErrorBoundary resetKey={location}><LandingPage /></ErrorBoundary>;
+    return <ErrorBoundary resetKey={location}><ProtectedRoute><Shell><DashboardPage /></Shell></ProtectedRoute></ErrorBoundary>;
+  }
   if (location === '/login') return <ErrorBoundary resetKey={location}><Login /></ErrorBoundary>;
   if (location === '/face-auth') return <ErrorBoundary resetKey={location}><FaceAuth /></ErrorBoundary>;
 
