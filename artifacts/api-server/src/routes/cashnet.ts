@@ -15,13 +15,13 @@ const money = (n: number) => Math.round(n);
 const graph = {
   nodes: [
     { id: "victim", label: "Victim account", kind: "VICTIM", risk: 12, x: 8, y: 48 },
-    { id: "mule-a", label: "Mule A · ••••4821", kind: "MULE_ACCOUNT", risk: 78, x: 23, y: 48 },
-    { id: "mule-b", label: "Mule B · ••••1934", kind: "MULE_ACCOUNT", risk: 86, x: 39, y: 48 },
+    { id: "mule-a", label: "Amit Kumar · ••••4821", kind: "MULE_ACCOUNT", risk: 78, x: 23, y: 48 },
+    { id: "mule-b", label: "Ravi Verma · ••••1934", kind: "MULE_ACCOUNT", risk: 86, x: 39, y: 48 },
     { id: "vasp-a", label: "VASP Alpha", kind: "VASP", risk: 72, x: 55, y: 48 },
     { id: "wallet-a", label: "0x7A4C…92F", kind: "CRYPTO_WALLET", risk: 88, x: 70, y: 32 },
     { id: "wallet-b", label: "0xB19E…04D", kind: "CRYPTO_WALLET", risk: 91, x: 70, y: 64 },
     { id: "foreign-vasp", label: "Foreign VASP · SG", kind: "FOREIGN_ENTITY", risk: 83, x: 84, y: 48 },
-    { id: "account-c", label: "Account C · ••••1234", kind: "BANK_ACCOUNT", risk: 94, x: 84, y: 78 },
+    { id: "account-c", label: "Vikram Singh · ••••1234", kind: "BANK_ACCOUNT", risk: 94, x: 84, y: 78 },
     { id: "atm", label: "Predicted ATM · Bengaluru", kind: "CASH_OUT_LOCATION", risk: 92, x: 96, y: 78 },
   ],
   edges: [
@@ -35,13 +35,13 @@ const graph = {
     { id: "e8", source: "account-c", target: "atm", amount: 150000, timestamp: iso(42), label: "₹1,50,000 · predicted cash-out", risk: 96, conversion: false },
   ],
   timeline: [
-    { id: "t1", time: iso(1), title: "Victim → Mule A", detail: "UPI transfer received", amount: 200000, category: "FIAT" },
-    { id: "t2", time: iso(3), title: "Mule A → Mule B", detail: "Rapid onward transfer", amount: 195000, category: "FIAT" },
-    { id: "t3", time: iso(7), title: "Mule B → VASP Alpha", detail: "Exchange deposit", amount: 186500, category: "FIAT" },
+    { id: "t1", time: iso(1), title: "Victim → Amit Kumar", detail: "UPI transfer received", amount: 200000, category: "FIAT" },
+    { id: "t2", time: iso(3), title: "Amit Kumar → Ravi Verma", detail: "Rapid onward transfer", amount: 195000, category: "FIAT" },
+    { id: "t3", time: iso(7), title: "Ravi Verma → VASP Alpha", detail: "Exchange deposit", amount: 186500, category: "FIAT" },
     { id: "t4", time: iso(11), title: "FIAT → CRYPTO CONVERSION", detail: "₹1,86,500 converted to 2,234 USDT at VASP Alpha", amount: 186500, category: "CONVERSION" },
     { id: "t5", time: iso(16), title: "Wallet A → Wallet B", detail: "Ethereum transfer", amount: 2100, category: "CRYPTO" },
     { id: "t6", time: iso(22), title: "Wallet B → Foreign VASP", detail: "Cross-border movement to Singapore", amount: 1980, category: "CROSS_BORDER" },
-    { id: "t7", time: iso(31), title: "Foreign VASP → Account C", detail: "Crypto off-ramp", amount: 167000, category: "CONVERSION" },
+    { id: "t7", time: iso(31), title: "Foreign VASP → Vikram Singh", detail: "Crypto off-ramp", amount: 167000, category: "CONVERSION" },
     { id: "t8", time: iso(42), title: "Predicted cash-out", detail: "Analytical ATM location prediction", amount: 150000, category: "PREDICTION" },
   ],
   metrics: { hopCount: 8, totalAmount: 200000, remainingAmount: 150000, countries: 2, chains: 1, vasps: 2 },
@@ -61,8 +61,8 @@ function detail(caseId: string): AnyRecord | null {
   if (!c) return null;
 
   const accounts = [
-    { id: "acct-mule-a", masked: "XXXXXX4821", bank: "Synthetic National Bank", ifsc: "SNBK0000421", branch: "Koramangala Branch", district: "Bengaluru Urban", state: "Karnataka", risk: 78, inflow: 200000, outflow: 195000, transactions: 12, indicators: ["HIGH VELOCITY", "RAPID ONWARD TRANSFERS", "MULTIPLE SENDERS"] },
-    { id: "acct-last", masked: "XXXXXX1234", bank: "Synthetic National Bank", ifsc: "SNBK0000108", branch: "Indiranagar Branch", district: "Bengaluru Urban", state: "Karnataka", risk: 94, inflow: 167000, outflow: 150000, transactions: 9, indicators: ["CRYPTO OFF-RAMP", "PREDICTED CASH-OUT", "CROSS-BORDER"] },
+    { id: "acct-mule-a", masked: "XXXXXXX4821", bank: "SBI (Synthetic Bank of India)", ifsc: "SBIN0000421", branch: "Koramangala Branch", district: "Bengaluru Urban", state: "Karnataka", risk: 78, inflow: 200000, outflow: 195000, transactions: 12, indicators: ["HIGH VELOCITY", "RAPID ONWARD TRANSFERS", "MULTIPLE SENDERS"] },
+    { id: "acct-last", masked: "XXXXXXX1234", bank: "SBI (Synthetic Bank of India)", ifsc: "SBIN0000108", branch: "Indiranagar Branch", district: "Bengaluru Urban", state: "Karnataka", risk: 94, inflow: 167000, outflow: 150000, transactions: 9, indicators: ["CRYPTO OFF-RAMP", "PREDICTED CASH-OUT", "CROSS-BORDER"] },
   ];
   const transactions = graph.edges.map((e: AnyRecord) => ({ id: `TXN-${e.id.toUpperCase()}`, timestamp: e.timestamp, source: e.source, destination: e.target, amount: e.amount, currency: e.conversion && e.id === "e4" ? "USDT" : "INR", type: e.conversion ? "CONVERSION" : "TRANSFER", risk: e.risk, confidence: 0.91, chain: e.id === "e4" || e.id === "e5" ? "Ethereum" : null, isConversion: e.conversion }));
   const wallets = [
@@ -72,7 +72,7 @@ function detail(caseId: string): AnyRecord | null {
 
   let intervention = interventionState.get(caseId);
   if (!intervention) {
-    intervention = { id: `INT-${caseId.slice(-3)}`, status: "DRAFT", requestType: "TRANSACTION_RECORD_PRESERVATION", caseId, account: "XXXXXX1234", bank: "Synthetic National Bank", branch: "Indiranagar Branch", ifsc: "SNBK0000108", reason: "Latest known credited account in the analyzed synthetic fund flow. Requires investigator evidence review.", approvalRequired: true, submittedAt: null };
+    intervention = { id: `INT-${caseId.slice(-3)}`, status: "DRAFT", requestType: "TRANSACTION_RECORD_PRESERVATION", caseId, account: "XXXXXXX1234", bank: "SBI (Synthetic Bank of India)", branch: "Indiranagar Branch", ifsc: "SBIN0000108", reason: "Latest known credited account in the analyzed synthetic fund flow. Requires investigator evidence review.", approvalRequired: true, submittedAt: null };
     interventionState.set(caseId, intervention);
   }
   return {
@@ -81,9 +81,9 @@ function detail(caseId: string): AnyRecord | null {
     accounts, transactions, fundFlow: graph, wallets,
     vasp: [{ name: "VASP Alpha", confidence: 0.91, classification: "DIRECT", evidence: ["known synthetic deposit address", "direct interaction", "fiat deposit immediately before conversion"] }, { name: "Foreign VASP · Singapore", confidence: 0.78, classification: "INFERRED", evidence: ["cross-border graph proximity", "off-ramp behavior"] }],
     risk: { score: 94, category: "CRITICAL", confidence: 0.89, features: ["High transaction velocity", "Multiple intermediary accounts", "FIAT → CRYPTO at 10:11 UTC", "Cross-border movement", "Predicted cash-out proximity"], modelVersion: "cashnet-baseline-1.0" },
-    predictions: { hotspots: [{ id: "hot-1", city: "Bengaluru · Indiranagar", lat: 12.9719, lng: 77.6412, probability: 0.82, risk: 92, amount: 150000, timeWindow: "Next 60 minutes", atm: "SNB ATM · 100 Feet Road", branch: "Indiranagar Branch · SNBK0000108", factors: ["Recent high-value transfer", "Short distance from last known entity", "Multiple nearby ATMs", "Similar synthetic withdrawal pattern"], confidence: 0.84 }, { id: "hot-2", city: "Bengaluru · Koramangala", lat: 12.9352, lng: 77.6245, probability: 0.67, risk: 78, amount: 98000, timeWindow: "Next 3 hours", atm: "SNB ATM · Sony World", branch: "Koramangala Branch", factors: ["High ATM density", "Historical withdrawal activity"], confidence: 0.71 }], generatedAt: iso(44), modelVersion: "cashout-analytical-baseline-1.0" },
-    recommendations: [{ priority: "HIGH", title: "Prioritize authorized investigative review", reason: "Latest recipient has critical pattern score and predicted cash-out proximity.", evidence: ["TXN-E7", "Account C risk 94/100", "Hotspot probability 82%"], confidence: 0.89 }, { priority: "MEDIUM", title: "Preserve VASP records through authorized channel", reason: "A direct synthetic fiat deposit is followed by conversion at a probable VASP.", evidence: ["TXN-E3", "TXN-E4", "VASP Alpha direct attribution"], confidence: 0.91 }],
-    lastCredited: { account: "XXXXXX1234", transaction: "TXN-E7", amount: 167000, timestamp: iso(31), risk: "CRITICAL", bank: "Synthetic National Bank", branch: "Indiranagar Branch", ifsc: "SNBK0000108" },
+    predictions: { hotspots: [{ id: "hot-1", city: "Bengaluru · Indiranagar", lat: 12.9719, lng: 77.6412, probability: 0.82, risk: 92, amount: 150000, timeWindow: "Next 60 minutes", atm: "SNB ATM · 100 Feet Road", branch: "Indiranagar Branch · SBIN0000108", factors: ["Recent high-value transfer", "Short distance from last known entity", "Multiple nearby ATMs", "Similar synthetic withdrawal pattern"], confidence: 0.84 }, { id: "hot-2", city: "Bengaluru · Koramangala", lat: 12.9352, lng: 77.6245, probability: 0.67, risk: 78, amount: 98000, timeWindow: "Next 3 hours", atm: "SNB ATM · Sony World", branch: "Koramangala Branch", factors: ["High ATM density", "Historical withdrawal activity"], confidence: 0.71 }], generatedAt: iso(44), modelVersion: "cashout-analytical-baseline-1.0" },
+    recommendations: [{ priority: "HIGH", title: "Prioritize authorized investigative review", reason: "Latest recipient has critical pattern score and predicted cash-out proximity.", evidence: ["TXN-E7", "Vikram Singh risk 94/100", "Hotspot probability 82%"], confidence: 0.89 }, { priority: "MEDIUM", title: "Preserve VASP records through authorized channel", reason: "A direct synthetic fiat deposit is followed by conversion at a probable VASP.", evidence: ["TXN-E3", "TXN-E4", "VASP Alpha direct attribution"], confidence: 0.91 }],
+    lastCredited: { account: "XXXXXXX1234", transaction: "TXN-E7", amount: 167000, timestamp: iso(31), risk: "CRITICAL", bank: "SBI (Synthetic Bank of India)", branch: "Indiranagar Branch", ifsc: "SBIN0000108" },
     intervention, audit: [{ action: "CASE_ANALYSIS_EXECUTED", actor: "demo.investigator", timestamp: iso(44), source: "MODEL_INFERENCE + SYNTHETIC" }, { action: "INTERVENTION_DRAFT_PREPARED", actor: "demo.investigator", timestamp: iso(44), source: "SYNTHETIC BANK DIRECTORY" }],
   };
 }

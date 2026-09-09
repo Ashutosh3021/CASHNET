@@ -51,7 +51,7 @@ export default function AlertsPage() {
 
   const [selectedCase, setSelectedCase] = useState<string>("CASE-CASHNET-001");
   const [smsTarget, setSmsTarget] = useState<string>("+91 98765 43210 (Karnataka Police LEA)");
-  const [emailTarget, setEmailTarget] = useState<string>("nodal.officer@snb-bank.in");
+  const [emailTarget, setEmailTarget] = useState<string>("nodal.officer@sbi.co.in");
   const [smsActive, setSmsActive] = useState<boolean>(true);
   const [emailActive, setEmailActive] = useState<boolean>(true);
   const [bankApiActive, setBankApiActive] = useState<boolean>(true);
