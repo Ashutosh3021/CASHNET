@@ -936,7 +936,7 @@ VIEWER
 
 ### 7.1 Overview
 
-The Intelligence API provides external consumers with programmatic access to CASHNET analytics, cases, wallets, and incident linking. All endpoints require API key authentication and are rate-limited by tier.
+The Intelligence API provides external consumers with programmatic access to CASHNET analytics, cases, wallets, and incident linking. All endpoints require API key authentication and are rate-limited by tier. Analytics endpoints run real algorithms on the synthetic dataset.
 
 ### 7.2 Architecture
 
@@ -957,6 +957,16 @@ The Intelligence API provides external consumers with programmatic access to CAS
 │  │  - X-Api-Key header validation                          │   │
 │  │  - Tier-based rate limits (free/standard/enterprise)    │   │
 │  │  - X-RateLimit-* response headers                       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                  │
+│  Algorithms (real computation on synthetic data):               │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  DBSCAN clustering      → /analytics/hotspots           │   │
+│  │  Point-to-segment       → /analytics/corridors          │   │
+│  │  Jaccard similarity     → /analytics/connected-incidents │   │
+│  │  Entity graph build     → /analytics/relationships      │   │
+│  │  BFS multi-hop trace    → /wallets/:id/trace            │   │
+│  │  Jaccard entity+complaint → /cases/:id/linked           │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -980,14 +990,14 @@ Tiers and rate limits:
 
 ### 7.4 Analytics Endpoints
 
-| Endpoint | Description | Query Params |
-|----------|-------------|--------------|
-| `GET /api/v1/analytics/overview` | Dashboard summary with metrics | — |
-| `GET /api/v1/analytics/fraud-patterns` | Fraud type distributions | — |
-| `GET /api/v1/analytics/hotspots` | Geographic hotspot clusters | — |
-| `GET /api/v1/analytics/relationships` | Entity relationship graph | — |
-| `GET /api/v1/analytics/connected-incidents` | Cross-case connections | — |
-| `GET /api/v1/analytics/corridors` | ATM corridor analysis | — |
+| Endpoint | Algorithm | Description | Query Params |
+|----------|-----------|-------------|--------------|
+| `GET /api/v1/analytics/overview` | Aggregate | Dashboard summary (520 txns, 210 ATMs, 60 branches, hotspot count) | — |
+| `GET /api/v1/analytics/fraud-patterns` | Filter | Fraud type distributions with city/type/confidence filtering | `city`, `fraudType`, `minConfidence` |
+| `GET /api/v1/analytics/hotspots` | DBSCAN | Real spatial clustering (ε=1.75km, minPoints=5) on 520 transactions. Computes centroids, density scores, risk averages, fraud-type distributions, historical scores, nearby ATM/branch counts | `city`, `minRisk`, `limit` |
+| `GET /api/v1/analytics/relationships` | Graph build | Constructs entity graph from case accounts/wallets. Adds cross-case links when cases share accounts or wallets. Returns nodes (CASE, ACCOUNT, WALLET) and edges (FiatTransfer, CryptoConversion, RelatedCase) | `caseId`, `maxHops` |
+| `GET /api/v1/analytics/connected-incidents` | Jaccard | Real Jaccard similarity on entity sets (accounts, wallets, identifiers) and complaint indicators. Configurable threshold | `caseId`, `threshold` |
+| `GET /api/v1/analytics/corridors` | Point-to-segment | Scores ATM vulnerability along 5 major city corridors (Bengaluru→Mumbai, Delhi→Bengaluru, Mumbai→Hyderabad, Delhi→Kolkata, Chennai→Bengaluru). Uses point-to-line distance, hotspot density, and destination proximity | — |
 
 All analytics responses include provenance metadata for each data point.
 
@@ -995,31 +1005,31 @@ All analytics responses include provenance metadata for each data point.
 
 | Endpoint | Description | Query Params |
 |----------|-------------|--------------|
-| `GET /api/v1/cases` | List all cases | `page`, `limit`, `status`, `priority` |
-| `GET /api/v1/cases/:id` | Case detail | — |
-| `GET /api/v1/cases/:id/fund-flow` | Fund flow graph | — |
-| `GET /api/v1/cases/:id/transactions` | Case transactions | `page`, `limit` |
-| `GET /api/v1/cases/:id/report` | Investigation report | — |
-| `GET /api/v1/cases/:id/linked` | Find linked incidents | `threshold` |
+| `GET /api/v1/cases` | List all cases | `city`, `fraudType`, `status`, `riskMinimum`, `limit`, `offset` |
+| `GET /api/v1/cases/:id` | Case detail with accounts, wallets, transactions, risk | — |
+| `GET /api/v1/cases/:id/fund-flow` | Fund flow graph (nodes + edges) | — |
+| `GET /api/v1/cases/:id/transactions` | Case transactions | — |
+| `GET /api/v1/cases/:id/report` | Investigation report with provenance sections | — |
+| `GET /api/v1/cases/:id/linked` | Jaccard entity-overlap + complaint-similarity linking | `threshold` |
 
 ### 7.6 Wallet Endpoints
 
-| Endpoint | Description | Query Params |
-|----------|-------------|--------------|
-| `GET /api/v1/wallets` | List all wallets | `page`, `limit` |
-| `GET /api/v1/wallets/:id` | Wallet detail | — |
-| `GET /api/v1/wallets/:id/trace` | Multi-hop trace | `maxHops` |
+| Endpoint | Algorithm | Description | Params |
+|----------|-----------|-------------|--------|
+| `GET /api/v1/wallets` | Filter | List wallets with chain/risk filtering | `chain`, `minRisk`, `limit` |
+| `GET /api/v1/wallets/:id` | Enrich | Wallet detail enriched with incoming/outgoing flows and conversion events from fund-flow graph | — |
+| `POST /api/v1/wallets/:id/trace` | BFS | Multi-hop graph traversal from fund-flow edges. Returns all reachable nodes, edges, complete paths with cumulative amounts, risk paths, and conversion counts | `maxHops`, `minValue`, `chain` |
 
 ### 7.7 Incident Linking
 
-The incident linking module identifies related cases using two similarity measures:
+The incident linking module identifies related cases using Jaccard similarity on two dimensions:
 
-1. **Entity Overlap (Jaccard):** Compares accounts, wallets, and complaint indicators between cases
-2. **Complaint Similarity (Jaccard):** Compares complaint narrative indicators
+1. **Entity Overlap:** Extracts account IDs, masked numbers, wallet IDs, and addresses from each case. Computes `|intersection| / |union|` across entity sets.
+2. **Complaint Similarity:** Extracts complaint indicators (fraud type, city, risk features). Computes Jaccard similarity on indicator sets.
 
-Combined similarity score: `0.6 × entityScore + 0.4 × complaintScore`
+Both scores are returned independently. The `linkType` field indicates whether the match was driven by `entity_overlap` or `complaint_similarity`.
 
-Default threshold: 0.3 (configurable via `threshold` query param).
+Default threshold: 0.3 (configurable via `threshold` query param). Available on both internal (`/api/cases/:id/linked`) and external (`/api/v1/cases/:id/linked`, `/api/v1/analytics/connected-incidents`) routes.
 
 ---
 

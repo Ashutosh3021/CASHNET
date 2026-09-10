@@ -169,9 +169,9 @@ Open a case from the Cases screen, inspect the complaint, run analysis, open Fun
 - **Geo & prediction:** geospatial data from synthetic or ingested public datasets, ATM/branch proximity, historical behavior features, ranked hotspots, probability, time window, and contributing factors.
 - **Action / intervention:** latest credited account, synthetic bank/IFSC/branch resolution, draft → review → explicit approval. No automatic freeze, debit, seizure, contact, or submission is performed.
 - **Audit / reports:** user actions and evidence-backed report sections with provenance labels.
-- **Incident linking:** entity overlap and complaint similarity engine that identifies related cases via Jaccard similarity on accounts, wallets, and complaint indicators.
+- **Incident linking:** Jaccard similarity engine that identifies related cases via entity overlap (accounts, wallets, identifiers) and complaint indicator similarity. Exposed on both internal and v1 API routes.
 - **Intelligence API:** external-facing v1 API with API key authentication, tiered rate limiting, and read-only access to analytics, cases, wallets, and incident linking.
-- **Analytics-as-a-service:** structured analytics endpoints (overview, fraud patterns, hotspots, relationships, connected incidents, corridors) with provenance metadata for external consumption.
+- **Analytics-as-a-service:** structured analytics endpoints with real algorithms — DBSCAN hotspot clustering, point-to-segment corridor scoring, Jaccard incident linking, entity relationship graph construction, and BFS multi-hop wallet tracing — all operating on synthetic data with provenance metadata.
 
 ## Provenance tracking
 
@@ -233,7 +233,7 @@ pnpm --filter @workspace/cashnet run build
 
 ## Intelligence API (v1)
 
-External consumers access CASHNET via the v1 API with API key authentication.
+External consumers access CASHNET via the v1 API with API key authentication. All analytics endpoints run real algorithms on the synthetic dataset (520 transactions, 210 ATMs, 60 branches, 15 cities).
 
 ### Getting a key
 
@@ -253,28 +253,28 @@ curl -H "X-Api-Key: YOUR_KEY" http://localhost:3000/api/v1/analytics/overview
 
 ### Available endpoints
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/v1/health` | Health check (no auth) |
-| `POST /api/v1/auth/keys` | Generate API key |
-| `GET /api/v1/auth/keys` | List active keys |
-| `DELETE /api/v1/auth/keys/:id` | Revoke key |
-| `POST /api/v1/auth/keys/:id/rotate` | Rotate key |
-| `GET /api/v1/analytics/overview` | Dashboard summary |
-| `GET /api/v1/analytics/fraud-patterns` | Fraud type distributions |
-| `GET /api/v1/analytics/hotspots` | Geographic hotspot clusters |
-| `GET /api/v1/analytics/relationships` | Entity relationship graph |
-| `GET /api/v1/analytics/connected-incidents` | Cross-case connections |
-| `GET /api/v1/analytics/corridors` | ATM corridor analysis |
-| `GET /api/v1/cases` | List cases |
-| `GET /api/v1/cases/:id` | Case detail |
-| `GET /api/v1/cases/:id/fund-flow` | Fund flow graph |
-| `GET /api/v1/cases/:id/transactions` | Case transactions |
-| `GET /api/v1/cases/:id/report` | Investigation report |
-| `GET /api/v1/wallets` | List wallets |
-| `GET /api/v1/wallets/:id` | Wallet detail |
-| `GET /api/v1/wallets/:id/trace` | Multi-hop wallet trace |
-| `GET /api/v1/cases/:id/linked` | Find linked incidents |
+| Endpoint | Algorithm | Description |
+|---|---|---|
+| `GET /api/v1/health` | — | Health check (no auth) |
+| `POST /api/v1/auth/keys` | — | Generate API key |
+| `GET /api/v1/auth/keys` | — | List active keys |
+| `DELETE /api/v1/auth/keys/:id` | — | Revoke key |
+| `POST /api/v1/auth/keys/:id/rotate` | — | Rotate key |
+| `GET /api/v1/analytics/overview` | Aggregate | Dashboard summary (520 txns, 210 ATMs, 60 branches) |
+| `GET /api/v1/analytics/fraud-patterns` | Filter | Fraud type distributions with city/confidence filtering |
+| `GET /api/v1/analytics/hotspots` | DBSCAN | Real spatial clustering (ε=1.75km, minPoints=5) on 520 transactions |
+| `GET /api/v1/analytics/relationships` | Graph build | Entity graph from case accounts/wallets with cross-case links |
+| `GET /api/v1/analytics/connected-incidents` | Jaccard | Entity overlap + complaint similarity across cases |
+| `GET /api/v1/analytics/corridors` | Point-to-segment | ATM vulnerability scoring along 5 major city corridors |
+| `GET /api/v1/cases` | Filter | Case list with city/fraudType/status/risk filtering |
+| `GET /api/v1/cases/:id` | — | Case detail |
+| `GET /api/v1/cases/:id/fund-flow` | — | Fund flow graph |
+| `GET /api/v1/cases/:id/transactions` | — | Case transactions |
+| `GET /api/v1/cases/:id/report` | — | Investigation report |
+| `GET /api/v1/cases/:id/linked` | Jaccard | Find linked incidents via entity + complaint similarity |
+| `GET /api/v1/wallets` | — | List wallets |
+| `GET /api/v1/wallets/:id` | — | Wallet detail with fund-flow context |
+| `POST /api/v1/wallets/:id/trace` | BFS | Multi-hop graph traversal from fund-flow edges |
 
 Test coverage includes:
 - Geospatial distance calculations (haversine, symmetry, anti-meridian)
