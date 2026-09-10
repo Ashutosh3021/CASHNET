@@ -6,7 +6,7 @@ import {
   Fingerprint, Globe2, LayoutDashboard, LockKeyhole, Menu, Network, PanelLeftClose,
   PanelLeftOpen, Pause, Plus, Radar, RefreshCw, Search, Send, Settings2, Shield,
   Sparkles, Target, Upload, WalletCards, X, Zap, MapPinned, Cpu, LogOut, ZoomIn,
-  ZoomOut, Maximize2, CheckCircle2
+  ZoomOut, Maximize2, CheckCircle2, TrendingUp
 } from 'lucide-react';
 import {
   useAddComplaint, useAnalyzeCase, useApproveIntervention, useCreateCase,
