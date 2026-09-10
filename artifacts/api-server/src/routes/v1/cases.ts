@@ -4,6 +4,7 @@
 
 import { Router, type IRouter, Request, Response } from "express";
 import { logger } from "../../lib/logger";
+import { findLinkedIncidents } from "../../services/incident-linking";
 
 type AnyRecord = Record<string, any>;
 
@@ -210,6 +211,59 @@ router.get("/cases/:caseId/report", (req: Request, res: Response) => {
   } catch (error) {
     logger.error({ error }, "Failed to get report");
     return res.status(500).json({ error: "Failed to get report" });
+  }
+});
+
+/**
+ * GET /cases/:caseId/linked - Find incidents linked via Jaccard similarity
+ */
+router.get("/cases/:caseId/linked", (req: Request, res: Response) => {
+  try {
+    const caseId = String(req.params.caseId);
+    const { threshold } = req.query;
+    const caseData = CASES_DB.find((c) => c.id === caseId);
+
+    if (!caseData) {
+      return res.status(404).json({ error: "Case not found" });
+    }
+
+    // Build CaseLike objects for the incident-linking service
+    const target = {
+      id: caseData.id,
+      reference: caseData.reference,
+      accounts: caseData.accounts,
+      wallets: caseData.wallets,
+      complaint: {
+        indicators: caseData.risk?.features || [],
+        description: caseData.title,
+      },
+      amount: caseData.amount,
+      fraudType: caseData.fraudType,
+      city: caseData.city,
+    };
+
+    const allCases = CASES_DB.map((c) => ({
+      id: c.id,
+      reference: c.reference,
+      accounts: c.accounts,
+      wallets: c.wallets,
+      complaint: {
+        indicators: c.risk?.features || [],
+        description: c.title,
+      },
+      amount: c.amount,
+      fraudType: c.fraudType,
+      city: c.city,
+    }));
+
+    const linked = findLinkedIncidents(target, allCases, {
+      similarityThreshold: threshold ? parseFloat(threshold as string) : 0.3,
+    });
+
+    return res.json(wrapResponse({ linkedCases: linked, targetCaseId: caseId }, req));
+  } catch (error) {
+    logger.error({ error }, "Failed to get linked incidents");
+    return res.status(500).json({ error: "Failed to get linked incidents" });
   }
 });
 
