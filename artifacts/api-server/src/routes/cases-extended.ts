@@ -13,6 +13,7 @@
 
 import { Router, type IRouter, Request, Response } from "express";
 import { logger } from "../lib/logger";
+import { findLinkedIncidents } from "../services/incident-linking";
 
 type AnyRecord = Record<string, any>;
 
@@ -733,6 +734,64 @@ router.get("/alerts", (req: Request, res: Response) => {
   } catch (error) {
     logger.error({ error }, "Failed to retrieve alerts");
     return res.status(500).json({ error: "Failed to retrieve alerts" });
+  }
+});
+
+// ============================================================================
+// INCIDENT LINKING ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /cases/:caseId/linked - Find incidents linked to this case
+ */
+router.get("/cases/:caseId/linked", (req: Request, res: Response) => {
+  try {
+    const caseId = String(req.params.caseId);
+    const threshold = req.query.threshold ? parseFloat(req.query.threshold as string) : undefined;
+
+    // Build case-like objects from entity registry for all known cases
+    const allCaseIds = new Set<string>();
+    for (const entity of entityRegistry.values()) {
+      for (const cid of entity.relatedCases || []) {
+        allCaseIds.add(cid);
+      }
+    }
+
+    const caseObjects = Array.from(allCaseIds).map((cid) => {
+      const entities = Array.from(entityRegistry.values()).filter(
+        (e) => e.relatedCases?.includes(cid)
+      );
+      return {
+        id: cid,
+        reference: cid,
+        accounts: entities
+          .filter((e) => e.category === "MULE_ACCOUNT" || e.category === "CASH_OUT_LOCATION")
+          .map((e) => ({ id: e.id, masked: e.identifier })),
+        wallets: entities
+          .filter((e) => e.category === "CRYPTO_WALLET")
+          .map((e) => ({ id: e.id, address: e.name })),
+        complaint: {
+          indicators: entities.flatMap((e) => e.indicators || []),
+        },
+      };
+    });
+
+    const target = caseObjects.find((c) => c.id === caseId);
+    if (!target) {
+      return res.status(404).json({ error: "Case not found in entity registry" });
+    }
+
+    const linked = findLinkedIncidents(target, caseObjects, { similarityThreshold: threshold });
+
+    return res.json({
+      success: true,
+      data: linked,
+      count: linked.length,
+      caseId,
+    });
+  } catch (error) {
+    logger.error({ error }, "Failed to find linked incidents");
+    return res.status(500).json({ error: "Failed to find linked incidents" });
   }
 });
 

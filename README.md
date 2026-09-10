@@ -140,6 +140,7 @@ Copy `.env.example` to `.env` when running outside Replit. Synthetic mode needs 
 | `TRON_API_KEY` | (empty) | Trongrid API key for Tron transactions |
 | `NCRP_ENABLED` | `false` | NCRP integration (requires authorized access) |
 | `SAHYOG_ENABLED` | `false` | SAHYOG integration (requires authorized access) |
+| `PYTHON_SERVICE_URL` | `http://localhost:5000` | Python ML service endpoint for model inference |
 
 ## Supabase setup
 
@@ -168,6 +169,9 @@ Open a case from the Cases screen, inspect the complaint, run analysis, open Fun
 - **Geo & prediction:** geospatial data from synthetic or ingested public datasets, ATM/branch proximity, historical behavior features, ranked hotspots, probability, time window, and contributing factors.
 - **Action / intervention:** latest credited account, synthetic bank/IFSC/branch resolution, draft → review → explicit approval. No automatic freeze, debit, seizure, contact, or submission is performed.
 - **Audit / reports:** user actions and evidence-backed report sections with provenance labels.
+- **Incident linking:** entity overlap and complaint similarity engine that identifies related cases via Jaccard similarity on accounts, wallets, and complaint indicators.
+- **Intelligence API:** external-facing v1 API with API key authentication, tiered rate limiting, and read-only access to analytics, cases, wallets, and incident linking.
+- **Analytics-as-a-service:** structured analytics endpoints (overview, fraud patterns, hotspots, relationships, connected incidents, corridors) with provenance metadata for external consumption.
 
 ## Provenance tracking
 
@@ -226,6 +230,51 @@ pnpm --filter @workspace/api-server run build
 # Build frontend
 pnpm --filter @workspace/cashnet run build
 ```
+
+## Intelligence API (v1)
+
+External consumers access CASHNET via the v1 API with API key authentication.
+
+### Getting a key
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/keys \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Integration", "tier": "free"}'
+```
+
+Tiers: `free` (60 req/min), `standard` (300 req/min), `enterprise` (1000 req/min).
+
+### Using the API
+
+```bash
+curl -H "X-Api-Key: YOUR_KEY" http://localhost:3000/api/v1/analytics/overview
+```
+
+### Available endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/v1/health` | Health check (no auth) |
+| `POST /api/v1/auth/keys` | Generate API key |
+| `GET /api/v1/auth/keys` | List active keys |
+| `DELETE /api/v1/auth/keys/:id` | Revoke key |
+| `POST /api/v1/auth/keys/:id/rotate` | Rotate key |
+| `GET /api/v1/analytics/overview` | Dashboard summary |
+| `GET /api/v1/analytics/fraud-patterns` | Fraud type distributions |
+| `GET /api/v1/analytics/hotspots` | Geographic hotspot clusters |
+| `GET /api/v1/analytics/relationships` | Entity relationship graph |
+| `GET /api/v1/analytics/connected-incidents` | Cross-case connections |
+| `GET /api/v1/analytics/corridors` | ATM corridor analysis |
+| `GET /api/v1/cases` | List cases |
+| `GET /api/v1/cases/:id` | Case detail |
+| `GET /api/v1/cases/:id/fund-flow` | Fund flow graph |
+| `GET /api/v1/cases/:id/transactions` | Case transactions |
+| `GET /api/v1/cases/:id/report` | Investigation report |
+| `GET /api/v1/wallets` | List wallets |
+| `GET /api/v1/wallets/:id` | Wallet detail |
+| `GET /api/v1/wallets/:id/trace` | Multi-hop wallet trace |
+| `GET /api/v1/cases/:id/linked` | Find linked incidents |
 
 Test coverage includes:
 - Geospatial distance calculations (haversine, symmetry, anti-meridian)

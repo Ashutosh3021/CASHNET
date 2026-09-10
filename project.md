@@ -932,7 +932,98 @@ VIEWER
 
 ---
 
-## 7. Deployment
+## 7. Intelligence API (v1)
+
+### 7.1 Overview
+
+The Intelligence API provides external consumers with programmatic access to CASHNET analytics, cases, wallets, and incident linking. All endpoints require API key authentication and are rate-limited by tier.
+
+### 7.2 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    V1 API ROUTES                                 │
+│                                                                  │
+│  /api/v1/health          Public (no auth)                       │
+│  /api/v1/auth/*          API key management                    │
+│  /api/v1/analytics/*     Analytics-as-a-service                │
+│  /api/v1/cases/*         Case data (read-only)                 │
+│  /api/v1/wallets/*       Wallet data + tracing                  │
+│                                                                  │
+│  Middleware:                                                     │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  apiKeyAuth → rateLimiter → route handler                │   │
+│  │                                                          │   │
+│  │  - X-Api-Key header validation                          │   │
+│  │  - Tier-based rate limits (free/standard/enterprise)    │   │
+│  │  - X-RateLimit-* response headers                       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 7.3 API Key Management
+
+| Operation | Endpoint | Description |
+|-----------|----------|-------------|
+| Generate | `POST /api/v1/auth/keys` | Create new key (name, tier) |
+| List | `GET /api/v1/auth/keys` | List active keys |
+| Revoke | `DELETE /api/v1/auth/keys/:id` | Revoke key |
+| Rotate | `POST /api/v1/auth/keys/:id/rotate` | Rotate key (old invalidated) |
+
+Tiers and rate limits:
+
+| Tier | Requests/minute |
+|------|-----------------|
+| free | 60 |
+| standard | 300 |
+| enterprise | 1000 |
+
+### 7.4 Analytics Endpoints
+
+| Endpoint | Description | Query Params |
+|----------|-------------|--------------|
+| `GET /api/v1/analytics/overview` | Dashboard summary with metrics | — |
+| `GET /api/v1/analytics/fraud-patterns` | Fraud type distributions | — |
+| `GET /api/v1/analytics/hotspots` | Geographic hotspot clusters | — |
+| `GET /api/v1/analytics/relationships` | Entity relationship graph | — |
+| `GET /api/v1/analytics/connected-incidents` | Cross-case connections | — |
+| `GET /api/v1/analytics/corridors` | ATM corridor analysis | — |
+
+All analytics responses include provenance metadata for each data point.
+
+### 7.5 Case Endpoints
+
+| Endpoint | Description | Query Params |
+|----------|-------------|--------------|
+| `GET /api/v1/cases` | List all cases | `page`, `limit`, `status`, `priority` |
+| `GET /api/v1/cases/:id` | Case detail | — |
+| `GET /api/v1/cases/:id/fund-flow` | Fund flow graph | — |
+| `GET /api/v1/cases/:id/transactions` | Case transactions | `page`, `limit` |
+| `GET /api/v1/cases/:id/report` | Investigation report | — |
+| `GET /api/v1/cases/:id/linked` | Find linked incidents | `threshold` |
+
+### 7.6 Wallet Endpoints
+
+| Endpoint | Description | Query Params |
+|----------|-------------|--------------|
+| `GET /api/v1/wallets` | List all wallets | `page`, `limit` |
+| `GET /api/v1/wallets/:id` | Wallet detail | — |
+| `GET /api/v1/wallets/:id/trace` | Multi-hop trace | `maxHops` |
+
+### 7.7 Incident Linking
+
+The incident linking module identifies related cases using two similarity measures:
+
+1. **Entity Overlap (Jaccard):** Compares accounts, wallets, and complaint indicators between cases
+2. **Complaint Similarity (Jaccard):** Compares complaint narrative indicators
+
+Combined similarity score: `0.6 × entityScore + 0.4 × complaintScore`
+
+Default threshold: 0.3 (configurable via `threshold` query param).
+
+---
+
+## 8. Deployment
 
 ### 7.1 Docker Compose (Local Development)
 

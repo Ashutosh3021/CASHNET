@@ -11,9 +11,14 @@ import modelsRouter from "./models";
 import corridorRouter from "./corridor";
 import blockchainRouter from "./blockchain";
 import dataSourcesRouter from "./data-sources";
+import v1Router from "./v1";
 
 const router: IRouter = Router();
 
+// V1 Intelligence API (external consumers)
+router.use("/v1", v1Router);
+
+// Internal routes
 router.use("/integrations", integrationsRouter);
 router.use(healthRouter);
 router.use(cashnetRouter);

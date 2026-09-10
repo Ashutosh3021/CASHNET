@@ -258,9 +258,9 @@ router.post("/cases", (req, res) => {
     status: "NEW",
     state: parsed.data.victimState ?? "Unspecified",
     city: parsed.data.victimCity ?? "Unspecified",
-    victimLat: parsed.data.victimLat,
-    victimLng: parsed.data.victimLng,
-    pinCode: parsed.data.pinCode,
+    victimLat: (parsed.data as any).victimLat,
+    victimLng: (parsed.data as any).victimLng,
+    pinCode: (parsed.data as any).pinCode,
     conversionAt: iso(0),
     sourceType: "USER_PROVIDED",
     updatedAt: new Date().toISOString(),
@@ -269,11 +269,11 @@ router.post("/cases", (req, res) => {
   res.status(201).json(data);
 });
 
-router.get("/cases/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); res.json(d); });
+router.get("/cases/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } res.json(d); });
 
 router.post("/cases/:caseId/analyze", async (req, res) => {
   const d = detail(req.params.caseId);
-  if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId });
+  if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; }
   const record = {
     risk_score: d.priority === "CRITICAL" ? 0.9 : d.priority === "HIGH" ? 0.7 : 0.4,
     transaction_count: d.transactions?.length ?? 0,
@@ -301,17 +301,17 @@ router.post("/cases/:caseId/analyze", async (req, res) => {
   }
 });
 
-router.post("/cases/:caseId/complaint", (req, res) => { const parsed = AddComplaintBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid report input" }); return; } const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); res.json(d); });
-router.get("/fund-flow/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); res.json(d.fundFlow); });
+router.post("/cases/:caseId/complaint", (req, res) => { const parsed = AddComplaintBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid report input" }); return; } const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } res.json(d); });
+router.get("/fund-flow/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } res.json(d.fundFlow); });
 router.get("/wallets", (_req, res) => { const d = detail(cases[0].id); res.json(d ? d.wallets : []); });
-router.get("/predictions/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); res.json(d.predictions); });
-router.get("/interventions/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); res.json(d.intervention); });
-router.post("/interventions/:caseId", (req, res) => { const parsed = CreateInterventionBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid intervention input" }); return; } const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); d.intervention.status = "DRAFT"; d.intervention.requestType = parsed.data.requestType; res.status(201).json(d.intervention); });
-router.post("/interventions/:caseId/approve", (req, res) => { const d = detail(req.params.caseId); if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); d.intervention.status = "APPROVED"; d.audit.push({ action: "INTERVENTION_APPROVED", actor: "demo.investigator", timestamp: new Date().toISOString(), source: "USER_ACTION" }); res.json(d.intervention); });
+router.get("/predictions/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } res.json(d.predictions); });
+router.get("/interventions/:caseId", (req, res) => { const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } res.json(d.intervention); });
+router.post("/interventions/:caseId", (req, res) => { const parsed = CreateInterventionBody.safeParse(req.body); if (!parsed.success) { res.status(400).json({ error: "Invalid intervention input" }); return; } const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } d.intervention.status = "DRAFT"; d.intervention.requestType = parsed.data.requestType; res.status(201).json(d.intervention); });
+router.post("/interventions/:caseId/approve", (req, res) => { const d = detail(req.params.caseId); if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; } d.intervention.status = "APPROVED"; d.audit.push({ action: "INTERVENTION_APPROVED", actor: "demo.investigator", timestamp: new Date().toISOString(), source: "USER_ACTION" }); res.json(d.intervention); });
 
 router.get("/reports/:caseId", (req, res) => {
   const d = detail(req.params.caseId);
-  if (!d) return res.status(404).json({ error: "Case not found", caseId: req.params.caseId });
+  if (!d) { res.status(404).json({ error: "Case not found", caseId: req.params.caseId }); return; }
   const historical = detectHotspots(syntheticGeoData.records, syntheticGeoData.atms, syntheticGeoData.branches);
   const historicalSummary = { transactions: syntheticGeoData.records.length, hotspots: historical.length, topHotspot: [...historical].sort((a, b) => b.historicalScore - a.historicalScore)[0]?.clusterId ?? "NONE", dataSource: "SYNTHETIC" };
   res.json({
