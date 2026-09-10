@@ -31,6 +31,7 @@ import FaceAuth from '@/pages/auth/FaceAuth';
 import CryptoWalletPage from '@/pages/crypto-wallet/CryptoWalletPage';
 import FundFlowGraphPage from '@/pages/fund-flow/FundFlowGraphPage';
 import InvestigationInputPage from '@/pages/crypto-investigation/InvestigationInputPage';
+import IntelligenceGraphPage from '@/pages/intelligence-graph/IntelligenceGraphPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 import { setBaseUrl } from '@workspace/api-client-react';
@@ -111,6 +112,7 @@ const navGroups = [
   { label: 'Investigator Workbench', items: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
     { href: '/crypto-investigation', label: 'Crypto Investigation', icon: Crosshair },
+    { href: '/intelligence-graph', label: 'Intelligence Graph', icon: Network },
     { href: '/fund-flow', label: 'Fund flow graph', icon: Network },
     { href: '/fund-flow-graph', label: 'Fund flow graph (Sankey)', icon: TrendingUp },
     { href: '/crypto', label: 'Crypto wallets', icon: WalletCards },
@@ -569,6 +571,7 @@ function Router() {
         <Route path="/crypto" component={WalletsPage} />
         <Route path="/crypto-wallet" component={CryptoWalletPage} />
         <Route path="/crypto-investigation" component={InvestigationInputPage} />
+        <Route path="/intelligence-graph" component={IntelligenceGraphPage} />
         <Route path="/vasp" component={() => <CaseScopedPage kind="vasp" />} />
         <Route path="/geo" component={() => <CaseScopedPage kind="geo" />} />
         <Route path="/historical-activity" component={HistoricalActivityPage} />
