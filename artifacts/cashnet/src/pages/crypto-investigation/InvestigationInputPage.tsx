@@ -1,19 +1,13 @@
-/**
- * VASP Attribution Page
- * Enter a transaction ID / wallet address, run analysis pipeline,
- * and display ranked VASP candidates with infographic results.
- */
-
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "wouter";
 import {
-  Activity,
-  AlertTriangle,
   ArrowRight,
-  BarChart3,
   Check,
   ChevronRight,
   Clock,
+  Crosshair,
   Database,
+  Eye,
   Fingerprint,
   Globe,
   Hash,
@@ -23,10 +17,14 @@ import {
   Search,
   Shield,
   ShieldAlert,
+  Sparkles,
   Target,
   TrendingUp,
   Wallet,
   Zap,
+  BarChart3,
+  Activity,
+  AlertTriangle,
   FileText,
   MapPinned,
 } from "lucide-react";
@@ -45,6 +43,7 @@ import {
 } from "@/lib/investigation-engine";
 import {
   saveInvestigation,
+  savePendingConfig,
   getCurrentInvestigation,
   getHistory,
 } from "@/lib/investigation-store";
@@ -54,13 +53,34 @@ import {
 /* ------------------------------------------------------------------ */
 type PagePhase = "input" | "pipeline" | "results";
 
+interface CryptoOption {
+  id: BlockchainNetwork | "AUTO" | "USDT";
+  label: string;
+  ticker: string;
+  color: string;
+  icon: string;
+}
+
+const CRYPTO_OPTIONS: CryptoOption[] = [
+  { id: "AUTO", label: "Find", ticker: "AUTO", color: "#06b6d4", icon: "🔍" },
+  { id: "BITCOIN", label: "Bitcoin", ticker: "BTC", color: "#f7931a", icon: "₿" },
+  { id: "ETHEREUM", label: "Ethereum", ticker: "ETH", color: "#627eea", icon: "Ξ" },
+  { id: "SOLANA", label: "Solana", ticker: "SOL", color: "#9945ff", icon: "◎" },
+  { id: "TRON", label: "Tron", ticker: "TRX", color: "#ff0013", icon: "⚡" },
+  { id: "POLYGON", label: "Polygon", ticker: "MATIC", color: "#8247e5", icon: "⬡" },
+  { id: "BNB", label: "BNB Chain", ticker: "BNB", color: "#f3ba2f", icon: "🔶" },
+  { id: "USDT" as any, label: "USDT", ticker: "USDT", color: "#26a17b", icon: "₮" },
+];
+
 const PIPELINE_STEPS = [
-  { label: "Transaction Lookup", desc: "Resolving transaction ID on-chain", icon: Hash, duration: 800 },
-  { label: "VASP Entity Resolution", desc: "Matching counterparties to known VASPs", icon: Globe, duration: 1200 },
-  { label: "Attribution Scoring", desc: "Computing confidence & classification", icon: ShieldAlert, duration: 1000 },
-  { label: "Evidence Compilation", desc: "Aggregating multi-source intelligence", icon: Database, duration: 900 },
-  { label: "Risk Assessment", desc: "Evaluating VASP risk posture", icon: Shield, duration: 800 },
-  { label: "Report Generation", desc: "Building attribution intelligence brief", icon: FileText, duration: 600 },
+  { label: "Address Validation", desc: "Verifying format & blockchain detection", icon: Search, duration: 800 },
+  { label: "On-Chain Data Collection", desc: "Querying blockchain explorers & APIs", icon: Database, duration: 1200 },
+  { label: "Transaction Graph Build", desc: "Constructing multi-hop transaction graph", icon: Network, duration: 1500 },
+  { label: "Cluster Analysis", desc: "Identifying wallet clusters & relationships", icon: Layers, duration: 1000 },
+  { label: "VASP Attribution", desc: "Matching entities to known VASPs & exchanges", icon: Globe, duration: 900 },
+  { label: "Risk Scoring Engine", desc: "Computing behavioral risk indicators", icon: ShieldAlert, duration: 1100 },
+  { label: "Typology Detection", desc: "Scanning for suspicious fund flow patterns", icon: AlertTriangle, duration: 800 },
+  { label: "Report Generation", desc: "Compiling forensic intelligence dossier", icon: FileText, duration: 600 },
 ];
 
 function truncAddr(addr: string): string {
@@ -81,13 +101,20 @@ function getRiskColor(level: RiskLevel): string {
 /* ================================================================== */
 /* MAIN COMPONENT                                                     */
 /* ================================================================== */
-export const VASPAttribution: React.FC = () => {
+export default function InvestigationInputPage() {
+  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<PagePhase>("input");
 
   // Input Form State
   const [address, setAddress] = useState("");
   const [selectedCrypto, setSelectedCrypto] = useState<string>("AUTO");
   const [hopDepth, setHopDepth] = useState(2);
+  const [scopes, setScopes] = useState({
+    transfer: true,
+    contract: true,
+    mixer: true,
+    bridge: false,
+  });
 
   // Pipeline State
   const [pipelineStep, setPipelineStep] = useState(0);
@@ -106,6 +133,11 @@ export const VASPAttribution: React.FC = () => {
     return detectChain(address.trim());
   }, [address, addressValid]);
 
+  // Toggle scope
+  const toggleScope = (key: keyof typeof scopes) => {
+    setScopes((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Start Investigation Pipeline
   const handleStartInvestigation = () => {
     if (!addressValid) return;
@@ -113,12 +145,15 @@ export const VASPAttribution: React.FC = () => {
     const chain: BlockchainNetwork =
       selectedCrypto === "AUTO"
         ? detectedChain || "ETHEREUM"
-        : (selectedCrypto as BlockchainNetwork);
+        : selectedCrypto === "USDT"
+          ? "ETHEREUM"
+          : (selectedCrypto as BlockchainNetwork);
 
     setPhase("pipeline");
     setPipelineStep(0);
     setPipelineComplete(false);
 
+    // Run pipeline steps with delays
     let stepIdx = 0;
     const runNext = () => {
       if (stepIdx < PIPELINE_STEPS.length) {
@@ -127,17 +162,24 @@ export const VASPAttribution: React.FC = () => {
         setTimeout(runNext, PIPELINE_STEPS[stepIdx - 1]?.duration || 800);
       } else {
         setPipelineComplete(true);
+        // Generate the actual result
+        const scopeList: any[] = [];
+        if (scopes.transfer) scopeList.push("TRANSFER");
+        if (scopes.contract) scopeList.push("CONTRACT");
+        if (scopes.mixer) scopeList.push("MIXER");
+        if (scopes.bridge) scopeList.push("BRIDGE");
 
         const config: InvestigationConfig = {
           address: address.trim(),
           blockchain: chain,
           depth: hopDepth,
-          scopes: ["VASP_ATTRIBUTION", "TRANSFER", "CONTRACT"],
+          scopes: scopeList,
         };
 
         const res = generateScenario(config);
         setResult(res);
         saveInvestigation(res);
+        savePendingConfig(config);
 
         setTimeout(() => setPhase("results"), 800);
       }
@@ -146,9 +188,14 @@ export const VASPAttribution: React.FC = () => {
   };
 
   // Fill demo
-  const handleDemoFill = (demo: (typeof DEMO_ADDRESSES)[0]) => {
+  const handleDemoFill = (demo: typeof DEMO_ADDRESSES[0]) => {
     setAddress(demo.address);
     setSelectedCrypto(demo.chain);
+  };
+
+  // Navigate to Intelligence Graph
+  const goToGraph = () => {
+    setLocation("/intelligence-graph");
   };
 
   /* ============================================================= */
@@ -157,6 +204,7 @@ export const VASPAttribution: React.FC = () => {
   if (phase === "input") {
     return (
       <div className="min-h-screen bg-[#050811] text-slate-200 font-sans">
+        {/* Background Pattern */}
         <div className="fixed inset-0 pointer-events-none opacity-30"
           style={{
             backgroundImage: "radial-gradient(circle at 50% 50%, #0f172a 0%, #050811 70%)",
@@ -168,14 +216,14 @@ export const VASPAttribution: React.FC = () => {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 rounded border border-cyan-500/30 bg-cyan-950/50 px-4 py-1.5 text-[11px] font-mono text-cyan-300 mb-4">
               <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              CASHNET VASP ATTRIBUTION ENGINE
+              CASHNET FORENSIC ON-CHAIN INTELLIGENCE MODULE
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-              VASP Attribution <span className="text-cyan-400">Analysis</span>
+              Crypto Investigation <span className="text-cyan-400">Command</span>
             </h1>
             <p className="mt-2 text-sm text-slate-400 font-mono max-w-lg mx-auto">
-              Enter a target wallet address or transaction hash to identify and
-              attribute Value Added Service Providers (VASPs).
+              Enter a target wallet address, select blockchain, configure analysis depth,
+              and launch the forensic intelligence pipeline.
             </p>
           </div>
 
@@ -185,11 +233,11 @@ export const VASPAttribution: React.FC = () => {
             <div className="border-b border-slate-800 bg-[#0c1428] px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded border border-cyan-500/40 bg-cyan-950/80 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                  <Globe className="size-5 text-cyan-400" />
+                  <Crosshair className="size-5 text-cyan-400" />
                 </div>
                 <div>
                   <div className="text-sm font-extrabold text-white tracking-wide">
-                    INITIATE VASP ATTRIBUTION
+                    INITIATE FORENSIC TRACE
                   </div>
                   <div className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
                     MHA / SIH Cyber Crime Investigation Bureau
@@ -199,10 +247,10 @@ export const VASPAttribution: React.FC = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Wallet / Transaction Address Input */}
+              {/* Wallet Address Input */}
               <div>
                 <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Target Wallet / Transaction Hash
+                  Target Wallet / Contract Address
                 </label>
                 <div className="relative">
                   <Search size={16} className="absolute left-4 top-3.5 text-slate-500" />
@@ -210,7 +258,7 @@ export const VASPAttribution: React.FC = () => {
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Enter 0x..., 1..., bc1..., T..., Solana address, or transaction hash"
+                    placeholder="Enter 0x..., 1..., bc1..., T..., or Solana address"
                     className="w-full rounded-lg border border-slate-700 bg-slate-900/90 pl-11 pr-4 py-3 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all font-mono"
                   />
                   {addressValid && detectedChain && (
@@ -222,20 +270,13 @@ export const VASPAttribution: React.FC = () => {
                 </div>
               </div>
 
-              {/* Blockchain Selector */}
+              {/* Cryptocurrency Selector (8 options) */}
               <div>
                 <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Select Blockchain
+                  Select Blockchain / Cryptocurrency
                 </label>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                  {[
-                    { id: "AUTO", label: "Auto", icon: "🔍" },
-                    { id: "BITCOIN", label: "Bitcoin", icon: "₿" },
-                    { id: "ETHEREUM", label: "Ethereum", icon: "Ξ" },
-                    { id: "SOLANA", label: "Solana", icon: "◎" },
-                    { id: "TRON", label: "Tron", icon: "⚡" },
-                    { id: "BNB", label: "BNB", icon: "🔶" },
-                  ].map((opt) => {
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                  {CRYPTO_OPTIONS.map((opt) => {
                     const isActive = selectedCrypto === opt.id;
                     return (
                       <button
@@ -247,9 +288,14 @@ export const VASPAttribution: React.FC = () => {
                             : "border-slate-800 bg-slate-900/60 hover:border-slate-600 hover:bg-slate-800/60"
                         }`}
                       >
-                        <span className="text-lg">{opt.icon}</span>
+                        <span className="text-lg" style={{ color: isActive ? opt.color : undefined }}>
+                          {opt.icon}
+                        </span>
                         <span className={`text-[10px] font-bold ${isActive ? "text-white" : "text-slate-400"}`}>
                           {opt.label}
+                        </span>
+                        <span className={`text-[8px] font-mono ${isActive ? "text-cyan-300" : "text-slate-500"}`}>
+                          {opt.ticker}
                         </span>
                       </button>
                     );
@@ -257,30 +303,92 @@ export const VASPAttribution: React.FC = () => {
                 </div>
               </div>
 
-              {/* Hop Depth */}
-              <div>
-                <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Tracing Depth (Hops)
-                </label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4].map((h) => (
-                    <button
-                      key={h}
-                      onClick={() => setHopDepth(h)}
-                      className={`flex-1 flex flex-col items-center gap-1 rounded-lg border py-3 transition-all ${
-                        hopDepth === h
-                          ? "border-cyan-400 bg-cyan-950/70 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
-                          : "border-slate-800 bg-slate-900/60 hover:border-slate-600"
-                      }`}
-                    >
-                      <span className={`text-sm font-black ${hopDepth === h ? "text-cyan-300" : "text-slate-400"}`}>
-                        {h}
-                      </span>
-                      <span className={`text-[8px] font-mono ${hopDepth === h ? "text-cyan-400" : "text-slate-500"}`}>
-                        {h === 1 ? "DIRECT" : h === 2 ? "CLUSTER" : h === 3 ? "DEEP" : "MAX"}
-                      </span>
-                    </button>
-                  ))}
+              {/* Hop Depth & Analysis Scope Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Hop Depth */}
+                <div>
+                  <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Tracing Depth (Hops)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4].map((h) => (
+                      <button
+                        key={h}
+                        onClick={() => setHopDepth(h)}
+                        className={`flex-1 flex flex-col items-center gap-1 rounded-lg border py-3 transition-all ${
+                          hopDepth === h
+                            ? "border-cyan-400 bg-cyan-950/70 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+                            : "border-slate-800 bg-slate-900/60 hover:border-slate-600"
+                        }`}
+                      >
+                        <span className={`text-sm font-black ${hopDepth === h ? "text-cyan-300" : "text-slate-400"}`}>
+                          {h}
+                        </span>
+                        <span className={`text-[8px] font-mono ${hopDepth === h ? "text-cyan-400" : "text-slate-500"}`}>
+                          {h === 1 ? "DIRECT" : h === 2 ? "CLUSTER" : h === 3 ? "DEEP" : "MAX"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Visual Depth Rings */}
+                  <div className="mt-3 flex justify-center">
+                    <svg width="120" height="60" viewBox="0 0 120 60">
+                      {[1, 2, 3, 4].map((h) => (
+                        <circle
+                          key={h}
+                          cx="60"
+                          cy="55"
+                          r={12 * h}
+                          fill="none"
+                          stroke={h <= hopDepth ? "#06b6d4" : "#1e293b"}
+                          strokeWidth={h <= hopDepth ? 1.5 : 0.5}
+                          opacity={h <= hopDepth ? 0.7 : 0.3}
+                          strokeDasharray={h <= hopDepth ? "none" : "2 2"}
+                        />
+                      ))}
+                      <circle cx="60" cy="55" r="3" fill="#06b6d4" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Analysis Scope */}
+                <div>
+                  <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Analysis Scope
+                  </label>
+                  <div className="space-y-2">
+                    {[
+                      { key: "transfer" as const, label: "Transfer Analysis", desc: "Track fund movements", icon: ArrowRight },
+                      { key: "contract" as const, label: "Contract Interaction", desc: "Smart contract calls", icon: Hash },
+                      { key: "mixer" as const, label: "Mixer Detection", desc: "Tumbler/mixer patterns", icon: Activity },
+                      { key: "bridge" as const, label: "Bridge Tracking", desc: "Cross-chain bridges", icon: Layers },
+                    ].map((s) => {
+                      const Icon = s.icon;
+                      const active = scopes[s.key];
+                      return (
+                        <button
+                          key={s.key}
+                          onClick={() => toggleScope(s.key)}
+                          className={`w-full flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-all ${
+                            active
+                              ? "border-cyan-500/40 bg-cyan-950/50"
+                              : "border-slate-800 bg-slate-900/40 hover:border-slate-700"
+                          }`}
+                        >
+                          <div className={`size-5 rounded flex items-center justify-center text-[10px] ${
+                            active ? "bg-cyan-500 text-black" : "border border-slate-700 text-slate-600"
+                          }`}>
+                            {active && <Check size={12} />}
+                          </div>
+                          <Icon size={14} className={active ? "text-cyan-400" : "text-slate-500"} />
+                          <div>
+                            <div className={`text-xs font-bold ${active ? "text-white" : "text-slate-400"}`}>{s.label}</div>
+                            <div className="text-[9px] font-mono text-slate-500">{s.desc}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -308,7 +416,7 @@ export const VASPAttribution: React.FC = () => {
                 </div>
               </div>
 
-              {/* Recent Investigations */}
+              {/* Investigation History */}
               {history.length > 0 && (
                 <div>
                   <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
@@ -337,8 +445,8 @@ export const VASPAttribution: React.FC = () => {
             <div className="border-t border-slate-800 bg-[#0c1428] px-6 py-4 flex items-center justify-between">
               <div className="text-[10px] font-mono text-slate-500">
                 {addressValid
-                  ? `Ready to analyze: ${truncAddr(address)} on ${selectedCrypto === "AUTO" ? (detectedChain || "AUTO") : selectedCrypto} · ${hopDepth} hops`
-                  : "Enter a wallet address or transaction hash to begin"}
+                  ? `Ready to trace: ${truncAddr(address)} on ${selectedCrypto === "AUTO" ? (detectedChain || "AUTO") : selectedCrypto} · ${hopDepth} hops`
+                  : "Enter a wallet address to begin"}
               </div>
               <button
                 onClick={handleStartInvestigation}
@@ -350,7 +458,7 @@ export const VASPAttribution: React.FC = () => {
                 }`}
               >
                 <Zap size={16} />
-                START VASP ANALYSIS
+                START INVESTIGATION
               </button>
             </div>
           </div>
@@ -360,25 +468,27 @@ export const VASPAttribution: React.FC = () => {
   }
 
   /* ============================================================= */
-  /* PHASE 2: PIPELINE ANIMATION                                   */
+  /* PHASE 2: PIPELINE ROADMAP ANIMATION                           */
   /* ============================================================= */
   if (phase === "pipeline") {
     return (
       <div className="min-h-screen bg-[#050811] text-slate-200 font-sans flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 text-[11px] font-mono text-cyan-300 mb-3">
               <Radio size={12} className="animate-pulse text-cyan-400" />
-              VASP ATTRIBUTION PIPELINE IN PROGRESS
+              FORENSIC ANALYSIS PIPELINE IN PROGRESS
             </div>
             <h2 className="text-2xl font-black text-white">
-              Analyzing: <span className="text-cyan-400">{truncAddr(address)}</span>
+              Analyzing Target: <span className="text-cyan-400">{truncAddr(address)}</span>
             </h2>
             <p className="text-xs text-slate-400 font-mono mt-1">
               {selectedCrypto === "AUTO" ? "Auto-Detected" : selectedCrypto} Network · {hopDepth} Hop Depth
             </p>
           </div>
 
+          {/* Pipeline Steps */}
           <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-6 shadow-2xl">
             <div className="space-y-3">
               {PIPELINE_STEPS.map((step, i) => {
@@ -398,6 +508,7 @@ export const VASPAttribution: React.FC = () => {
                           : "border-slate-800/50 bg-slate-900/30 opacity-50"
                     }`}
                   >
+                    {/* Step Number / Status */}
                     <div className={`size-9 rounded-lg flex items-center justify-center shrink-0 ${
                       isDone
                         ? "bg-emerald-500 text-black"
@@ -414,6 +525,7 @@ export const VASPAttribution: React.FC = () => {
                       )}
                     </div>
 
+                    {/* Step Info */}
                     <div className="flex-1 min-w-0">
                       <div className={`text-xs font-bold ${
                         isDone ? "text-emerald-300" : isActive ? "text-cyan-300" : "text-slate-500"
@@ -425,6 +537,7 @@ export const VASPAttribution: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Status Badge */}
                     <div className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
                       isDone
                         ? "bg-emerald-950/60 text-emerald-400 border border-emerald-500/30"
@@ -439,6 +552,7 @@ export const VASPAttribution: React.FC = () => {
               })}
             </div>
 
+            {/* Progress Bar */}
             <div className="mt-6 rounded-full h-2 bg-slate-800 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
@@ -454,7 +568,7 @@ export const VASPAttribution: React.FC = () => {
               <div className="mt-4 text-center animate-in fade-in">
                 <div className="inline-flex items-center gap-2 text-emerald-400 text-sm font-bold font-mono">
                   <Check size={16} />
-                  VASP ATTRIBUTION COMPLETE — Loading Results...
+                  ANALYSIS COMPLETE — Loading Results...
                 </div>
               </div>
             )}
@@ -465,11 +579,11 @@ export const VASPAttribution: React.FC = () => {
   }
 
   /* ============================================================= */
-  /* PHASE 3: RESULTS DASHBOARD (INFOPHGRAPHICS)                  */
+  /* PHASE 3: RESULTS DASHBOARD                                    */
   /* ============================================================= */
   if (phase === "results" && result) {
     const riskCol = getRiskColor(result.risk.level);
-    const vaspConfidence = result.vasp?.confidence || 0;
+    const highRiskWallets = result.trackedWallets.filter((w) => w.riskScore >= 50);
 
     return (
       <div className="min-h-screen bg-[#050811] text-slate-200 font-sans">
@@ -479,13 +593,13 @@ export const VASPAttribution: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-400 mb-1">
                 <Check size={12} />
-                VASP ATTRIBUTION COMPLETE — {result.investigationId}
+                INVESTIGATION COMPLETE — {result.investigationId}
               </div>
               <h1 className="text-2xl font-black text-white">
-                VASP Attribution Results
+                Forensic Intelligence Results
               </h1>
               <p className="text-xs font-mono text-slate-400 mt-0.5">
-                Target: {truncAddr(result.wallet.address)} · {result.wallet.blockchain} · {result.config.depth} Hops
+                Target: {truncAddr(result.wallet.address)} · {result.wallet.blockchain} · {result.config.depth} Hops · {result.trackedWallets.length} Entities
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -494,7 +608,15 @@ export const VASPAttribution: React.FC = () => {
                 className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-bold text-slate-300 hover:border-slate-500 transition-colors"
               >
                 <Search size={13} />
-                New Analysis
+                New Investigation
+              </button>
+              <button
+                onClick={goToGraph}
+                className="flex items-center gap-2 rounded-lg bg-cyan-500 text-black px-5 py-2 text-sm font-black font-mono hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all"
+              >
+                <Network size={16} />
+                GRAPHICAL VIEW
+                <ArrowRight size={14} />
               </button>
             </div>
           </div>
@@ -503,11 +625,11 @@ export const VASPAttribution: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
             {[
               { label: "RISK SCORE", value: `${result.risk.overallScore}/100`, color: riskCol, sub: result.risk.level },
-              { label: "VASP CANDIDATE", value: result.vasp?.candidate || "Unknown", color: "#10b981", sub: result.vasp?.classification || "" },
-              { label: "CONFIDENCE", value: `${vaspConfidence}%`, color: "#06b6d4", sub: "Attribution" },
-              { label: "ENTITIES", value: result.trackedWallets.length.toString(), color: "#f59e0b", sub: "Wallets" },
-              { label: "TRANSACTIONS", value: result.transactions.length.toString(), color: "#f97316", sub: "On-chain" },
-              { label: "FINAL CONFIDENCE", value: `${result.finalConfidence}%`, color: "#10b981", sub: "Overall" },
+              { label: "ENTITIES", value: result.trackedWallets.length.toString(), color: "#06b6d4", sub: "Wallets" },
+              { label: "TRANSACTIONS", value: result.transactions.length.toString(), color: "#f59e0b", sub: "On-chain" },
+              { label: "TOTAL RECEIVED", value: `${result.wallet.totalReceived.toFixed(1)}`, color: "#10b981", sub: result.wallet.asset },
+              { label: "TOTAL SENT", value: `${result.wallet.totalSent.toFixed(1)}`, color: "#f97316", sub: result.wallet.asset },
+              { label: "EST. BALANCE", value: `${result.wallet.estimatedBalance.toFixed(2)}`, color: "#06b6d4", sub: result.wallet.asset },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -524,18 +646,20 @@ export const VASPAttribution: React.FC = () => {
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Risk Topology Circle */}
+            {/* Circle Risk Map */}
             <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
               <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Target size={14} className="text-cyan-400" />
-                Risk Topology
+                Risk Topology Circle
               </div>
               <div className="flex justify-center">
                 <svg viewBox="0 0 200 200" width="220" height="220">
+                  {/* Background rings */}
                   <circle cx="100" cy="100" r="90" fill="none" stroke="#1e293b" strokeDasharray="3 3" />
                   <circle cx="100" cy="100" r="65" fill="none" stroke="#1e293b" strokeDasharray="3 3" />
                   <circle cx="100" cy="100" r="40" fill="none" stroke="#1e293b" strokeDasharray="3 3" />
 
+                  {/* Risk Score Arc */}
                   <circle
                     cx="100" cy="100" r="85"
                     fill="none"
@@ -547,6 +671,7 @@ export const VASPAttribution: React.FC = () => {
                     opacity="0.8"
                   />
 
+                  {/* Entity dots arranged in circle */}
                   {result.trackedWallets.slice(0, 16).map((w, i) => {
                     const angle = (i / 16) * Math.PI * 2 - Math.PI / 2;
                     const r = 20 + w.hop * 20;
@@ -561,11 +686,13 @@ export const VASPAttribution: React.FC = () => {
                     );
                   })}
 
+                  {/* Center Target */}
                   <circle cx="100" cy="100" r="8" fill="#06b6d4" stroke="#ffffff" strokeWidth="2" />
                   <text x="100" y="104" textAnchor="middle" fill="white" fontSize="6" fontFamily="monospace" fontWeight="bold">
                     TGT
                   </text>
 
+                  {/* Score Text */}
                   <text x="100" y="160" textAnchor="middle" fill={riskCol} fontSize="18" fontFamily="monospace" fontWeight="bold">
                     {result.risk.overallScore}
                   </text>
@@ -573,51 +700,6 @@ export const VASPAttribution: React.FC = () => {
                     RISK SCORE
                   </text>
                 </svg>
-              </div>
-            </div>
-
-            {/* VASP Attribution Card */}
-            <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
-              <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Globe size={14} className="text-emerald-400" />
-                VASP Attribution
-              </div>
-              <div className="rounded border border-slate-800 bg-slate-900/60 p-4 text-[11px] font-mono space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Candidate</span>
-                  <span className="text-emerald-300 font-bold">{result.vasp?.candidate || "Unknown"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Classification</span>
-                  <span className="text-cyan-400 font-bold">{result.vasp?.classification || "N/A"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Confidence</span>
-                  <span className="text-cyan-400 font-bold">{vaspConfidence}%</span>
-                </div>
-
-                {/* Confidence Bar */}
-                <div>
-                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-full transition-all duration-700"
-                      style={{ width: `${vaspConfidence}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Evidence Items */}
-                <div>
-                  <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2">Evidence</div>
-                  <div className="space-y-1.5">
-                    {(result.vasp?.evidence || []).map((evidence, i) => (
-                      <div key={i} className="flex items-start gap-2 text-[10px] text-slate-400">
-                        <Check size={11} className="mt-0.5 shrink-0 text-emerald-400" />
-                        {evidence}
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -634,6 +716,7 @@ export const VASPAttribution: React.FC = () => {
                   { label: "ASSET", value: result.wallet.asset, color: "text-amber-400" },
                   { label: "TYPE", value: result.wallet.walletType, color: "text-emerald-400" },
                   { label: "FIRST ACTIVITY", value: result.wallet.firstActivity, color: "text-slate-300" },
+                  { label: "LAST ACTIVITY", value: result.wallet.lastActivity, color: "text-slate-300" },
                   { label: "TRANSACTIONS", value: result.wallet.transactionCount.toLocaleString(), color: "text-cyan-400" },
                   { label: "TOTAL RECEIVED", value: `${result.wallet.totalReceived.toFixed(2)} ${result.wallet.asset}`, color: "text-emerald-400" },
                   { label: "TOTAL SENT", value: `${result.wallet.totalSent.toFixed(2)} ${result.wallet.asset}`, color: "text-orange-400" },
@@ -647,62 +730,70 @@ export const VASPAttribution: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* VASP & Typology Summary */}
+            <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5 space-y-4">
+              <div>
+                <div className="text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <Globe size={14} className="text-emerald-400" />
+                  VASP Attribution
+                </div>
+                <div className="rounded border border-slate-800 bg-slate-900/60 p-3 text-[11px] font-mono space-y-1">
+                  <div className="flex justify-between"><span className="text-slate-500">Candidate</span><span className="text-emerald-300 font-bold">{result.vasp?.candidate || result.vasp?.vaspName || "Unknown"}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Category</span><span className="text-slate-300">{result.vasp?.category || result.vasp?.vaspCategory || "N/A"}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Jurisdiction</span><span className="text-slate-300">{result.vasp?.jurisdiction || "Multi"}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Confidence</span><span className="text-cyan-400 font-bold">{result.vasp?.confidence || 0}%</span></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <AlertTriangle size={14} className="text-red-400" />
+                  Risk Typologies ({result.typologies.length})
+                </div>
+                <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                  {result.typologies.map((t, i) => (
+                    <div key={i} className="rounded border border-red-500/20 bg-red-950/20 px-2.5 py-1.5 text-[10px] font-mono">
+                      <div className="flex justify-between">
+                        <span className="text-red-300 font-bold">{t.name}</span>
+                        <span className="text-[8px] px-1.5 py-0.2 rounded bg-red-950 text-red-400 border border-red-500/30 font-bold">
+                          {t.severity}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Typologies & Risk Indicators */}
+          {/* High Risk Entities & Fund Flow Summary */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            {/* Typologies */}
+            {/* High Risk Wallets */}
             <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
               <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <AlertTriangle size={14} className="text-red-400" />
-                Risk Typologies ({result.typologies.length})
+                <ShieldAlert size={14} className="text-red-400" />
+                High Risk Entities ({highRiskWallets.length})
               </div>
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                {result.typologies.map((t, i) => (
-                  <div key={i} className="rounded border border-red-500/20 bg-red-950/20 px-3 py-2 text-[11px] font-mono">
-                    <div className="flex items-center justify-between">
-                      <span className="text-red-300 font-bold">{t.name}</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-950 text-red-400 border border-red-500/30 font-bold">
-                        {t.severity}
+                {highRiskWallets.slice(0, 8).map((w) => (
+                  <div key={w.address} className="flex items-center justify-between rounded border border-slate-800 bg-slate-900/60 px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="size-2 rounded-full" style={{ backgroundColor: getRiskColor(w.risk) }} />
+                      <span className="text-[11px] font-mono font-bold text-white">{truncAddr(w.address)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-mono">
+                      <span className="text-slate-400">H{w.hop}</span>
+                      <span className="text-amber-400 font-bold">{w.totalVolume.toFixed(1)} {result.wallet.asset}</span>
+                      <span className="px-1.5 py-0.2 rounded text-[8px] font-bold" style={{ color: getRiskColor(w.risk), backgroundColor: `${getRiskColor(w.risk)}20` }}>
+                        {w.risk}
                       </span>
                     </div>
-                    <div className="mt-1 text-[10px] text-slate-400">{t.evidence}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* High Risk Entities */}
-            <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
-              <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <ShieldAlert size={14} className="text-red-400" />
-                High Risk Entities ({result.trackedWallets.filter((w) => w.riskScore >= 50).length})
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                {result.trackedWallets
-                  .filter((w) => w.riskScore >= 50)
-                  .slice(0, 8)
-                  .map((w) => (
-                    <div key={w.address} className="flex items-center justify-between rounded border border-slate-800 bg-slate-900/60 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="size-2 rounded-full" style={{ backgroundColor: getRiskColor(w.risk) }} />
-                        <span className="text-[11px] font-mono font-bold text-white">{truncAddr(w.address)}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-[10px] font-mono">
-                        <span className="text-slate-400">H{w.hop}</span>
-                        <span className="text-amber-400 font-bold">{w.totalVolume.toFixed(1)} {result.wallet.asset}</span>
-                        <span className="px-1.5 py-0.2 rounded text-[8px] font-bold" style={{ color: getRiskColor(w.risk), backgroundColor: `${getRiskColor(w.risk)}20` }}>
-                          {w.risk}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Fund Flow Summary & Evidence Sources */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             {/* Fund Flow Summary */}
             <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
               <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -710,6 +801,7 @@ export const VASPAttribution: React.FC = () => {
                 Fund Flow Summary
               </div>
               <div className="space-y-3">
+                {/* Flow bars */}
                 {result.trackedWallets.slice(0, 6).map((w) => {
                   const pct = Math.min(100, (w.totalVolume / result.wallet.totalReceived) * 100);
                   return (
@@ -732,115 +824,32 @@ export const VASPAttribution: React.FC = () => {
                 })}
               </div>
             </div>
-
-            {/* Evidence Sources */}
-            <div className="rounded-lg border border-slate-800 bg-[#0a1020] p-5">
-              <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Database size={14} className="text-cyan-400" />
-                Evidence Sources
-              </div>
-              <div className="space-y-2">
-                {result.evidenceSources.map((src, i) => (
-                  <div key={i} className="flex items-center justify-between rounded border border-slate-800 bg-slate-900/60 px-3 py-2">
-                    <span className="text-[11px] font-mono text-slate-400">{src.source}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-16 bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-cyan-500 rounded-full"
-                          style={{ width: `${src.confidence}%` }}
-                        />
-                      </div>
-                      <span className="text-[10px] font-mono text-cyan-400 font-bold">{src.confidence}%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Recommendations */}
-          <div className="mt-4 rounded-lg border border-slate-800 bg-[#0a1020] p-5">
-            <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Zap size={14} className="text-amber-400" />
-              Recommendations
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {result.recommendations.map((rec, i) => (
-                <div key={i} className="rounded border border-slate-800 bg-slate-900/60 p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-bold text-white">{rec.title}</span>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${
-                      rec.priority === "HIGH"
-                        ? "bg-red-950 text-red-400 border border-red-500/30"
-                        : rec.priority === "RECOMMENDED"
-                          ? "bg-amber-950 text-amber-400 border border-amber-500/30"
-                          : "bg-slate-800 text-slate-400 border border-slate-700"
-                    }`}>
-                      {rec.priority}
-                    </span>
+          {/* Bottom: Navigation to Other Pages */}
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { href: "/intelligence-graph", label: "Intelligence Graph", icon: Network, desc: "Interactive SVG graph", color: "cyan" },
+              { href: "/crypto-wallet", label: "Crypto Wallet Analysis", icon: Wallet, desc: "Deep wallet profiles", color: "emerald" },
+              { href: "/fund-flow-graph", label: "Fund Flow Graph", icon: TrendingUp, desc: "Sankey flow diagram", color: "amber" },
+              { href: "/risk-map", label: "Risk Map", icon: MapPinned, desc: "Geospatial heatmap", color: "red" },
+            ].map((nav) => {
+              const Icon = nav.icon;
+              return (
+                <button
+                  key={nav.href}
+                  onClick={() => setLocation(nav.href)}
+                  className="rounded-lg border border-slate-800 bg-[#0a1020] p-4 text-left hover:border-cyan-500/40 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] transition-all group"
+                >
+                  <Icon size={20} className={`text-${nav.color}-400 mb-2 group-hover:scale-110 transition-transform`} />
+                  <div className="text-xs font-bold text-white">{nav.label}</div>
+                  <div className="text-[9px] font-mono text-slate-500 mt-0.5">{nav.desc}</div>
+                  <div className="flex items-center gap-1 text-[9px] font-mono text-cyan-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Open <ArrowRight size={10} />
                   </div>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">{rec.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Transaction Table */}
-          <div className="mt-4 rounded-lg border border-slate-800 bg-[#0a1020] p-5">
-            <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Activity size={14} className="text-cyan-400" />
-              Recent Transactions ({result.transactions.length})
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[9px] font-mono font-bold text-slate-500 uppercase border-b border-slate-800">
-                    <th className="px-3 py-2">Hash</th>
-                    <th className="px-3 py-2">From</th>
-                    <th className="px-3 py-2">To</th>
-                    <th className="px-3 py-2">Amount</th>
-                    <th className="px-3 py-2">Direction</th>
-                    <th className="px-3 py-2">Risk</th>
-                    <th className="px-3 py-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.transactions.slice(0, 10).map((tx, i) => (
-                    <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-900/40">
-                      <td className="px-3 py-2 text-[10px] font-mono text-cyan-400">{truncAddr(tx.hash)}</td>
-                      <td className="px-3 py-2 text-[10px] font-mono text-slate-400">{truncAddr(tx.from)}</td>
-                      <td className="px-3 py-2 text-[10px] font-mono text-slate-400">{truncAddr(tx.to)}</td>
-                      <td className="px-3 py-2 text-[10px] font-mono font-bold text-amber-400">{tx.amount.toFixed(4)} {tx.asset}</td>
-                      <td className="px-3 py-2">
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                          tx.direction === "OUTGOING"
-                            ? "bg-orange-950 text-orange-400 border border-orange-500/30"
-                            : "bg-emerald-950 text-emerald-400 border border-emerald-500/30"
-                        }`}>
-                          {tx.direction}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ color: getRiskColor(tx.risk), backgroundColor: `${getRiskColor(tx.risk)}20` }}>
-                          {tx.risk}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                          tx.status === "SUCCESS"
-                            ? "bg-emerald-950 text-emerald-400 border border-emerald-500/30"
-                            : tx.status === "FAILED"
-                              ? "bg-red-950 text-red-400 border border-red-500/30"
-                              : "bg-amber-950 text-amber-400 border border-amber-500/30"
-                        }`}>
-                          {tx.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -848,6 +857,4 @@ export const VASPAttribution: React.FC = () => {
   }
 
   return null;
-};
-
-export default VASPAttribution;
+}
